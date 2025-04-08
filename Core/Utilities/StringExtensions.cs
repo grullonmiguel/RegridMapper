@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace RegridMapper.Core.Utilities
 {
@@ -60,6 +61,17 @@ namespace RegridMapper.Core.Utilities
                 return string.Empty;
 
             return $"{baseUrl}{urlParameter}";
+        }
+
+        /// <summary>
+        /// Validates if the string matches the given regex pattern.
+        /// </summary>
+        public static bool IsValidFormat(this string input, string regexPattern)
+        {
+            if (string.IsNullOrWhiteSpace(input) || string.IsNullOrWhiteSpace(regexPattern))
+                return false;
+
+            return Regex.IsMatch(input, regexPattern);
         }
 
     }

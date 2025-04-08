@@ -14,10 +14,13 @@
 
   <ItemGroup>
     <Folder Include="Core\Converters\" />
-    <Folder Include="Core\Services\" />
     <Folder Include="Styles\Images\" />
     <Folder Include="Styles\Fonts\" />
     <Folder Include="Views\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Selenium.WebDriver" Version="4.31.0" />
   </ItemGroup>
 
 </Project>
