@@ -15,6 +15,7 @@ namespace RegridMapper.Core.Configuration
     public static class AppConstants
     {
         public const int DefaultTimeoutSeconds = 10;
+        public const string AppName = "RegridMapper";
         public const string RegexIPPort = @"^\d{1,3}(\.\d{1,3}){3}:\d{1,5}$";
         public const string BaseGoogleUrl = "https://www.google.com/maps/search/";
         public const string BaseFemaAUrl = "https://msc.fema.gov/portal/search?AddressQuery=";
