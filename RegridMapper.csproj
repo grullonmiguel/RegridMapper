@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <Folder Include="Core\Converters\" />
-    <Folder Include="Core\Utilities\" />
     <Folder Include="Core\Services\" />
     <Folder Include="Styles\Images\" />
     <Folder Include="Styles\Fonts\" />

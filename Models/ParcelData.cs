@@ -1,42 +1,100 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RegridMapper.Core.Configuration;
+using RegridMapper.Core.Utilities;
 
-namespace RegridMapper.Models
+namespace RegridMapper.ViewModels
 {
     /// <summary>
-    /// Represents parcel data extracted from Regrid.
+    /// Represents parcel data extracted from Regrid, fully integrated with MVVM.
     /// </summary>
-    public class ParcelData
+    public class ParcelData : BaseViewModel
     {
-        public string ParcelID { get; set; }
-        public string Address { get; set; }
-        public string Acres { get; set; }
-        public string OwnerName { get; set; }
-        public string AssessedValue { get; set; }
-        public string ZoningType { get; set; }
+        public string? ParcelID
+        {
+            get => _parcelID;
+            set => SetProperty(ref _parcelID, value);
+        }
+        private string? _parcelID;
+
+        public string? Address
+        {
+            get => _address;
+            set => SetProperty(ref _address, value);
+        }
+        private string? _address;
+
+        public string? Acres
+        {
+            get => _acres;
+            set => SetProperty(ref _acres, value);
+        }
+        private string? _acres;
+
+        public string? OwnerName
+        {
+            get => _ownerName;
+            set => SetProperty(ref _ownerName, value);
+        }
+        private string? _ownerName;
+
+        public string? AssessedValue
+        {
+            get => _assessedValue;
+            set => SetProperty(ref _assessedValue, value);
+        }
+        private string? _assessedValue;
+
+        public string? ZoningType
+        {
+            get => _zoningType;
+            set => SetProperty(ref _zoningType, value);
+        }
+        private string? _zoningType;
 
         /// <summary>
-        /// Value for the latitude/longitude coordinate system
-        /// Generates the Google Map Url as well as the FEMA Url.
+        /// Latitude/Longitude coordinate system.
+        /// Updates URLs dynamically upon change.
         /// </summary>
-        public string GeographicCoordinate  { get; set; }
+        public string? GeographicCoordinate
+        {
+            get => _geographicCoordinate;
+            set
+            {
+                SetProperty(ref _geographicCoordinate, value);
+                OnPropertyChanged(nameof(GoogleUrl));
+                OnPropertyChanged(nameof(FemaUrl));
+            }
+        }
+        private string? _geographicCoordinate;
+
+        public string? FloodZone
+        {
+            get => _floodZone;
+            set => SetProperty(ref _floodZone, value);
+        }
+        private string? _floodZone;
+
+        public string? RegridUrl
+        {
+            get => _regridUrl;
+            set => SetProperty(ref _regridUrl, value);
+        }
+        private string? _regridUrl;
 
         /// <summary>
-        /// https://www.floodsmart.gov/flood-zones-and-maps
+        /// Google Maps URL, computed dynamically.
         /// </summary>
-        public string FloodZone { get; set; }
+        public string GoogleUrl => !string.IsNullOrWhiteSpace(GeographicCoordinate)
+            ? AppConstants.BaseGoogleUrl.BuildUrl(GeographicCoordinate)  : string.Empty;
 
-        // URL values
-        public string FemaUrl { get; set; }
-        public string GoogleUrl { get; set; }
-        public string RegridUrl { get; set; }
+        /// <summary>
+        /// FEMA URL, computed dynamically.
+        /// </summary>
+        public string FemaUrl => !string.IsNullOrWhiteSpace(GeographicCoordinate)
+            ? AppConstants.BaseFemaAUrl.BuildUrl(GeographicCoordinate) : string.Empty;
 
         /// <summary>
         /// Returns a formatted string representing the parcel details.
         /// </summary>
-        public override string ToString() => $"ParcelID: {ParcelID}, Address: {Address})";
+        public override string ToString() => $"ParcelID: {ParcelID}, Address: {Address}";
     }
 }
