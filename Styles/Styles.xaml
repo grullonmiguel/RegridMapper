@@ -1,0 +1,50 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                    xmlns:options="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+                    mc:Ignorable="options">
+   
+    <!--#region Font Sizes -->
+    <sys:Double x:Key="Fonts.Small">12</sys:Double>
+    <sys:Double x:Key="Fonts.Medium">14</sys:Double>
+    <sys:Double x:Key="Fonts.Large">18</sys:Double>
+    <sys:Double x:Key="Fonts.XLarge">22</sys:Double>
+    <sys:Double x:Key="Fonts.XXLarge">26</sys:Double>
+    <sys:Double x:Key="Fonts.XXXLarge">32</sys:Double>
+    <!--#endregion-->
+
+    <!--#region Colors/Brushes -->
+    <!-- Theme Colors -->
+    <Color x:Key="Theme.Primary">#FF3A4A86</Color>
+    <Color x:Key="Theme.Secondary">#FF2B3866</Color>
+    <Color x:Key="Theme.Tertiary">#FF448343</Color>
+    <Color x:Key="Theme.Accent">#333A4A86</Color>
+    <Color A="225" R="0" G="0" B="0" x:Key="Theme.Dialog" />
+
+    <!-- Brushes for UI Elements -->
+    <SolidColorBrush x:Key="Brushes.Primary" Color="{StaticResource Theme.Primary}"/>
+    <SolidColorBrush x:Key="Brushes.Secondary" Color="{StaticResource Theme.Secondary}"/>
+    <SolidColorBrush x:Key="Brushes.Tertiary" Color="{StaticResource Theme.Tertiary}"/>
+    <SolidColorBrush x:Key="Brushes.Accent" Color="{StaticResource Theme.Accent}"/>
+    <SolidColorBrush x:Key="Brushes.Dialog" Color="{StaticResource Theme.Dialog}"/>
+    <!--#endregion-->
+
+    <!--#region Grid -->
+    <Style TargetType="Grid">
+        <Setter Property="Background" Value="#FFFFFF"/>
+    </Style>
+    <!--#endregion-->
+
+    <!--#region TextBlock -->
+    <Style TargetType="{x:Type TextBlock}" x:Key="BaseTextBlockStyle">
+        <Setter Property="Foreground" Value="#222222" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}" />
+    </Style>
+
+    <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource BaseTextBlockStyle}">
+    </Style>
+    <!--#endregion-->
+
+</ResourceDictionary>

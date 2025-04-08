@@ -13,7 +13,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Core\Converters\" />
     <Folder Include="Styles\Images\" />
     <Folder Include="Styles\Fonts\" />
     <Folder Include="Views\" />
