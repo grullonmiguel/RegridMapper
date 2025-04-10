@@ -76,6 +76,12 @@ namespace RegridMapper.ViewModels
 
         public ICommand ScrapeSelectedParcelsCommand { get; }
 
+        public ICommand NavigateToFemaCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.FemaUrl), OnCanNavigateFemaAddress);
+        
+        public ICommand NavigateToGoogleMapsCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.GoogleUrl), OnCanNavigateFemaAddress);
+        
+        public ICommand NavigateToRegridCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.RegridUrl), OnCanNavigateFemaAddress);
+
         #endregion
 
         #region Constructor
@@ -454,6 +460,15 @@ namespace RegridMapper.ViewModels
             foreach (var property in propertyNames)
                 OnPropertyChanged(property);
         }
+
+        private bool OnCanNavigateFemaAddress(ParcelData item)
+            => item != null && UrlHelper.IsValidUrl(item?.FemaUrl);
+
+        private bool OnCanNavigateGoogleMaps(ParcelData item)
+            => item != null && UrlHelper.IsValidUrl(item?.GoogleUrl);
+
+        private bool OnCanNavigateRegrid(ParcelData item)
+            => item != null && UrlHelper.IsValidUrl(item?.RegridUrl);
 
         #endregion
     }

@@ -87,7 +87,7 @@
                                 <Button 
                                     Content="{Binding Address}"
                                     Style="{StaticResource Buttons.Hyperlink}"
-                                    Command="{Binding DataContext.NavigateToGoogleAddressCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                    Command="{Binding DataContext.NavigateToGoogleMapsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                     CommandParameter="{Binding}" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -102,7 +102,7 @@
                                 <Button 
                                     Content="{Binding FloodZone}"
                                     Style="{StaticResource Buttons.Hyperlink}"
-                                    Command="{Binding DataContext.NavigateToFemaAddressCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                    Command="{Binding DataContext.NavigateToFemaCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                     CommandParameter="{Binding}" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
