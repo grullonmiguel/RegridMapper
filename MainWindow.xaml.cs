@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using RegridMapper.ViewModels;
+using System.Windows;
+using System.Windows.Media.Animation;
 
 namespace RegridMapper
 {
@@ -7,6 +9,16 @@ namespace RegridMapper
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new MainViewModel();
         }
+        private void TriggerAnimation(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                var fadeAnimation = (Storyboard)FindResource("FadeAnimation");
+                fadeAnimation?.Begin(ViewContainer);
+            });
+        }
+
     }
 }

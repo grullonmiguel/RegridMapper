@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="RegridMapper.Views.ParcelView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RegridMapper.Views">
+
+    <Border Padding="16 0 16 16">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <WrapPanel Margin="0 0 0 4">
+                <!-- Paste -->
+                <Button Content="Paste" Command="{Binding LoadFromClipboardCommand}" Margin="0 0 16 0"
+                        Style="{StaticResource  Buttons.Hyperlink}"
+                        Visibility="{Binding CanPaste, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                
+                <!-- Clear -->
+                <Button Content="Clear" Command="{Binding ClearDataCommand}" Margin="0 0 16 0"
+                        Style="{StaticResource  Buttons.Hyperlink}"
+                        Visibility="{Binding CanScrape, Converter={StaticResource BooleanToVisibilityConverter}}"/>                
+
+                <!-- Regrid -->
+                <Button Content="Regrid" Command="{Binding ScrapeParcelsCommand}" Margin="0 0 16 0"
+                        Style="{StaticResource  Buttons.Hyperlink}"
+                        Visibility="{Binding CanScrape, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </WrapPanel>
+
+            <WrapPanel HorizontalAlignment="Right" Margin="0 0 0 4">
+                <TextBlock Text="{Binding RegridStatus}" Foreground="#f69465" />
+
+                <!-- Cancel -->
+                <Button Content="Cancel" Margin="16 0 0 0"
+                        Style="{StaticResource  Buttons.Hyperlink}" Command="{Binding CancelScrapingCommand}"
+                        Visibility="{Binding IsScraping, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </WrapPanel>
+            
+            <!-- Parcel DataGrid -->
+            <DataGrid Grid.Row="1" ItemsSource="{Binding ParcelList}" LoadingRow="DataGrid_LoadingRow" >
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="PARCEL ID" Binding="{Binding ParcelID}"  MaxWidth="120"/>
+                    <DataGridTextColumn Header="OWNER NAME" Binding="{Binding OwnerName}" />
+                    <DataGridTextColumn Header="ACRES" Binding="{Binding Acres}" Width="80" />
+                    <DataGridTextColumn Header="ASSESSED" Binding="{Binding AssessedValue, StringFormat=C}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Buttons -->
+            <WrapPanel Grid.Row="2" Margin="0 16 0 0">
+                <TextBlock Text="{Binding TotalParcels}" />
+            </WrapPanel>
+        </Grid>
+    </Border>
+
+</UserControl>
