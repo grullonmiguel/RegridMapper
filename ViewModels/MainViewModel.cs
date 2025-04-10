@@ -33,7 +33,7 @@ namespace RegridMapper.ViewModels
         public MainViewModel()
         {
             SetDefaultView();
-            ChangeViewCommand = new RelayCommand(ChangeView);
+            ChangeViewCommand = new RelayCommand<BaseViewModel>(ChangeView);
         }
 
         #endregion

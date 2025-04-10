@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Data;
 
-namespace RegridMapper.Converters
+namespace RegridMapper.Core.Converters
 {
     /// <summary>
     /// Converts a boolean value to Visibility.

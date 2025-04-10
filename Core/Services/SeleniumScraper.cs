@@ -9,8 +9,10 @@ namespace RegridMapper.Services
 {
     public class SeleniumScraper : IDisposable
     {
-        private IWebDriver? _driver;
         private bool _disposed = false;
+        private IWebDriver? _driver;
+
+        public IWebDriver? WebDriver => _driver; // Read-only accessor
 
         /// <summary>
         /// Initializes the Selenium WebDriver with the specified browser.
@@ -96,6 +98,21 @@ namespace RegridMapper.Services
             {
                 _driver = null;
                 _disposed = true;
+            }
+        }
+
+        public IWebElement? FindElementSafely(By locator)
+        {
+            if (_driver == null)
+                throw new ObjectDisposedException(nameof(SeleniumScraper), "WebDriver instance has been disposed.");
+
+            try
+            {
+                return _driver.FindElement(locator);
+            }
+            catch (NoSuchElementException)
+            {
+                return null;
             }
         }
 
