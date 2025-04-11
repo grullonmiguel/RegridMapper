@@ -61,8 +61,30 @@
                 ItemsSource="{Binding ParcelList}" 
                 LoadingRow="DataGrid_LoadingRow" >
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="PARCEL ID" Binding="{Binding ParcelID}"  MaxWidth="120"/>
+                    <!--<DataGridTextColumn Header="PARCEL ID" Binding="{Binding ParcelID}"  MaxWidth="120"/>-->
+                    <DataGridTemplateColumn Header="PARCEL ID" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <WrapPanel VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 -6 0 0">
+                                        <Viewbox Width="16" Height="16">
+                                            <Path Data="{StaticResource Geometry.Alert}" Fill="#f69465" ToolTip="Multiple Matches Found" Visibility="{Binding MultipleMatchesFound, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                        </Viewbox>
+                                        <Viewbox Width="16" Height="16">
+                                            <Path Data="{StaticResource Geometry.Close}" Fill="#ff8686" ToolTip="Not Matches Found" Visibility="{Binding NoMatchDetected, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                        </Viewbox>
+                                    </WrapPanel>
+                                    <TextBlock Text="{Binding ParcelID}" />
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <!-- Ensure copied content includes the URL -->
+                        <DataGridTemplateColumn.ClipboardContentBinding>
+                            <Binding Path="ParcelID"/>
+                        </DataGridTemplateColumn.ClipboardContentBinding>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Header="OWNER NAME" Binding="{Binding OwnerName}" />
+                    <DataGridTextColumn Header="ZIP" Binding="{Binding ZipCode}" Width="80" />
                     <DataGridTextColumn Header="ACRES" Binding="{Binding Acres}" Width="80" />
                     <DataGridTextColumn Header="ASSESSED" Binding="{Binding AssessedValue, StringFormat=C}" />
                     <DataGridTextColumn Header="ZONING" Binding="{Binding ZoningType}" />

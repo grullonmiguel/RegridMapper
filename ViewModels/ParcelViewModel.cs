@@ -78,9 +78,9 @@ namespace RegridMapper.ViewModels
 
         public ICommand NavigateToFemaCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.FemaUrl), OnCanNavigateFemaAddress);
         
-        public ICommand NavigateToGoogleMapsCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.GoogleUrl), OnCanNavigateFemaAddress);
+        public ICommand NavigateToGoogleMapsCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.GoogleUrl), OnCanNavigateGoogleMaps);
         
-        public ICommand NavigateToRegridCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.RegridUrl), OnCanNavigateFemaAddress);
+        public ICommand NavigateToRegridCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.RegridUrl), OnCanNavigateRegrid);
 
         #endregion
 
@@ -132,13 +132,16 @@ namespace RegridMapper.ViewModels
                         {
                             RegridStatus = $"Processing {i + 1} of {parcels.Count} parcels...";
 
-                            var url = $"{AppConstants.BaseRegridUrlPrefix}{item.ParcelID}{AppConstants.BaseRegridUrlPostfix}";
+                            //var url = $"{AppConstants.BaseRegridUrlPrefix}{item.ParcelID}{AppConstants.BaseRegridUrlPostfix}";
+
                             CurrentScrapingElement = item?.ParcelID;
 
-                            string pageSource = await Task.Run(() => scraper.ScrapeParcelData(url));
+                            item.RegridUrl = $"{AppConstants.BaseRegridUrlPrefix}{item.ParcelID}{AppConstants.BaseRegridUrlPostfix}";
+                            string pageSource = await Task.Run(() => scraper.ScrapeParcelData(item?.RegridUrl));
 
                             if (string.IsNullOrWhiteSpace(pageSource))
                             {
+                                item.NoMatchDetected = true;
                                 CurrentScrapingElement = $"NOT FOUND: {CurrentScrapingElement}";
                                 await _logger.LogAsync($"Empty response for Parcel ID: {item.ParcelID}");
                                 continue;
@@ -190,18 +193,18 @@ namespace RegridMapper.ViewModels
 
                 if (matchCount == 0)
                 {
+                    item.NoMatchDetected = true;
+                    item.MultipleMatchesFound = false;
                     CurrentScrapingElement = $"No matches found - {item.ParcelID}";
                     await Task.Delay(1000);
-                    //item.Response = "No matches found";
-                    //item.RegridURL = "N/A";
                     return;
                 }
                 else if (matchCount > 1)
                 {
+                    item.NoMatchDetected = false;
+                    item.MultipleMatchesFound = true;
                     CurrentScrapingElement = $"Multiple matches found - {item.ParcelID}";
                     await Task.Delay(1000);
-                    //item.Response = "Multiple matches found";
-                    //item.RegridURL = "Multiple";
                     return;
                 }
 
@@ -216,16 +219,16 @@ namespace RegridMapper.ViewModels
                     {
                         CurrentScrapingElement = $"Parcel result not found - {item.ParcelID}";
                         await Task.Delay(1000);
-                        //item.Response = "Parcel result not found";
                         return;
                     }
 
+                    // Find the Hyperlink and click on it to go to the parcel page
                     var hyperlink = divContainer.FindElement(By.TagName("a"));
                     hyperlink.Click();
 
                     wait = new WebDriverWait(scraper.WebDriver, TimeSpan.FromSeconds(1));
 
-
+                    // URL
                     item.RegridUrl = scraper.WebDriver.Url;
 
                     // OWNER
@@ -243,6 +246,12 @@ namespace RegridMapper.ViewModels
                         item.Acres = await GetNextDivTextAsync(scraper.WebDriver, "Measurements");
                     if (!string.IsNullOrEmpty(item.Acres))
                         item.Acres = item.Acres.ToLower().Replace(" acres", "");
+
+                    // ZIP CODE
+                    CurrentScrapingElement = $"{item.ParcelID} - Zip Code";
+                    item.ZipCode = await GetNextDivTextAsync(scraper.WebDriver, "5 Digit Parcel Zip Code");
+                    if (string.IsNullOrEmpty(item.ZipCode))
+                        item.ZipCode = await GetNextDivTextAsync(scraper.WebDriver, "Zip Code");
 
                     // Assessed
                     CurrentScrapingElement = $"{item.ParcelID} - Assessed Value";

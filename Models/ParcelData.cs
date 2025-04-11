@@ -22,6 +22,13 @@ namespace RegridMapper.ViewModels
         }
         private string? _address;
 
+        public string? ZipCode
+        {
+            get => _zipCode;
+            set => SetProperty(ref _zipCode, value);
+        }
+        private string? _zipCode;
+
         public string? Acres
         {
             get => _acres;
@@ -84,17 +91,31 @@ namespace RegridMapper.ViewModels
         /// Google Maps URL, computed dynamically.
         /// </summary>
         public string GoogleUrl => !string.IsNullOrWhiteSpace(GeographicCoordinate)
-            ? AppConstants.BaseGoogleUrl.BuildUrl(GeographicCoordinate)  : string.Empty;
+            ? AppConstants.BaseGoogleUrl.BuildUrl(GeographicCoordinate.ToDMSCoordinates())  : string.Empty;
 
         /// <summary>
         /// FEMA URL, computed dynamically.
         /// </summary>
         public string FemaUrl => !string.IsNullOrWhiteSpace(GeographicCoordinate)
-            ? AppConstants.BaseFemaAUrl.BuildUrl(GeographicCoordinate) : string.Empty;
+            ? AppConstants.BaseFemaAUrl.BuildUrl(GeographicCoordinate.ToDMSCoordinates()) : string.Empty;
 
         /// <summary>
         /// Returns a formatted string representing the parcel details.
         /// </summary>
         public override string ToString() => $"ParcelID: {ParcelID}, Address: {Address}";
+
+        public bool MultipleMatchesFound
+        {
+            get => _multipleMatchesFound;
+            set => SetProperty(ref _multipleMatchesFound, value);
+        }
+        private bool _multipleMatchesFound;
+
+        public bool NoMatchDetected
+        {
+            get => _noMatchDetected;
+            set => SetProperty(ref _noMatchDetected, value);
+        }
+        private bool _noMatchDetected;
     }
 }

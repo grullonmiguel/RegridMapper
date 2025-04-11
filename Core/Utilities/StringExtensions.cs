@@ -74,5 +74,55 @@ namespace RegridMapper.Core.Utilities
             return Regex.IsMatch(input, regexPattern);
         }
 
+        /// <summary>
+        /// Converts a latitude-longitude string to DMS format.
+        /// </summary>
+        /// <param name="coordinates">The input string containing latitude and longitude.</param>
+        /// <returns>DMS format as a single line.</returns>
+        public static string ToDMSCoordinates(this string coordinates)
+        {
+            if (string.IsNullOrWhiteSpace(coordinates))
+                throw new ArgumentException("Coordinates cannot be null or empty.");
+
+            var parts = coordinates.Split(',');
+            if (parts.Length != 2 || !double.TryParse(parts[0].Trim(), out double lat) || !double.TryParse(parts[1].Trim(), out double lon))
+                throw new ArgumentException("Invalid coordinate format. Expected: 'latitude, longitude'.");
+
+            return $"{ConvertToDMS(lat, true)} {ConvertToDMS(lon, false)}";
+        }
+
+        /// <summary>
+        /// Converts a decimal degree coordinate to DMS format.
+        /// </summary>
+        /// <param name="coordinate">The coordinate value.</param>
+        /// <param name="isLatitude">True if latitude, false if longitude.</param>
+        /// <returns>The formatted DMS string.</returns>
+        private static string ConvertToDMS(double coordinate, bool isLatitude)
+        {
+            int degrees = (int)coordinate;
+            double minutesDecimal = (Math.Abs(coordinate) - Math.Abs(degrees)) * 60;
+            int minutes = (int)minutesDecimal;
+            double seconds = (minutesDecimal - minutes) * 60;
+
+            char direction = isLatitude
+                ? (coordinate >= 0 ? 'N' : 'S')
+                : (coordinate >= 0 ? 'E' : 'W');
+
+            return $"{Math.Abs(degrees)}° {minutes}' {seconds:F2}\" {direction}";
+        }
+
+
+        //private static string ConvertToDMS(double decimalDegrees, bool isLatitude)
+        //{
+        //    char direction = isLatitude ? (decimalDegrees >= 0 ? 'N' : 'S') : (decimalDegrees >= 0 ? 'E' : 'W');
+        //    decimalDegrees = Math.Abs(decimalDegrees); // Ensure positive value for calculations
+
+        //    int degrees = (int)decimalDegrees;
+        //    double minutesDecimal = (decimalDegrees - degrees) * 60;
+        //    int minutes = (int)minutesDecimal;
+        //    double seconds = (minutesDecimal - minutes) * 60;
+
+        //    return $"{degrees}°{minutes}'{seconds:F1}\"{direction}";
+        //}
     }
 }
