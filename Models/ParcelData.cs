@@ -22,6 +22,20 @@ namespace RegridMapper.ViewModels
         }
         private string? _address;
 
+        public string? County
+        {
+            get => _county;
+            set => SetProperty(ref _county, value);
+        }
+        private string? _county;
+
+        public string? City
+        {
+            get => _city;
+            set => SetProperty(ref _city, value);
+        }
+        private string? _city;
+
         public string? ZipCode
         {
             get => _zipCode;

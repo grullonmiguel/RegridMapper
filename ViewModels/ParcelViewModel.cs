@@ -2,6 +2,7 @@
 using OpenQA.Selenium.Support.UI;
 using RegridMapper.Core.Commands;
 using RegridMapper.Core.Configuration;
+using RegridMapper.Core.Services;
 using RegridMapper.Core.Utilities;
 using RegridMapper.Services;
 using System.Collections;
@@ -20,6 +21,7 @@ namespace RegridMapper.ViewModels
         private bool _cancelScraping; 
         private readonly Logger _logger;
         private readonly SeleniumScraper _scraper;
+        private readonly OpenStreetMapService _openStreetMapService = new();
 
         #endregion
 
@@ -54,7 +56,7 @@ namespace RegridMapper.ViewModels
         }
         private string _currentScrapingElement;
 
-        public bool CanModifySelection => SelectedParcels.Any();
+        public bool ParcelsSelected => SelectedParcels.Any();
 
         public string TotalParcels => ParcelList.Count <= 0 ? "" : $"Total Rows: {ParcelList.Count}";
 
@@ -62,25 +64,26 @@ namespace RegridMapper.ViewModels
 
         #region Commands
 
-        public ICommand LoadFromClipboardCommand { get; }
-
         public ICommand ClearDataCommand { get; }
-
-        public ICommand CancelScrapingCommand { get; }
-
         public ICommand SelectedParcelsCommand { get; }
 
-        public ICommand CopySelectedParcelsCommand { get; }
+        // Clipboard Commands
+        public ICommand CopySelectedParcelsCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelsSelected);
+        public ICommand LoadFromClipboardCommand => new RelayCommand(async () => await LoadFromClipboard());
 
-        public ICommand ScrapeAllParcelsCommand { get; }
+        // Regrid Scraping Commands
+        public ICommand RegridQueryCancelCommand => new RelayCommand(async () => await CancelRegridScraping());
+        public ICommand RegridQueryAllParcelsCommand => new RelayCommand(async () => await RegridQueryAllParcels());
+        public ICommand RegridQuerySelectedCommand => new RelayCommand(async () => await RegridQuerySelectedParcels(), () => ParcelsSelected);
 
-        public ICommand ScrapeSelectedParcelsCommand { get; }
-
+        // URL Navigation Commands
         public ICommand NavigateToFemaCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.FemaUrl), OnCanNavigateFemaAddress);
-        
         public ICommand NavigateToGoogleMapsCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.GoogleUrl), OnCanNavigateGoogleMaps);
-        
         public ICommand NavigateToRegridCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.RegridUrl), OnCanNavigateRegrid);
+
+        // OpenStreetMap Commands
+        public ICommand OpenStreetQueryAllParcelsCommand => new RelayCommand(async () => await OpenStreetQueryAllParcels());
+        public ICommand OpenStreetQuerySelectedParcelsCommand => new RelayCommand(async () => await OpenStreetQuerySelectedParcels(), () => ParcelsSelected);
 
         #endregion
 
@@ -90,25 +93,20 @@ namespace RegridMapper.ViewModels
         {
             _logger = Logger.Instance;
             ClearDataCommand = new RelayCommand(ClearData);
-            LoadFromClipboardCommand = new RelayCommand(async () => await LoadFromClipboard());
-            CancelScrapingCommand = new RelayCommand(async () => await CancelScraping());
             SelectedParcelsCommand = new RelayCommand<IList>(OnSelectedParcelsChanged);
-            CopySelectedParcelsCommand = new RelayCommand(async () => await SaveToClipboard(), () => CanModifySelection);
-            ScrapeAllParcelsCommand = new RelayCommand(async () => await ScrapeAllParcels());
-            ScrapeSelectedParcelsCommand = new RelayCommand(async () => await ScrapeSelectedParcels(), () => CanModifySelection);
         } 
 
         #endregion
 
         #region Regrid Scraping
 
-        private async Task ScrapeAllParcels() 
-            => await ScrapeParcels(ParcelList.ToList()); // Convert ObservableCollection to List
+        private async Task RegridQueryAllParcels() 
+            => await RegridScrapeParcels(ParcelList.ToList()); // Convert ObservableCollection to List
 
-        private async Task ScrapeSelectedParcels() 
-            => await ScrapeParcels(SelectedParcels.ToList());
+        private async Task RegridQuerySelectedParcels() 
+            => await RegridScrapeParcels(SelectedParcels.ToList());
 
-        private async Task ScrapeParcels(List<ParcelData> parcels)
+        private async Task RegridScrapeParcels(List<ParcelData> parcels)
         {
             if (parcels == null || parcels.Count == 0)
                 return; // Avoid unnecessary execution if there are no parcels to process
@@ -130,7 +128,7 @@ namespace RegridMapper.ViewModels
 
                         try
                         {
-                            RegridStatus = $"Processing {i + 1} of {parcels.Count} parcels...";
+                            RegridStatus = $"Processing {i + 1} of {parcels.Count}.";
 
                             //var url = $"{AppConstants.BaseRegridUrlPrefix}{item.ParcelID}{AppConstants.BaseRegridUrlPostfix}";
 
@@ -142,7 +140,7 @@ namespace RegridMapper.ViewModels
                             if (string.IsNullOrWhiteSpace(pageSource))
                             {
                                 item.NoMatchDetected = true;
-                                CurrentScrapingElement = $"NOT FOUND: {CurrentScrapingElement}";
+                                CurrentScrapingElement = $"NOT FOUND: {item?.ParcelID}";
                                 await _logger.LogAsync($"Empty response for Parcel ID: {item.ParcelID}");
                                 continue;
                             }
@@ -165,6 +163,10 @@ namespace RegridMapper.ViewModels
                         {
                             semaphore.Release();
                             OnPropertyChanged(nameof(ParcelList));
+
+                            // Add delay before moving to the next parcel
+                            await Task.Delay(TimeSpan.FromSeconds(1));
+
                         }
                     }
                 });
@@ -207,7 +209,6 @@ namespace RegridMapper.ViewModels
                     await Task.Delay(1000);
                     return;
                 }
-
                 else if (matchCount == 1)
                 {
                     await Task.Delay(500); // Allow page transition
@@ -228,62 +229,54 @@ namespace RegridMapper.ViewModels
 
                     wait = new WebDriverWait(scraper.WebDriver, TimeSpan.FromSeconds(1));
 
-                    // URL
-                    item.RegridUrl = scraper.WebDriver.Url;
+                    // ZONING
+                    UpdateRegridStatusLabel(item, "Zoning Type");
+                    item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Zoning Type");
+                    if (string.IsNullOrEmpty(item.ZoningType)) item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Zoning type");
+                    if (string.IsNullOrEmpty(item.ZoningType)) item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Zoning Description");
+                    if (string.IsNullOrEmpty(item.ZoningType)) item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Land Use");
 
-                    // OWNER
-                    CurrentScrapingElement = $"{item.ParcelID} - Owner";
-                    item.OwnerName = await GetNextDivTextAsync(scraper.WebDriver, "Owner");
-                    if (string.IsNullOrEmpty(item.Acres))
-                        item.OwnerName = await GetNextDivTextAsync(scraper.WebDriver, "Owner");
-
-                    // ACRES
-                    CurrentScrapingElement = $"{item.ParcelID} - Acres";
-                    item.Acres = await GetNextDivTextAsync(scraper.WebDriver, "Measurements");
-                    if (string.IsNullOrEmpty(item.Acres))
-                        item.Acres = await GetNextDivTextAsync(scraper.WebDriver, "Measurements");
-                    if (string.IsNullOrEmpty(item.Acres))
-                        item.Acres = await GetNextDivTextAsync(scraper.WebDriver, "Measurements");
-                    if (!string.IsNullOrEmpty(item.Acres))
-                        item.Acres = item.Acres.ToLower().Replace(" acres", "");
+                    // CITY
+                    UpdateRegridStatusLabel(item, "City");
+                    item.City = await GetNextDivTextAsync(scraper.WebDriver, "Parcel Address City");
 
                     // ZIP CODE
-                    CurrentScrapingElement = $"{item.ParcelID} - Zip Code";
+                    UpdateRegridStatusLabel(item, "Zip Code");
                     item.ZipCode = await GetNextDivTextAsync(scraper.WebDriver, "5 Digit Parcel Zip Code");
-                    if (string.IsNullOrEmpty(item.ZipCode))
-                        item.ZipCode = await GetNextDivTextAsync(scraper.WebDriver, "Zip Code");
+                    if (string.IsNullOrEmpty(item.ZipCode)) item.ZipCode = await GetNextDivTextAsync(scraper.WebDriver, "Zip Code");
 
-                    // Assessed
-                    CurrentScrapingElement = $"{item.ParcelID} - Assessed Value";
-                    item.AssessedValue = await GetNextDivTextAsync(scraper.WebDriver, "Total Parcel Value");
-
-                    // ZONING
-                    CurrentScrapingElement = $"{item.ParcelID} - Zoning Type";
-                    item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Land Use");
-                    if (string.IsNullOrEmpty(item.ZoningType))
-                        item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Zoning Type");
-                    if (string.IsNullOrEmpty(item.ZoningType))
-                        item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Land Use Code: Activity");
-                    if (string.IsNullOrEmpty(item.ZoningType))
-                        item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Zoning Description");
+                    // REGRID
+                    item.RegridUrl = scraper.WebDriver.Url;
 
                     // ADDRESS
-                    CurrentScrapingElement = $"{item.ParcelID} - Full Address";
+                    UpdateRegridStatusLabel(item, "Address");
                     item.Address = await GetNextDivTextAsync(scraper.WebDriver, "Full Address");
-                    if (string.IsNullOrEmpty(item.Address))
-                        item.Address = await GetNextDivTextAsync(scraper.WebDriver, "City");
 
-                    // Coordinate
-                    CurrentScrapingElement = $"{item.ParcelID} - Latitude / Longitude";
+                    // OWNER
+                    UpdateRegridStatusLabel(item, "Owner Name");
+                    item.OwnerName = await GetNextDivTextAsync(scraper.WebDriver, "Owner");
+                    if (string.IsNullOrEmpty(item.Acres)) item.OwnerName = await GetNextDivTextAsync(scraper.WebDriver, "Owner");
+
+                    // ASSESSED
+                    UpdateRegridStatusLabel(item, "Assessed Value");
+                    item.AssessedValue = await GetNextDivTextAsync(scraper.WebDriver, "Total Parcel Value");
+
+                    // ACRES
+                    UpdateRegridStatusLabel(item, "Acres");
+                    item.Acres = await GetNextDivTextAsync(scraper.WebDriver, "Measurements");
+                    if (string.IsNullOrEmpty(item.Acres)) item.Acres = await GetNextDivTextAsync(scraper.WebDriver, "Measurements");
+                    if (string.IsNullOrEmpty(item.Acres)) item.Acres = await GetNextDivTextAsync(scraper.WebDriver, "Measurements");
+                    if (!string.IsNullOrEmpty(item.Acres)) item.Acres = item.Acres.ToLower().Replace(" acres", "");
+
+                    // COORDINATE
+                    UpdateRegridStatusLabel(item, "Latitude / Longitude");
                     item.GeographicCoordinate = await GetNextDivTextAsync(scraper.WebDriver, "Centroid Coordinates");
 
-                    // Flood Zone
-                    CurrentScrapingElement = $"{item.ParcelID} - Flood Zone";
+                    // FLOOD ZONE
+                    UpdateRegridStatusLabel(item, "FEMA Flood Zone");
                     item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, "FEMA Flood Zone");
-                    if (string.IsNullOrEmpty(item.FloodZone))
-                        item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, "FEMA NRI Risk Rating");
-                    if (string.IsNullOrEmpty(item.FloodZone))
-                        item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, "N/A");
+                    if (string.IsNullOrEmpty(item.FloodZone)) item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, "FEMA NRI Risk Rating");
+                    if (string.IsNullOrEmpty(item.FloodZone))  item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, "N/A");
                 }
                 else
                 {
@@ -351,10 +344,39 @@ namespace RegridMapper.ViewModels
             return returnVal;
         }
 
-        private Task CancelScraping()
+        private Task CancelRegridScraping()
         {
             _cancelScraping = true;
             return Task.CompletedTask;
+        }
+
+        #endregion
+
+        #region OpenStreetMap
+
+        private async Task OpenStreetQueryAllParcels()
+            => await OpenStreetScrapeParcels(ParcelList.ToList()); // Convert ObservableCollection to List
+
+        private async Task OpenStreetQuerySelectedParcels()
+            => await OpenStreetScrapeParcels(SelectedParcels.ToList());
+
+        private async Task OpenStreetScrapeParcels(List<ParcelData> parcels)
+        {
+            foreach (var parcel in parcels)
+            {
+                // Ensure coordinates are not null or empty before making the request
+                if (!string.IsNullOrWhiteSpace(parcel.GeographicCoordinate))
+                {
+                    var response = await _openStreetMapService.GetLocationDataAsync(parcel.GeographicCoordinate);
+
+                    // Optionally store the response inside the parcel object
+                    //parcel.LocationData = response;
+                }
+                else
+                {
+                    Console.WriteLine($"Skipping parcel with empty coordinates.");
+                }
+            }
         }
 
         #endregion
@@ -396,28 +418,43 @@ namespace RegridMapper.ViewModels
             var clipboardText = new StringBuilder();
 
             // Add the headers
-            clipboardText.AppendLine($"Opening Bid\t" +
+            clipboardText.AppendLine($"Type\t" + 
+                                     $"County\t" +
+                                     $"City\t" +
                                      $"Parcel ID\t" +
+                                     $"Regrid\t" +
+                                     $"Address\t" +
+                                     $"Owner\t" +
                                      $"Appraisal\t" +
-                                     $"GIS\t" +
                                      $"Assessed Value\t" +
-                                     $"Property Address\t" +
-                                     $"Nearby Parcels");
+                                     $"Acres\t" +
+                                     $"Maps\t" +
+                                     $"Fema");
 
             foreach (var item in SelectedParcels)
             {
-                // Structure the hyperlinl with an 
-                // alias for Google Sheets or Excel
-                //string appraisal = ProcessService.IsValidUrl(item.URL) ?
-                //    $"=HYPERLINK(\"{item.URL}\", \"Details\")" : "";
+                // Structure the hyperlinl with an alias for Google Sheets or Excel
+                string regrid = !string.IsNullOrWhiteSpace(item.RegridUrl) ?
+                    $"=HYPERLINK(\"{item.RegridUrl}\", \"LINK\")" : "";
 
-                string gis = !string.IsNullOrWhiteSpace(item.ParcelID) ?
-                    $"=HYPERLINK(\"https://app.regrid.com/search?query={item.ParcelID}&context=%2Fus&map_id=\", \"Search\")" : "";
+                string maps = !string.IsNullOrWhiteSpace(item.GoogleUrl)
+                    ? $"=HYPERLINK(\"{item.GoogleUrl.Replace("\"", "\"\"")}\", \"LINK\")" : "";
 
-                clipboardText.AppendLine($"{item.ParcelID}\t" +
-                                         $"{gis}\t" +
+                string fema = !string.IsNullOrWhiteSpace(item.FemaUrl)
+                    ? $"=HYPERLINK(\"{item.FemaUrl.Replace("\"", "\"\"")}\", \"{item.FloodZone}\")" : "";
+
+                clipboardText.AppendLine($"{item.ZoningType}\t" +
+                                         $"{item.County}\t" +
+                                         $"{item.City}\t" +
+                                         $"{item.ParcelID}\t" +
+                                         $"{regrid}\t" +
+                                         $"{item.Address}\t" +
+                                         $"{item.OwnerName}\t" +
+                                         $"\t" +
                                          $"{item.AssessedValue}\t" +
-                                         $"{item.Address}\t");
+                                         $"{item.Acres}\t" +
+                                         $"{maps}\t" +
+                                         $"{fema}\t");
             }
 
             // Runs clipboard operation on the UI thread, preventing STA errors.
@@ -461,7 +498,7 @@ namespace RegridMapper.ViewModels
             }
 
             OnPropertyChanged(nameof(SelectedParcels));
-            OnPropertyChanged(nameof(CanModifySelection));
+            OnPropertyChanged(nameof(ParcelsSelected));
         }
 
         private void NotifyPropertiesChanged(params string[] propertyNames)
@@ -478,6 +515,9 @@ namespace RegridMapper.ViewModels
 
         private bool OnCanNavigateRegrid(ParcelData item)
             => item != null && UrlHelper.IsValidUrl(item?.RegridUrl);
+
+        private void UpdateRegridStatusLabel(ParcelData item, string message) 
+            => CurrentScrapingElement = $"Scraping {message} for Parcel {item.ParcelID}";
 
         #endregion
     }

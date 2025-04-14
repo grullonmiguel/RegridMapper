@@ -37,21 +37,25 @@
                 <Button 
                     Content="REGRID" 
                     Tag="{StaticResource Geometry.Regrid}"
-                    Command="{Binding ScrapeAllParcelsCommand}" 
+                    Command="{Binding RegridQueryAllParcelsCommand}" 
                     Style="{StaticResource  Buttons.Link}"
                     IsEnabled="{Binding IsScraping, Converter={StaticResource InverseBooleanConverter}}"
                     Visibility="{Binding CanScrape, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </WrapPanel>
 
             <WrapPanel HorizontalAlignment="Right" Margin="0 0 0 4">
-                <TextBlock Text="{Binding RegridStatus}" Foreground="#f69465" VerticalAlignment="Center"/>
+                <TextBlock Foreground="#f69465" VerticalAlignment="Center">
+                    <Run Text="{Binding CurrentScrapingElement}" />
+                    <Run Text="-" />
+                    <Run Text="{Binding RegridStatus}" />
+                </TextBlock>
 
                 <!-- Cancel -->
                 <Button 
                     Content="CANCEL" 
                     Tag="{StaticResource Geometry.WebCancel}"
                     Style="{StaticResource  Buttons.Link}" 
-                    Command="{Binding CancelScrapingCommand}"
+                    Command="{Binding RegridQueryCancelCommand}"
                     Visibility="{Binding IsScraping, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </WrapPanel>
             
@@ -61,20 +65,33 @@
                 ItemsSource="{Binding ParcelList}" 
                 LoadingRow="DataGrid_LoadingRow" >
                 <DataGrid.Columns>
-                    <!--<DataGridTextColumn Header="PARCEL ID" Binding="{Binding ParcelID}"  MaxWidth="120"/>-->
-                    <DataGridTemplateColumn Header="PARCEL ID" Width="120">
+                    <DataGridTextColumn Header="PARCEL ID" Binding="{Binding ParcelID}" />
+                    <DataGridTextColumn Header="TYPE" Binding="{Binding ZoningType}" Width="100" />
+                    <DataGridTextColumn Header="CITY" Binding="{Binding City}" Width="Auto" />
+                    <DataGridTextColumn Header="ADDRESS" Binding="{Binding Address}"  Width="Auto"/>
+                    <DataGridTemplateColumn Header="OWNER NAME" Width="Auto">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <WrapPanel VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 -6 0 0">
-                                        <Viewbox Width="16" Height="16">
-                                            <Path Data="{StaticResource Geometry.Alert}" Fill="#f69465" ToolTip="Multiple Matches Found" Visibility="{Binding MultipleMatchesFound, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                        </Viewbox>
-                                        <Viewbox Width="16" Height="16">
-                                            <Path Data="{StaticResource Geometry.Close}" Fill="#ff8686" ToolTip="Not Matches Found" Visibility="{Binding NoMatchDetected, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                        </Viewbox>
-                                    </WrapPanel>
-                                    <TextBlock Text="{Binding ParcelID}" />
+                                    <Border BorderBrush="#f6dd65" BorderThickness="1" Background="#30f6dd65" Padding="6 4" CornerRadius="6"
+                                            Visibility="{Binding MultipleMatchesFound, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <StackPanel Orientation="Horizontal">                                            
+                                            <Viewbox Width="14" Height="14">
+                                                <Path Data="{StaticResource Geometry.Alert}" Fill="#f6dd65"  />
+                                            </Viewbox>
+                                            <TextBlock Text="Multiple Matches Found" Foreground="#f6dd65" Margin="8 0 0 0" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border BorderBrush="#ff8686" BorderThickness="1" Background="#30ff8686" Padding="6 4" CornerRadius="6"
+                                            Visibility="{Binding NoMatchDetected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Viewbox Width="14" Height="14">
+                                                <Path Data="{StaticResource Geometry.Alert}" Fill="#ff8686" />
+                                            </Viewbox>
+                                            <TextBlock Text="No Matches Found" Foreground="#ff8686" Margin="8 0 0 0" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Border>
+                                    <TextBlock Text="{Binding OwnerName}" />
                                 </Grid>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -83,16 +100,13 @@
                             <Binding Path="ParcelID"/>
                         </DataGridTemplateColumn.ClipboardContentBinding>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="OWNER NAME" Binding="{Binding OwnerName}" />
-                    <DataGridTextColumn Header="ZIP" Binding="{Binding ZipCode}" Width="80" />
+                    <DataGridTextColumn Header="ASSESSED" Binding="{Binding AssessedValue, StringFormat=C}" Width="Auto" />
                     <DataGridTextColumn Header="ACRES" Binding="{Binding Acres}" Width="80" />
-                    <DataGridTextColumn Header="ASSESSED" Binding="{Binding AssessedValue, StringFormat=C}" />
-                    <DataGridTextColumn Header="ZONING" Binding="{Binding ZoningType}" />
-                    <DataGridTemplateColumn Header="REGRID" Width="86">
+                    <DataGridTemplateColumn Header="REGRID" Width="Auto">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button 
-                                    Content="Regrid"
+                                    Content="LINK"
                                     Style="{StaticResource Buttons.Hyperlink}"
                                     Command="{Binding DataContext.NavigateToRegridCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                     CommandParameter="{Binding}" />
@@ -103,11 +117,11 @@
                             <Binding Path="RegridUrl"/>
                         </DataGridTemplateColumn.ClipboardContentBinding>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="GOOGLE MAPS">
+                    <DataGridTemplateColumn Header="GOOGLE MAPS" Width="Auto">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button 
-                                    Content="{Binding Address}"
+                                    Content="LINK"
                                     Style="{StaticResource Buttons.Hyperlink}"
                                     Command="{Binding DataContext.NavigateToGoogleMapsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                     CommandParameter="{Binding}" />
@@ -137,17 +151,24 @@
                 <!-- Context Menu -->
                 <DataGrid.ContextMenu>
                     <ContextMenu Style="{StaticResource ContextMenuStyle}">
-                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy" Command="{Binding CopySelectedParcelsCommand}" IsEnabled="{Binding CanModifySelection}">
+                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy Selected Parcels to Clipboard" Command="{Binding CopySelectedParcelsCommand}" IsEnabled="{Binding ParcelsSelected}">
                             <MenuItem.Icon>
                                 <Viewbox Width="16" Height="16">
                                     <Path Data="{StaticResource Geometry.Copy}" />
                                 </Viewbox>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="Regrid" Command="{Binding ScrapeSelectedParcelsCommand}" IsEnabled="{Binding CanModifySelection}">
+                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="Fetch Selected Parcels from Regrid" Command="{Binding RegridQuerySelectedCommand}" IsEnabled="{Binding ParcelsSelected}">
                             <MenuItem.Icon>
                                 <Viewbox Width="16" Height="16">
                                     <Path Data="{StaticResource Geometry.Regrid}" />
+                                </Viewbox>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="Alternate Address" Command="{Binding OpenStreetQuerySelectedParcelsCommand}" IsEnabled="{Binding ParcelsSelected}">
+                            <MenuItem.Icon>
+                                <Viewbox Width="16" Height="16">
+                                    <Path Data="{StaticResource Geometry.MapOutline}" />
                                 </Viewbox>
                             </MenuItem.Icon>
                         </MenuItem>
@@ -165,7 +186,7 @@
                 <TextBlock Text="{Binding TotalParcels}" />
             </WrapPanel>
 
-            <TextBlock Text="{Binding CurrentScrapingElement}" Grid.Row="2" HorizontalAlignment="Right" Foreground="#f69465"/>
+            
         </Grid>
     </Border>
 
