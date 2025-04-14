@@ -6,7 +6,9 @@ using RegridMapper.Core.Services;
 using RegridMapper.Core.Utilities;
 using RegridMapper.Services;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -134,7 +136,8 @@ namespace RegridMapper.ViewModels
 
                             CurrentScrapingElement = item?.ParcelID;
 
-                            item.RegridUrl = $"{AppConstants.BaseRegridUrlPrefix}{item.ParcelID}{AppConstants.BaseRegridUrlPostfix}";
+                            item.RegridUrl = string.Format(AppConstants.URL_Regrid, Uri.EscapeDataString(item.ParcelID));
+
                             string pageSource = await Task.Run(() => scraper.ScrapeParcelData(item?.RegridUrl));
 
                             if (string.IsNullOrWhiteSpace(pageSource))
@@ -230,52 +233,51 @@ namespace RegridMapper.ViewModels
                     wait = new WebDriverWait(scraper.WebDriver, TimeSpan.FromSeconds(1));
 
                     // ZONING
-                    UpdateRegridStatusLabel(item, "Zoning Type");
-                    item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Zoning Type");
+                    UpdateRegridStatusLabel(item, AppConstants.RegridZoningType);
+                    item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridZoningType);
                     if (string.IsNullOrEmpty(item.ZoningType)) item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Zoning type");
                     if (string.IsNullOrEmpty(item.ZoningType)) item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Zoning Description");
                     if (string.IsNullOrEmpty(item.ZoningType)) item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Land Use");
 
                     // CITY
-                    UpdateRegridStatusLabel(item, "City");
-                    item.City = await GetNextDivTextAsync(scraper.WebDriver, "Parcel Address City");
+                    UpdateRegridStatusLabel(item, AppConstants.RegridCity);
+                    item.City = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridCity);
 
                     // ZIP CODE
-                    UpdateRegridStatusLabel(item, "Zip Code");
-                    item.ZipCode = await GetNextDivTextAsync(scraper.WebDriver, "5 Digit Parcel Zip Code");
-                    if (string.IsNullOrEmpty(item.ZipCode)) item.ZipCode = await GetNextDivTextAsync(scraper.WebDriver, "Zip Code");
+                    UpdateRegridStatusLabel(item, AppConstants.RegridZip);
+                    item.ZipCode = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridZip);
+                    if (string.IsNullOrEmpty(item.ZipCode)) item.ZipCode = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridZip2);
 
                     // REGRID
                     item.RegridUrl = scraper.WebDriver.Url;
 
                     // ADDRESS
-                    UpdateRegridStatusLabel(item, "Address");
-                    item.Address = await GetNextDivTextAsync(scraper.WebDriver, "Full Address");
+                    UpdateRegridStatusLabel(item, AppConstants.RegridAddress);
+                    item.Address = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridAddress);
 
                     // OWNER
-                    UpdateRegridStatusLabel(item, "Owner Name");
-                    item.OwnerName = await GetNextDivTextAsync(scraper.WebDriver, "Owner");
-                    if (string.IsNullOrEmpty(item.Acres)) item.OwnerName = await GetNextDivTextAsync(scraper.WebDriver, "Owner");
+                    UpdateRegridStatusLabel(item, AppConstants.RegridOwner);
+                    item.OwnerName = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridOwner);
+                    if (string.IsNullOrEmpty(item.Acres)) item.OwnerName = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridOwner);
 
                     // ASSESSED
-                    UpdateRegridStatusLabel(item, "Assessed Value");
-                    item.AssessedValue = await GetNextDivTextAsync(scraper.WebDriver, "Total Parcel Value");
+                    UpdateRegridStatusLabel(item, AppConstants.RegridAssessedValue);
+                    item.AssessedValue = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridAssessedValue);
 
                     // ACRES
-                    UpdateRegridStatusLabel(item, "Acres");
-                    item.Acres = await GetNextDivTextAsync(scraper.WebDriver, "Measurements");
-                    if (string.IsNullOrEmpty(item.Acres)) item.Acres = await GetNextDivTextAsync(scraper.WebDriver, "Measurements");
-                    if (string.IsNullOrEmpty(item.Acres)) item.Acres = await GetNextDivTextAsync(scraper.WebDriver, "Measurements");
+                    UpdateRegridStatusLabel(item, AppConstants.RegridAcres);
+                    item.Acres = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridAcres);
+                    if (string.IsNullOrEmpty(item.Acres)) item.Acres = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridAcres);
                     if (!string.IsNullOrEmpty(item.Acres)) item.Acres = item.Acres.ToLower().Replace(" acres", "");
 
                     // COORDINATE
-                    UpdateRegridStatusLabel(item, "Latitude / Longitude");
-                    item.GeographicCoordinate = await GetNextDivTextAsync(scraper.WebDriver, "Centroid Coordinates");
+                    UpdateRegridStatusLabel(item, AppConstants.RegridCoordinates);
+                    item.GeographicCoordinate = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridCoordinates);
 
                     // FLOOD ZONE
-                    UpdateRegridStatusLabel(item, "FEMA Flood Zone");
-                    item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, "FEMA Flood Zone");
-                    if (string.IsNullOrEmpty(item.FloodZone)) item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, "FEMA NRI Risk Rating");
+                    UpdateRegridStatusLabel(item, AppConstants.RegridFema);
+                    item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridFema);
+                    if (string.IsNullOrEmpty(item.FloodZone)) item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridFema2);
                     if (string.IsNullOrEmpty(item.FloodZone))  item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, "N/A");
                 }
                 else
@@ -434,27 +436,22 @@ namespace RegridMapper.ViewModels
             foreach (var item in SelectedParcels)
             {
                 // Structure the hyperlinl with an alias for Google Sheets or Excel
-                string regrid = !string.IsNullOrWhiteSpace(item.RegridUrl) ?
-                    $"=HYPERLINK(\"{item.RegridUrl}\", \"LINK\")" : "";
-
-                string maps = !string.IsNullOrWhiteSpace(item.GoogleUrl)
-                    ? $"=HYPERLINK(\"{item.GoogleUrl.Replace("\"", "\"\"")}\", \"LINK\")" : "";
-
-                string fema = !string.IsNullOrWhiteSpace(item.FemaUrl)
-                    ? $"=HYPERLINK(\"{item.FemaUrl.Replace("\"", "\"\"")}\", \"{item.FloodZone}\")" : "";
+                var regridURL = string.IsNullOrWhiteSpace(item.RegridUrl) ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RegridUrl, "LINK");
+                var mapsURL =   string.IsNullOrWhiteSpace(item.GoogleUrl) ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.GoogleUrl.Replace("\"", "\"\""), "LINK");
+                var femaURL =   string.IsNullOrWhiteSpace(item.FemaUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.FemaUrl.Replace("\"", "\"\""), item.FloodZone);
 
                 clipboardText.AppendLine($"{item.ZoningType}\t" +
                                          $"{item.County}\t" +
                                          $"{item.City}\t" +
                                          $"{item.ParcelID}\t" +
-                                         $"{regrid}\t" +
+                                         $"{regridURL}\t" +
                                          $"{item.Address}\t" +
                                          $"{item.OwnerName}\t" +
-                                         $"\t" +
+                                         $"LINK\t" +
                                          $"{item.AssessedValue}\t" +
                                          $"{item.Acres}\t" +
-                                         $"{maps}\t" +
-                                         $"{fema}\t");
+                                         $"{mapsURL}\t" +
+                                         $"{femaURL}\t");
             }
 
             // Runs clipboard operation on the UI thread, preventing STA errors.

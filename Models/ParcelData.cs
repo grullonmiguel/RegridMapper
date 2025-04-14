@@ -105,18 +105,25 @@ namespace RegridMapper.ViewModels
         /// Google Maps URL, computed dynamically.
         /// </summary>
         public string GoogleUrl => !string.IsNullOrWhiteSpace(GeographicCoordinate)
-            ? AppConstants.BaseGoogleUrl.BuildUrl(GeographicCoordinate.ToDMSCoordinates())  : string.Empty;
+            ? AppConstants.URL_Google.BuildUrl(GeographicCoordinate.ToDMSCoordinates())  : string.Empty;
 
         /// <summary>
         /// FEMA URL, computed dynamically.
         /// </summary>
         public string FemaUrl => !string.IsNullOrWhiteSpace(GeographicCoordinate)
-            ? AppConstants.BaseFemaAUrl.BuildUrl(GeographicCoordinate.ToDMSCoordinates()) : string.Empty;
+            ? AppConstants.URL_Fema.BuildUrl(GeographicCoordinate.ToDMSCoordinates()) : string.Empty;
 
         /// <summary>
         /// Returns a formatted string representing the parcel details.
         /// </summary>
         public override string ToString() => $"ParcelID: {ParcelID}, Address: {Address}";
+
+        public string? AppraisalUrl
+        {
+            get => _appraisalUrl;
+            set => SetProperty(ref _appraisalUrl, value);
+        }
+        private string? _appraisalUrl;
 
         public bool MultipleMatchesFound
         {
