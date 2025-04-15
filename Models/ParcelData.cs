@@ -94,6 +94,22 @@ namespace RegridMapper.ViewModels
         }
         private string? _floodZone;
 
+        public string? AppraiserUrl
+        {
+            get => _appraiserUrl;
+            set => SetProperty(ref _appraiserUrl, value);
+        }
+        private string? _appraiserUrl;
+
+        public string? DetailUrl
+        {
+            get => _detailUrl;
+            set => SetProperty(ref _detailUrl, value);
+        }
+        private string? _detailUrl;
+        // private string? _detailUrl = $"https://public-wclb.epropertyplus.com/landmgmtpub/remote/public/property/viewSummary?parcelNumber={ParcelID}" : "";
+        // private string? _detailUrl = !string.IsNullOrWhiteSpace(GeographicCoordinate) ? string.Format(AppConstants.URL_OpenStreetMap, GeographicCoordinate): "";
+        
         public string? RegridUrl
         {
             get => _regridUrl;
@@ -112,6 +128,27 @@ namespace RegridMapper.ViewModels
         /// </summary>
         public string FemaUrl => !string.IsNullOrWhiteSpace(GeographicCoordinate)
             ? AppConstants.URL_Fema.BuildUrl(GeographicCoordinate.ToDMSCoordinates()) : string.Empty;
+
+        /// <summary>
+        /// Redfin URL, computed dynamically.
+        /// </summary>
+        public string RedfinUrl => !string.IsNullOrWhiteSpace(ZipCode) && ZipCode.IsValidZipCode()
+            ? string.Format(AppConstants.URL_RedfinByZip, ZipCode) : string.Empty;
+
+        /// <summary>
+        /// Realtor.com URL, computed dynamically.
+        /// </summary>
+        public string RealtorUrl => !string.IsNullOrWhiteSpace(ZipCode) && ZipCode.IsValidZipCode()
+            ? string.Format(AppConstants.URL_RealtorByZip, ZipCode) : string.Empty;
+
+        /// <summary>
+        /// Zillow URL, computed dynamically.
+        /// </summary>
+        public string ZillowUrl => !string.IsNullOrWhiteSpace(ZipCode) && ZipCode.IsValidZipCode() ? string.Format(AppConstants.URL_ZillowByZip, ZipCode) : string.Empty;
+
+        //public string ZillowUrl => !string.IsNullOrWhiteSpace(ZipCode) && ZipCode.IsValidZipCode()
+        //    ? $"https://www.zillow.com/{ZipCode}/sold/?searchQueryState={{\"filterState\":{{\"doz\":{{\"value\":\"90\"}}}}}}"
+        //    : string.Empty;
 
         /// <summary>
         /// Returns a formatted string representing the parcel details.

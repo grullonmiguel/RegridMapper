@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using RegridMapper.Core.Configuration;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace RegridMapper.Core.Utilities
@@ -111,6 +112,13 @@ namespace RegridMapper.Core.Utilities
             return $"{Math.Abs(degrees)}° {minutes}' {seconds:F2}\" {direction}";
         }
 
+        public static bool IsValidZipCode(this string zipCode)
+        {
+            if (string.IsNullOrWhiteSpace(zipCode))
+                return false;
+
+            return Regex.IsMatch(zipCode, AppConstants.RegexZipCode);
+        }
 
         //private static string ConvertToDMS(double decimalDegrees, bool isLatitude)
         //{

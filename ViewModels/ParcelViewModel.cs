@@ -6,9 +6,7 @@ using RegridMapper.Core.Services;
 using RegridMapper.Core.Utilities;
 using RegridMapper.Services;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -79,9 +77,15 @@ namespace RegridMapper.ViewModels
         public ICommand RegridQuerySelectedCommand => new RelayCommand(async () => await RegridQuerySelectedParcels(), () => ParcelsSelected);
 
         // URL Navigation Commands
-        public ICommand NavigateToFemaCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.FemaUrl), OnCanNavigateFemaAddress);
-        public ICommand NavigateToGoogleMapsCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.GoogleUrl), OnCanNavigateGoogleMaps);
-        public ICommand NavigateToRegridCommand => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(item?.RegridUrl), OnCanNavigateRegrid);
+        public ICommand NavigateAppraiserCommand => CreateNavigateCommand(item => item?.AppraiserUrl);
+        public ICommand NavigateDetailsCommand => CreateNavigateCommand(item => item?.DetailUrl);
+        public ICommand NavigateToFemaCommand => CreateNavigateCommand(item => item?.FemaUrl);
+        public ICommand NavigateToGoogleMapsCommand => CreateNavigateCommand(item => item?.GoogleUrl);
+        public ICommand NavigateToRegridCommand => CreateNavigateCommand(item => item?.RegridUrl);
+        public ICommand NavigateToRealtorCommand => CreateNavigateCommand(item => item?.RealtorUrl);
+        public ICommand NavigateToRedfinCommand => CreateNavigateCommand(item => item?.RedfinUrl);
+        public ICommand NavigateToZillowCommand => CreateNavigateCommand(item => item?.ZillowUrl);
+        public ICommand CreateNavigateCommand(Func<ParcelData, string> urlSelector) => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(urlSelector(item)), item => item != null && UrlHelper.IsValidUrl(urlSelector(item)));
 
         // OpenStreetMap Commands
         public ICommand OpenStreetQueryAllParcelsCommand => new RelayCommand(async () => await OpenStreetQueryAllParcels());
@@ -431,7 +435,10 @@ namespace RegridMapper.ViewModels
                                      $"Assessed Value\t" +
                                      $"Acres\t" +
                                      $"Maps\t" +
-                                     $"Fema");
+                                     $"Fema\t" +
+                                     $"Realtor\t" +
+                                     $"Redfin\t" +
+                                     $"Zillow\t");
 
             foreach (var item in SelectedParcels)
             {
@@ -439,6 +446,9 @@ namespace RegridMapper.ViewModels
                 var regridURL = string.IsNullOrWhiteSpace(item.RegridUrl) ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RegridUrl, "LINK");
                 var mapsURL =   string.IsNullOrWhiteSpace(item.GoogleUrl) ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.GoogleUrl.Replace("\"", "\"\""), "LINK");
                 var femaURL =   string.IsNullOrWhiteSpace(item.FemaUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.FemaUrl.Replace("\"", "\"\""), item.FloodZone);
+                var realtorURL =   string.IsNullOrWhiteSpace(item.RealtorUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RealtorUrl.Replace("\"", "\"\""), "LINK");
+                var redfinURL =   string.IsNullOrWhiteSpace(item.RedfinUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RedfinUrl.Replace("\"", "\"\""), "LINK");
+                var zillowURL =   string.IsNullOrWhiteSpace(item.ZillowUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.ZillowUrl.Replace("\"", "\"\""), "LINK");
 
                 clipboardText.AppendLine($"{item.ZoningType}\t" +
                                          $"{item.County}\t" +
@@ -451,7 +461,10 @@ namespace RegridMapper.ViewModels
                                          $"{item.AssessedValue}\t" +
                                          $"{item.Acres}\t" +
                                          $"{mapsURL}\t" +
-                                         $"{femaURL}\t");
+                                         $"{femaURL}\t" +
+                                         $"{realtorURL}\t" +
+                                         $"{redfinURL}\t" +
+                                         $"{zillowURL}\t");
             }
 
             // Runs clipboard operation on the UI thread, preventing STA errors.
@@ -504,14 +517,19 @@ namespace RegridMapper.ViewModels
                 OnPropertyChanged(property);
         }
 
-        private bool OnCanNavigateFemaAddress(ParcelData item)
-            => item != null && UrlHelper.IsValidUrl(item?.FemaUrl);
+        private bool OnCanNavigateFemaAddress(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.FemaUrl);
 
-        private bool OnCanNavigateGoogleMaps(ParcelData item)
-            => item != null && UrlHelper.IsValidUrl(item?.GoogleUrl);
+        private bool OnCanNavigateGoogleMaps(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.GoogleUrl);
 
-        private bool OnCanNavigateRegrid(ParcelData item)
-            => item != null && UrlHelper.IsValidUrl(item?.RegridUrl);
+        private bool OnCanNavigateRegrid(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.RegridUrl);
+
+        private bool OnCanNavigateRealtor(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.RealtorUrl);
+
+        private bool OnCanNavigateRedfin(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.RedfinUrl);
+
+        private bool OnCanNavigateZillow(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.ZillowUrl);
+
+        //private bool OnCanNavigateDetails(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.DetailsUrl);
 
         private void UpdateRegridStatusLabel(ParcelData item, string message) 
             => CurrentScrapingElement = $"Scraping {message} for Parcel {item.ParcelID}";

@@ -61,7 +61,7 @@
             
             <!-- Parcel DataGrid -->
             <DataGrid 
-                Grid.Row="1" 
+                Grid.Row="1" HorizontalScrollBarVisibility="Auto"
                 ItemsSource="{Binding ParcelList}" 
                 LoadingRow="DataGrid_LoadingRow" >
                 <DataGrid.Columns>
@@ -69,7 +69,7 @@
                     <DataGridTextColumn Header="TYPE" Binding="{Binding ZoningType}" Width="100" />
                     <DataGridTextColumn Header="CITY" Binding="{Binding City}" Width="Auto" />
                     <DataGridTextColumn Header="ADDRESS" Binding="{Binding Address}"  Width="Auto"/>
-                    <DataGridTemplateColumn Header="OWNER NAME" Width="Auto">
+                    <DataGridTemplateColumn Header="OWNER" Width="Auto">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
@@ -102,7 +102,7 @@
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Header="ASSESSED" Binding="{Binding AssessedValue, StringFormat=C}" Width="Auto" />
                     <DataGridTextColumn Header="ACRES" Binding="{Binding Acres}" Width="80" />
-                    <DataGridTemplateColumn Header="REGRID" Width="Auto">
+                    <DataGridTemplateColumn Header="GIS" Width="Auto">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button 
@@ -117,7 +117,7 @@
                             <Binding Path="RegridUrl"/>
                         </DataGridTemplateColumn.ClipboardContentBinding>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="GOOGLE MAPS" Width="Auto">
+                    <DataGridTemplateColumn Header="MAPS" Width="80" >
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button 
@@ -132,7 +132,7 @@
                             <Binding Path="GoogleUrl"/>
                         </DataGridTemplateColumn.ClipboardContentBinding>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="FEMA" Width="*">
+                    <DataGridTemplateColumn Header="FEMA" Width="80" >
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button 
@@ -145,6 +145,66 @@
                         <!-- Ensure copied content includes the URL -->
                         <DataGridTemplateColumn.ClipboardContentBinding>
                             <Binding Path="FemaUrl"/>
+                        </DataGridTemplateColumn.ClipboardContentBinding>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Realtor" Width="90" >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button 
+                                    Content="LINK"
+                                    Style="{StaticResource Buttons.Hyperlink}"
+                                    Command="{Binding DataContext.NavigateToRealtorCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                    CommandParameter="{Binding}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <!-- Ensure copied content includes the URL -->
+                        <DataGridTemplateColumn.ClipboardContentBinding>
+                            <Binding Path="RealtorUrl"/>
+                        </DataGridTemplateColumn.ClipboardContentBinding>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Redfin" Width="80" >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button 
+                                    Content="LINK"
+                                    Style="{StaticResource Buttons.Hyperlink}"
+                                    Command="{Binding DataContext.NavigateToRedfinCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                    CommandParameter="{Binding}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <!-- Ensure copied content includes the URL -->
+                        <DataGridTemplateColumn.ClipboardContentBinding>
+                            <Binding Path="RedfinUrl"/>
+                        </DataGridTemplateColumn.ClipboardContentBinding>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Zillow">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button 
+                                    Content="LINK"
+                                    Style="{StaticResource Buttons.Hyperlink}"
+                                    Command="{Binding DataContext.NavigateToZillowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                    CommandParameter="{Binding}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <!-- Ensure copied content includes the URL -->
+                        <DataGridTemplateColumn.ClipboardContentBinding>
+                            <Binding Path="ZillowUrl"/>
+                        </DataGridTemplateColumn.ClipboardContentBinding>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Details" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button 
+                                    Content="LINK"
+                                    Style="{StaticResource Buttons.Hyperlink}"
+                                    Command="{Binding DataContext.NavigateDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                    CommandParameter="{Binding}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <!-- Ensure copied content includes the URL -->
+                        <DataGridTemplateColumn.ClipboardContentBinding>
+                            <Binding Path="DetailsUrl"/>
                         </DataGridTemplateColumn.ClipboardContentBinding>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>

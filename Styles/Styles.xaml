@@ -230,7 +230,7 @@
         <Setter Property="BorderThickness" Value="0 0 0 0.5"/>
         <Setter Property="Foreground" Value="{StaticResource Brushes.Primary}" />
         <Setter Property="Width" Value="40"/>
-        <Setter Property="Padding" Value="4 2"/>
+        <Setter Property="Padding" Value="2"/>
         <Setter Property="FontSize" Value="{StaticResource Fonts.Small}" />
         <Setter Property="Background" Value="{StaticResource Brushes.Accent}" />
         <Setter Property="BorderBrush" Value="Transparent" />
