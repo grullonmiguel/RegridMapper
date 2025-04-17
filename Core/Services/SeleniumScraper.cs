@@ -4,6 +4,7 @@ using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
 using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Utilities;
+using System.Diagnostics;
 
 namespace RegridMapper.Services
 {
@@ -11,6 +12,7 @@ namespace RegridMapper.Services
     {
         private bool _disposed = false;
         private IWebDriver? _driver;
+        private readonly Logger _logger;
 
         public IWebDriver? WebDriver => _driver; // Read-only accessor
 
@@ -20,6 +22,8 @@ namespace RegridMapper.Services
         /// </summary>
         public SeleniumScraper(BrowserType browser = BrowserType.Chrome, bool headless = true, string? debuggerAddress = null)
         {
+            _logger = Logger.Instance;
+
             // Validate the debugger address
             if (!string.IsNullOrWhiteSpace(debuggerAddress) && !debuggerAddress.IsValidFormat(AppConstants.RegexIPPort))
                 debuggerAddress = string.Empty;
@@ -69,14 +73,48 @@ namespace RegridMapper.Services
         /// <summary>
         /// Navigates to the specified URL and returns the page source.
         /// </summary>
-        public string ScrapeParcelData(string parcelUrl)
+        public async Task<string?> ScrapeParcelDataAsync(string parcelUrl)
         {
-            if (_driver == null)
-                throw new ObjectDisposedException(nameof(SeleniumScraper), "WebDriver instance has been disposed.");
+            if (!IsWebDriverRunning()) // Ensure WebDriver process is active
+            {
+                await Task.Run(() => _logger.LogAsync("WebDriver process is not running. Skipping request."));
+                return null;
+            }
 
-            _driver.Navigate().GoToUrl(parcelUrl);
-            return _driver.PageSource;
+            if (_driver == null)
+            {
+                await Task.Run(() => _logger.LogAsync("WebDriver instance is null."));
+                return null;
+            }
+
+            try
+            {
+                // Test if WebDriver is responsive by accessing the title
+                _ = _driver.Title; // Simple call to check if WebDriver is still responsive
+
+                _driver.Navigate().GoToUrl(parcelUrl);
+                return _driver.PageSource;
+            }
+            catch (WebDriverException ex)
+            {
+                await Task.Run(() => _logger.LogExceptionAsync(ex));
+                return null;
+            }
         }
+
+        // Verify WebDriver process is running
+        public bool IsWebDriverRunning()
+        {
+            var processes = Process.GetProcessesByName("chromedriver"); // Change this to match your WebDriver executable
+            if (processes.Length == 0)
+            {
+                _logger.LogAsync("WebDriver process is not running. Ensure it is started before executing the script.");
+                return false;
+            }
+
+            return true;
+        }
+
 
         /// <summary>
         /// Safely disposes the WebDriver instance.

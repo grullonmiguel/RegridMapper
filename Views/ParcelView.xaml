@@ -46,7 +46,6 @@
             <WrapPanel HorizontalAlignment="Right" Margin="0 0 0 4">
                 <TextBlock Foreground="#f69465" VerticalAlignment="Center">
                     <Run Text="{Binding CurrentScrapingElement}" />
-                    <Run Text="-" />
                     <Run Text="{Binding RegridStatus}" />
                 </TextBlock>
 
@@ -102,7 +101,7 @@
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Header="ASSESSED" Binding="{Binding AssessedValue, StringFormat=C}" Width="Auto" />
                     <DataGridTextColumn Header="ACRES" Binding="{Binding Acres}" Width="80" />
-                    <DataGridTemplateColumn Header="GIS" Width="Auto">
+                    <DataGridTemplateColumn Header="GIS" Width="80">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button 
@@ -147,7 +146,7 @@
                             <Binding Path="FemaUrl"/>
                         </DataGridTemplateColumn.ClipboardContentBinding>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Realtor" Width="90" >
+                    <DataGridTemplateColumn Header="REALTOR" Width="95" >
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button 
@@ -162,7 +161,7 @@
                             <Binding Path="RealtorUrl"/>
                         </DataGridTemplateColumn.ClipboardContentBinding>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Redfin" Width="80" >
+                    <DataGridTemplateColumn Header="REDFIN" Width="85" >
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button 
@@ -177,7 +176,7 @@
                             <Binding Path="RedfinUrl"/>
                         </DataGridTemplateColumn.ClipboardContentBinding>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Zillow">
+                    <DataGridTemplateColumn Header="ZILLOW">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button 
@@ -192,7 +191,7 @@
                             <Binding Path="ZillowUrl"/>
                         </DataGridTemplateColumn.ClipboardContentBinding>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Details" Width="*">
+                    <DataGridTemplateColumn Header="DETAILS" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button 

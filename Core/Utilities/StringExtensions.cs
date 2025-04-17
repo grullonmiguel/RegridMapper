@@ -1,5 +1,7 @@
 ﻿using RegridMapper.Core.Configuration;
+using System.ComponentModel;
 using System.Globalization;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace RegridMapper.Core.Utilities
@@ -120,17 +122,16 @@ namespace RegridMapper.Core.Utilities
             return Regex.IsMatch(zipCode, AppConstants.RegexZipCode);
         }
 
-        //private static string ConvertToDMS(double decimalDegrees, bool isLatitude)
-        //{
-        //    char direction = isLatitude ? (decimalDegrees >= 0 ? 'N' : 'S') : (decimalDegrees >= 0 ? 'E' : 'W');
-        //    decimalDegrees = Math.Abs(decimalDegrees); // Ensure positive value for calculations
-
-        //    int degrees = (int)decimalDegrees;
-        //    double minutesDecimal = (decimalDegrees - degrees) * 60;
-        //    int minutes = (int)minutesDecimal;
-        //    double seconds = (minutesDecimal - minutes) * 60;
-
-        //    return $"{degrees}°{minutes}'{seconds:F1}\"{direction}";
-        //}
+        /// <summary>
+        /// Extension Method to Retrieve Enum Labels
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetEnumDescription(this Enum value)
+        {
+            var field = value.GetType().GetField(value.ToString());
+            var attribute = (DescriptionAttribute)field.GetCustomAttribute(typeof(DescriptionAttribute));
+            return attribute?.Description ?? value.ToString();
+        }
     }
 }

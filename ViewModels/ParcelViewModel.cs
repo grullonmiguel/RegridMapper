@@ -120,12 +120,16 @@ namespace RegridMapper.ViewModels
             IsScraping = true; // Indicate process start
             OnPropertyChanged(nameof(IsScraping));
 
+            // Record the start time
+            var startTime = DateTime.Now;
+
             try
             {
                 await Task.Run(async () =>
                 {
                     using var scraper = new SeleniumScraper(BrowserType.Chrome, true, "127.0.0.1:9222");
                     SemaphoreSlim semaphore = new(3);
+
 
                     for (int i = 0; i < parcels.Count; i++)
                     {
@@ -142,7 +146,7 @@ namespace RegridMapper.ViewModels
 
                             item.RegridUrl = string.Format(AppConstants.URL_Regrid, Uri.EscapeDataString(item.ParcelID));
 
-                            string pageSource = await Task.Run(() => scraper.ScrapeParcelData(item?.RegridUrl));
+                            var pageSource = await scraper.ScrapeParcelDataAsync(item?.RegridUrl);
 
                             if (string.IsNullOrWhiteSpace(pageSource))
                             {
@@ -179,9 +183,14 @@ namespace RegridMapper.ViewModels
                 });
             }
             finally
-            {
+            {                
+                // Calculate elapsed time
+                var elapsedTime = DateTime.Now - startTime;
+                
+                // Display ellapsed time in minutes and seconds
+                RegridStatus = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
+
                 IsScraping = false; // Indicate process end
-                RegridStatus = "Completed!";
                 CurrentScrapingElement = string.Empty;
                 NotifyPropertiesChanged(nameof(IsScraping), nameof(RegridStatus));
             }
@@ -415,7 +424,7 @@ namespace RegridMapper.ViewModels
             }
         }
 
-        private async Task SaveToClipboard()
+        private async Task SaveToClipboards()
 
         {
             if (SelectedParcels == null || !SelectedParcels.Any())
@@ -443,12 +452,12 @@ namespace RegridMapper.ViewModels
             foreach (var item in SelectedParcels)
             {
                 // Structure the hyperlinl with an alias for Google Sheets or Excel
-                var regridURL = string.IsNullOrWhiteSpace(item.RegridUrl) ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RegridUrl, "LINK");
-                var mapsURL =   string.IsNullOrWhiteSpace(item.GoogleUrl) ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.GoogleUrl.Replace("\"", "\"\""), "LINK");
-                var femaURL =   string.IsNullOrWhiteSpace(item.FemaUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.FemaUrl.Replace("\"", "\"\""), item.FloodZone);
-                var realtorURL =   string.IsNullOrWhiteSpace(item.RealtorUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RealtorUrl.Replace("\"", "\"\""), "LINK");
-                var redfinURL =   string.IsNullOrWhiteSpace(item.RedfinUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RedfinUrl.Replace("\"", "\"\""), "LINK");
-                var zillowURL =   string.IsNullOrWhiteSpace(item.ZillowUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.ZillowUrl.Replace("\"", "\"\""), "LINK");
+                var regridURL   = string.IsNullOrWhiteSpace(item.RegridUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RegridUrl, "LINK");
+                var mapsURL     = string.IsNullOrWhiteSpace(item.GoogleUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.GoogleUrl.Replace("\"", "\"\""), "LINK");
+                var femaURL     = string.IsNullOrWhiteSpace(item.FemaUrl)     ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.FemaUrl.Replace("\"", "\"\""), item.FloodZone);
+                var realtorURL  = string.IsNullOrWhiteSpace(item.RealtorUrl)  ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RealtorUrl.Replace("\"", "\"\""), "LINK");
+                var redfinURL   = string.IsNullOrWhiteSpace(item.RedfinUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RedfinUrl.Replace("\"", "\"\""), "LINK");
+                var zillowURL   = string.IsNullOrWhiteSpace(item.ZillowUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.ZillowUrl.Replace("\"", "\"\""), "LINK");
 
                 clipboardText.AppendLine($"{item.ZoningType}\t" +
                                          $"{item.County}\t" +
@@ -468,12 +477,56 @@ namespace RegridMapper.ViewModels
             }
 
             // Runs clipboard operation on the UI thread, preventing STA errors.
-
             await Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 Clipboard.SetText(clipboardText.ToString());
             });
+        }
 
+        private async Task SaveToClipboard()
+        {
+            if (SelectedParcels is null || !SelectedParcels.Any())
+                return; // Exit if no parcels are selected
+
+            var clipboardText = new StringBuilder();
+
+            // Define Headers
+            string[] headers = { "TYPE", "COUNTY", "CITY", "PARCEL ID", "GIS", "DETAIL", "ADDRESS", "OWNER", "APPRAISAL", "ASSESSED VALUE", "ACRES", "MAPS", "FEMA", "REALTOR", "REDFIN", "ZILLOW" };
+
+            // Append headers
+            clipboardText.AppendLine(string.Join("\t", headers));
+
+            // Helper method to format hyperlinks correctly for Google Sheets
+            static string FormatUrl(string url, string alias) => string.IsNullOrWhiteSpace(url) ? string.Empty : $"=HYPERLINK(\"{url.Replace("\"", "\"\"")}\", \"{alias}\")";
+
+            foreach (var item in SelectedParcels)
+            {
+                // Generate hyperlinks with correct spreadsheet formatting
+                var urls = new[]
+                {
+                    FormatUrl(item.RegridUrl, "LINK"),
+                    FormatUrl(item.DetailUrl, "LINK"),
+                    FormatUrl(item.AppraisalUrl, "LINK"),
+                    FormatUrl(item.GoogleUrl, "LINK"),
+                    FormatUrl(item.FemaUrl, item.FloodZone),
+                    FormatUrl(item.RealtorUrl, "LINK"),
+                    FormatUrl(item.RedfinUrl, "LINK"),
+                    FormatUrl(item.ZillowUrl, "LINK")
+                };
+
+                // Create row data while ensuring Excel formatting compatibility
+                string[] row =
+                {
+                    item.ZoningType, item.County, item.City, item.ParcelID, urls[0],urls[1],
+                    item.Address, item.OwnerName, urls[2], item.AssessedValue, item.Acres,
+                    urls[3], urls[4], urls[5], urls[6], urls[7]
+                };
+
+                clipboardText.AppendLine(string.Join("\t", row));
+            }
+
+            // Clipboard operation runs on UI thread
+            await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText.ToString()));
         }
 
         #endregion
@@ -532,7 +585,7 @@ namespace RegridMapper.ViewModels
         //private bool OnCanNavigateDetails(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.DetailsUrl);
 
         private void UpdateRegridStatusLabel(ParcelData item, string message) 
-            => CurrentScrapingElement = $"Scraping {message} for Parcel {item.ParcelID}";
+            => CurrentScrapingElement = $"{message} - {item.ParcelID} - ";
 
         #endregion
     }

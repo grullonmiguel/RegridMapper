@@ -11,7 +11,16 @@ namespace RegridMapper.ViewModels
         public string? ParcelID
         {
             get => _parcelID;
-            set => SetProperty(ref _parcelID, value);
+            set
+            {
+                SetProperty(ref _parcelID, value);
+
+                if (value != null)
+                {
+                    AppraisalUrl = $"https://www.assessormelvinburgess.com/propertyDetails?IR=true&parcelid={ParcelID}";
+                    DetailUrl = $"https://public-sctn.epropertyplus.com/landmgmtpub/remote/public/property/viewSummary?parcelNumber={ParcelID}";
+                }
+            }
         }
         private string? _parcelID;
 
@@ -107,9 +116,9 @@ namespace RegridMapper.ViewModels
             set => SetProperty(ref _detailUrl, value);
         }
         private string? _detailUrl;
-        // private string? _detailUrl = $"https://public-wclb.epropertyplus.com/landmgmtpub/remote/public/property/viewSummary?parcelNumber={ParcelID}" : "";
+        // private string? _detailUrl = $"https://public-sctn.epropertyplus.com/landmgmtpub/remote/public/property/viewSummary?parcelNumber={ParcelID}" : "";
         // private string? _detailUrl = !string.IsNullOrWhiteSpace(GeographicCoordinate) ? string.Format(AppConstants.URL_OpenStreetMap, GeographicCoordinate): "";
-        
+
         public string? RegridUrl
         {
             get => _regridUrl;
