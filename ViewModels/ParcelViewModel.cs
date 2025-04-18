@@ -1,5 +1,4 @@
 ﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Support.UI;
 using RegridMapper.Core.Commands;
 using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Services;
@@ -8,7 +7,6 @@ using RegridMapper.Services;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 
@@ -20,7 +18,8 @@ namespace RegridMapper.ViewModels
 
         private bool _cancelScraping; 
         private readonly Logger _logger;
-        private readonly SeleniumScraper _scraper;
+        private readonly SeleniumWebDriverService _scraper;
+        private readonly RegridDataService _regriDataService = new();
         private readonly OpenStreetMapService _openStreetMapService = new();
 
         #endregion
@@ -62,19 +61,86 @@ namespace RegridMapper.ViewModels
 
         #endregion
 
+        #region CanScrape Properties
+
+        public bool ShouldScrapeCity
+        {
+            get => _shouldScrapeCity;
+            set => SetProperty(ref _shouldScrapeCity, value);
+        }
+        private bool _shouldScrapeCity = true;
+
+        public bool ShouldScrapeZoning
+        {
+            get => _shouldScrapeZoning;
+            set => SetProperty(ref _shouldScrapeZoning, value);
+        }
+        private bool _shouldScrapeZoning = true;
+
+        public bool ShouldScrapeZipCode
+        {
+            get => _shouldScrapeZipCode;
+            set => SetProperty(ref _shouldScrapeZipCode, value);
+        }
+        private bool _shouldScrapeZipCode = true;
+
+        public bool ShouldScrapeAddress
+        {
+            get => _shouldScrapeAddress;
+            set => SetProperty(ref _shouldScrapeAddress, value);
+        }
+        private bool _shouldScrapeAddress = true;
+
+        public bool ShouldScrapeOwner
+        {
+            get => _shouldScrapeOwner;
+            set => SetProperty(ref _shouldScrapeOwner, value);
+        }
+        private bool _shouldScrapeOwner = true;
+
+        public bool ShouldScrapeAssessedValue
+        {
+            get => _shouldScrapeAssessedValue;
+            set => SetProperty(ref _shouldScrapeAssessedValue, value);
+        }
+        private bool _shouldScrapeAssessedValue = true;
+
+        public bool ShouldScrapeAcres
+        {
+            get => _shouldScrapeAcres;
+            set => SetProperty(ref _shouldScrapeAcres, value);
+        }
+        private bool _shouldScrapeAcres = true;
+
+        public bool ShouldScrapeCoordinates
+        {
+            get => _shouldScrapeCoordinates;
+            set => SetProperty(ref _shouldScrapeCoordinates, value);
+        }
+        private bool _shouldScrapeCoordinates = true;
+
+        public bool ShouldScrapeFloodZone
+        {
+            get => _shouldScrapeFloodZone;
+            set => SetProperty(ref _shouldScrapeFloodZone, value);
+        }
+        private bool _shouldScrapeFloodZone = true;
+
+        #endregion
+
         #region Commands
 
-        public ICommand ClearDataCommand { get; }
-        public ICommand SelectedParcelsCommand { get; }
+        public ICommand ClearDataCommand => new RelayCommand(ClearData);
+        public ICommand SelectedParcelsCommand => new RelayCommand<IList>(OnSelectedParcelsChanged);
 
         // Clipboard Commands
         public ICommand CopySelectedParcelsCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelsSelected);
         public ICommand LoadFromClipboardCommand => new RelayCommand(async () => await LoadFromClipboard());
 
         // Regrid Scraping Commands
-        public ICommand RegridQueryCancelCommand => new RelayCommand(async () => await CancelRegridScraping());
-        public ICommand RegridQueryAllParcelsCommand => new RelayCommand(async () => await RegridQueryAllParcels());
-        public ICommand RegridQuerySelectedCommand => new RelayCommand(async () => await RegridQuerySelectedParcels(), () => ParcelsSelected);
+        public ICommand RegridQueryCancelCommand => new RelayCommand(async () => await CancelScraping());
+        public ICommand RegridQueryAllParcelsCommand => new RelayCommand(async () => await ScrapeParcels(ParcelList.ToList()));
+        public ICommand RegridQuerySelectedCommand => new RelayCommand(async () => await ScrapeParcels(SelectedParcels.ToList()), () => ParcelsSelected);
 
         // URL Navigation Commands
         public ICommand NavigateAppraiserCommand => CreateNavigateCommand(item => item?.AppraiserUrl);
@@ -98,27 +164,19 @@ namespace RegridMapper.ViewModels
         public ParcelViewModel()
         {
             _logger = Logger.Instance;
-            ClearDataCommand = new RelayCommand(ClearData);
-            SelectedParcelsCommand = new RelayCommand<IList>(OnSelectedParcelsChanged);
         } 
 
         #endregion
 
         #region Regrid Scraping
 
-        private async Task RegridQueryAllParcels() 
-            => await RegridScrapeParcels(ParcelList.ToList()); // Convert ObservableCollection to List
-
-        private async Task RegridQuerySelectedParcels() 
-            => await RegridScrapeParcels(SelectedParcels.ToList());
-
-        private async Task RegridScrapeParcels(List<ParcelData> parcels)
+        private async Task ScrapeParcels(List<ParcelData> parcels)
         {
             if (parcels == null || parcels.Count == 0)
                 return; // Avoid unnecessary execution if there are no parcels to process
-
-            IsScraping = true; // Indicate process start
-            OnPropertyChanged(nameof(IsScraping));
+            
+            // Indicate process start
+            IsScraping = true; 
 
             // Record the start time
             var startTime = DateTime.Now;
@@ -127,9 +185,9 @@ namespace RegridMapper.ViewModels
             {
                 await Task.Run(async () =>
                 {
-                    using var scraper = new SeleniumScraper(BrowserType.Chrome, true, "127.0.0.1:9222");
+                    // Connect to a chrome session with debugging enabled
+                    using var scraper = new SeleniumWebDriverService(BrowserType.Chrome, true, "127.0.0.1:9222");
                     SemaphoreSlim semaphore = new(3);
-
 
                     for (int i = 0; i < parcels.Count; i++)
                     {
@@ -139,16 +197,16 @@ namespace RegridMapper.ViewModels
                         try
                         {
                             RegridStatus = $"Processing {i + 1} of {parcels.Count}.";
-
-                            //var url = $"{AppConstants.BaseRegridUrlPrefix}{item.ParcelID}{AppConstants.BaseRegridUrlPostfix}";
-
                             CurrentScrapingElement = item?.ParcelID;
 
+                            // Set initial Regrid URL
                             item.RegridUrl = string.Format(AppConstants.URL_Regrid, Uri.EscapeDataString(item.ParcelID));
 
-                            var pageSource = await scraper.ScrapeParcelDataAsync(item?.RegridUrl);
+                            // Get the HTML for the selected Parcel ID
+                            var htmlSource = await scraper.CaptureHTMLSource(item?.RegridUrl);
 
-                            if (string.IsNullOrWhiteSpace(pageSource))
+                            // Verify something was scraped
+                            if (string.IsNullOrWhiteSpace(htmlSource))
                             {
                                 item.NoMatchDetected = true;
                                 CurrentScrapingElement = $"NOT FOUND: {item?.ParcelID}";
@@ -156,7 +214,7 @@ namespace RegridMapper.ViewModels
                                 continue;
                             }
 
-                            await ExtractParcelData(pageSource, item, scraper);
+                            await _regriDataService.GetParcelData(htmlSource, item, scraper);
                         }
                         catch (WebDriverTimeoutException ex)
                         {
@@ -174,20 +232,14 @@ namespace RegridMapper.ViewModels
                         {
                             semaphore.Release();
                             OnPropertyChanged(nameof(ParcelList));
-
-                            // Add delay before moving to the next parcel
-                            await Task.Delay(TimeSpan.FromSeconds(1));
-
                         }
                     }
                 });
             }
             finally
-            {                
-                // Calculate elapsed time
-                var elapsedTime = DateTime.Now - startTime;
-                
+            {
                 // Display ellapsed time in minutes and seconds
+                var elapsedTime = DateTime.Now - startTime;                
                 RegridStatus = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
 
                 IsScraping = false; // Indicate process end
@@ -195,171 +247,8 @@ namespace RegridMapper.ViewModels
                 NotifyPropertiesChanged(nameof(IsScraping), nameof(RegridStatus));
             }
         }
-        
-        private int ExtractMatchCount(string pageSource)
-        {
-            Match match = Regex.Match(pageSource, @"Found (\d+) matches");
-            return match.Success && int.TryParse(match.Groups[1].Value, out int count) ? count : -1;
-        }
 
-        private async Task ExtractParcelData(string pageSource, ParcelData item, SeleniumScraper scraper)
-        {
-            try
-            {
-                // Extract match count from page source
-                var matchCount = ExtractMatchCount(pageSource);
-
-                if (matchCount == 0)
-                {
-                    item.NoMatchDetected = true;
-                    item.MultipleMatchesFound = false;
-                    CurrentScrapingElement = $"No matches found - {item.ParcelID}";
-                    await Task.Delay(1000);
-                    return;
-                }
-                else if (matchCount > 1)
-                {
-                    item.NoMatchDetected = false;
-                    item.MultipleMatchesFound = true;
-                    CurrentScrapingElement = $"Multiple matches found - {item.ParcelID}";
-                    await Task.Delay(1000);
-                    return;
-                }
-                else if (matchCount == 1)
-                {
-                    await Task.Delay(500); // Allow page transition
-
-                    var wait = new WebDriverWait(scraper.WebDriver, TimeSpan.FromSeconds(5));
-                    var divContainer = wait.Until(d => scraper.FindElementSafely(By.CssSelector("div.headline.parcel-result")));
-
-                    if (divContainer == null)
-                    {
-                        CurrentScrapingElement = $"Parcel result not found - {item.ParcelID}";
-                        await Task.Delay(1000);
-                        return;
-                    }
-
-                    // Find the Hyperlink and click on it to go to the parcel page
-                    var hyperlink = divContainer.FindElement(By.TagName("a"));
-                    hyperlink.Click();
-
-                    wait = new WebDriverWait(scraper.WebDriver, TimeSpan.FromSeconds(1));
-
-                    // ZONING
-                    UpdateRegridStatusLabel(item, AppConstants.RegridZoningType);
-                    item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridZoningType);
-                    if (string.IsNullOrEmpty(item.ZoningType)) item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Zoning type");
-                    if (string.IsNullOrEmpty(item.ZoningType)) item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Zoning Description");
-                    if (string.IsNullOrEmpty(item.ZoningType)) item.ZoningType = await GetNextDivTextAsync(scraper.WebDriver, "Land Use");
-
-                    // CITY
-                    UpdateRegridStatusLabel(item, AppConstants.RegridCity);
-                    item.City = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridCity);
-
-                    // ZIP CODE
-                    UpdateRegridStatusLabel(item, AppConstants.RegridZip);
-                    item.ZipCode = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridZip);
-                    if (string.IsNullOrEmpty(item.ZipCode)) item.ZipCode = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridZip2);
-
-                    // REGRID
-                    item.RegridUrl = scraper.WebDriver.Url;
-
-                    // ADDRESS
-                    UpdateRegridStatusLabel(item, AppConstants.RegridAddress);
-                    item.Address = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridAddress);
-
-                    // OWNER
-                    UpdateRegridStatusLabel(item, AppConstants.RegridOwner);
-                    item.OwnerName = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridOwner);
-                    if (string.IsNullOrEmpty(item.Acres)) item.OwnerName = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridOwner);
-
-                    // ASSESSED
-                    UpdateRegridStatusLabel(item, AppConstants.RegridAssessedValue);
-                    item.AssessedValue = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridAssessedValue);
-
-                    // ACRES
-                    UpdateRegridStatusLabel(item, AppConstants.RegridAcres);
-                    item.Acres = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridAcres);
-                    if (string.IsNullOrEmpty(item.Acres)) item.Acres = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridAcres);
-                    if (!string.IsNullOrEmpty(item.Acres)) item.Acres = item.Acres.ToLower().Replace(" acres", "");
-
-                    // COORDINATE
-                    UpdateRegridStatusLabel(item, AppConstants.RegridCoordinates);
-                    item.GeographicCoordinate = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridCoordinates);
-
-                    // FLOOD ZONE
-                    UpdateRegridStatusLabel(item, AppConstants.RegridFema);
-                    item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridFema);
-                    if (string.IsNullOrEmpty(item.FloodZone)) item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, AppConstants.RegridFema2);
-                    if (string.IsNullOrEmpty(item.FloodZone))  item.FloodZone = await GetNextDivTextAsync(scraper.WebDriver, "N/A");
-                }
-                else
-                {
-                    //item.Response = "Match count could not be determined";
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        public async Task<string> GetNextDivTextAsync(IWebDriver driver, string searchText, int maxRetries = 5)
-        {
-            IWebElement target = null;
-            IWebElement nextDiv = null;
-
-            try
-            {
-                int retryCount = 0;
-                while (target == null && retryCount < maxRetries)
-                {
-                    target = (IWebElement)((IJavaScriptExecutor)driver).ExecuteScript(
-                        $"return document.evaluate(\"//div[contains(text(), '{searchText}')]\"," +
-                        "document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;");
-
-                    if (target == null)
-                    {
-                        await Task.Delay(500); // Asynchronous wait before retrying
-                        retryCount++;
-                    }
-                }
-            }
-            catch
-            {
-                return $"";
-            }
-
-            // Locate the next sibling div
-            if (target != null)
-            {
-                try
-                {
-                    nextDiv = target.FindElement(By.XPath("following-sibling::div"));
-                }
-                catch
-                { }
-
-                // Look inside nested span
-                if (nextDiv == null)
-                {
-                    try
-                    {
-                        nextDiv = target.FindElement(By.XPath("ancestor::div/following-sibling::div[contains(@class, 'field-value')]//span"));
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            var returnVal = nextDiv != null ?
-                nextDiv.Text.Replace("\r\n", " ") :
-                (string)((IJavaScriptExecutor)driver).ExecuteScript("return arguments[0] ? arguments[0].closest('.field')?.querySelector('.field-value span')?.innerText || 'Not found' : '';", target);
-
-            return returnVal;
-        }
-
-        private Task CancelRegridScraping()
+        private Task CancelScraping()
         {
             _cancelScraping = true;
             return Task.CompletedTask;
@@ -560,8 +449,7 @@ namespace RegridMapper.ViewModels
                     SelectedParcels.Add(parcel);
             }
 
-            OnPropertyChanged(nameof(SelectedParcels));
-            OnPropertyChanged(nameof(ParcelsSelected));
+            NotifyPropertiesChanged(nameof(SelectedParcels),nameof(ParcelsSelected));
         }
 
         private void NotifyPropertiesChanged(params string[] propertyNames)
@@ -570,22 +458,7 @@ namespace RegridMapper.ViewModels
                 OnPropertyChanged(property);
         }
 
-        private bool OnCanNavigateFemaAddress(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.FemaUrl);
-
-        private bool OnCanNavigateGoogleMaps(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.GoogleUrl);
-
-        private bool OnCanNavigateRegrid(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.RegridUrl);
-
-        private bool OnCanNavigateRealtor(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.RealtorUrl);
-
-        private bool OnCanNavigateRedfin(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.RedfinUrl);
-
-        private bool OnCanNavigateZillow(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.ZillowUrl);
-
-        //private bool OnCanNavigateDetails(ParcelData item) => item != null && UrlHelper.IsValidUrl(item?.DetailsUrl);
-
-        private void UpdateRegridStatusLabel(ParcelData item, string message) 
-            => CurrentScrapingElement = $"{message} - {item.ParcelID} - ";
+        private void UpdateRegridStatusLabel(ParcelData item, string message) => CurrentScrapingElement = $"{message} - {item.ParcelID} - ";
 
         #endregion
     }

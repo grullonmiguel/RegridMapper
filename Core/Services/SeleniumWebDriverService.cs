@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace RegridMapper.Services
 {
-    public class SeleniumScraper : IDisposable
+    public class SeleniumWebDriverService : IDisposable
     {
         private bool _disposed = false;
         private IWebDriver? _driver;
@@ -20,7 +20,7 @@ namespace RegridMapper.Services
         /// Initializes the Selenium WebDriver with the specified browser.
         /// Default is Chrome.
         /// </summary>
-        public SeleniumScraper(BrowserType browser = BrowserType.Chrome, bool headless = true, string? debuggerAddress = null)
+        public SeleniumWebDriverService(BrowserType browser = BrowserType.Chrome, bool headless = true, string? debuggerAddress = null)
         {
             _logger = Logger.Instance;
 
@@ -60,7 +60,9 @@ namespace RegridMapper.Services
                     chromeOptions.AddArgument("--disable-infobars");
                     chromeOptions.AddArgument("--disable-background-timer-throttling");
                     chromeOptions.AddArgument("--disable-backgrounding-occluded-windows");
+                    chromeOptions.AddArgument("--disable-renderer-backgrounding");
                     chromeOptions.AddArgument("--disable-sync");
+
                     chromeOptions.PageLoadStrategy = PageLoadStrategy.Eager;
 
                     if (!string.IsNullOrWhiteSpace(debuggerAddress))
@@ -73,26 +75,24 @@ namespace RegridMapper.Services
         /// <summary>
         /// Navigates to the specified URL and returns the page source.
         /// </summary>
-        public async Task<string?> ScrapeParcelDataAsync(string parcelUrl)
+        public async Task<string?> CaptureHTMLSource(string parcelUrl)
         {
-            if (!IsWebDriverRunning()) // Ensure WebDriver process is active
+            // Ensure WebDriver process is active
+            if (!IsWebDriverRunning() || _driver == null) 
             {
                 await Task.Run(() => _logger.LogAsync("WebDriver process is not running. Skipping request."));
                 return null;
             }
 
-            if (_driver == null)
-            {
-                await Task.Run(() => _logger.LogAsync("WebDriver instance is null."));
-                return null;
-            }
-
             try
             {
-                // Test if WebDriver is responsive by accessing the title
-                _ = _driver.Title; // Simple call to check if WebDriver is still responsive
+                // Simple call to check if WebDriver is still responsiveby accessing the title
+                _ = _driver.Title;
 
+                // It behaves like manually typing the URL into a browser and pressing Enter.
                 _driver.Navigate().GoToUrl(parcelUrl);
+
+                // Captures and returns the HTML content of the page.
                 return _driver.PageSource;
             }
             catch (WebDriverException ex)
@@ -108,7 +108,7 @@ namespace RegridMapper.Services
             var processes = Process.GetProcessesByName("chromedriver"); // Change this to match your WebDriver executable
             if (processes.Length == 0)
             {
-                _logger.LogAsync("WebDriver process is not running. Ensure it is started before executing the script.");
+                _logger.LogAsync("WebDriver process is not running.");
                 return false;
             }
 
@@ -142,7 +142,7 @@ namespace RegridMapper.Services
         public IWebElement? FindElementSafely(By locator)
         {
             if (_driver == null)
-                throw new ObjectDisposedException(nameof(SeleniumScraper), "WebDriver instance has been disposed.");
+                throw new ObjectDisposedException(nameof(SeleniumWebDriverService), "WebDriver instance has been disposed.");
 
             try
             {

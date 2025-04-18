@@ -184,5 +184,15 @@ namespace RegridMapper.ViewModels
             set => SetProperty(ref _noMatchDetected, value);
         }
         private bool _noMatchDetected;
+
+        public void SetPropertyValue(string propertyName, string value)
+        {
+            var property = typeof(ParcelData).GetProperty(propertyName);
+            if (property != null && !string.IsNullOrEmpty(value))
+            {
+                property.SetValue(this, value);
+            }
+        }
+
     }
 }
