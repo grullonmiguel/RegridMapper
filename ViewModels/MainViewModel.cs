@@ -7,24 +7,31 @@ namespace RegridMapper.ViewModels
     {
         #region Fields
 
-        private readonly Lazy<Dictionary<Type, BaseViewModel>> _viewCache = new(() => []);
+        private readonly Lazy<Dictionary<Type, BaseViewModel>> _viewCache =
+            new(() => new Dictionary<Type, BaseViewModel>(), LazyThreadSafetyMode.ExecutionAndPublication);
 
         #endregion
 
         #region Properties
 
-        public object CurrentView
+        public BaseViewModel CurrentViewModel
         {
-            get => _currentView;
-            set => SetProperty(ref _currentView, value);
+            get => _currentViewModel;
+            set => SetProperty(ref _currentViewModel, value);
         }
-        private object _currentView;
+        private BaseViewModel _currentViewModel;
+
 
         #endregion
 
         #region Commands
-       
-        public ICommand ChangeViewCommand { get; }
+
+        public ICommand ChangeViewCommand => new RelayCommand<Type>(viewModelType =>
+        {
+            Console.WriteLine($"Executing ChangeViewCommand with {viewModelType.Name}");
+            CurrentViewModel = GetCachedViewModel(viewModelType);
+        });
+
 
         #endregion
 
@@ -32,33 +39,32 @@ namespace RegridMapper.ViewModels
 
         public MainViewModel()
         {
-            SetDefaultView();
-            ChangeViewCommand = new RelayCommand<BaseViewModel>(ChangeView);
+            //SetDefaultView();
         }
 
         #endregion
 
         #region Methods
-
-        private void ChangeView(object parameter)
+        private BaseViewModel GetCachedViewModel(Type viewModelType)
         {
-            if (parameter is Type viewModelType && typeof(BaseViewModel).IsAssignableFrom(viewModelType))
+            if (!_viewCache.Value.TryGetValue(viewModelType, out BaseViewModel cachedViewModel))
             {
-                if (!_viewCache.Value.ContainsKey(viewModelType))
-                    _viewCache.Value[viewModelType] = (BaseViewModel)Activator.CreateInstance(viewModelType)!;
-
-                CurrentView = _viewCache.Value[viewModelType]; // Preserve previous state of the ViewModel
+                cachedViewModel = (BaseViewModel)Activator.CreateInstance(viewModelType)!;
+                _viewCache.Value[viewModelType] = cachedViewModel;
             }
+
+            Console.WriteLine($"Switching to ViewModel: {cachedViewModel.GetType().Name}");
+            return cachedViewModel;
         }
+
+
 
         private void SetDefaultView()
         {
             try
             {
                 // Set the default view model
-                var defaultViewModel = new ParcelViewModel();
-                ChangeView(defaultViewModel);
-                CurrentView = defaultViewModel;
+                //ChangeView(typeof(ParcelViewModel));
             }
             catch { }
         }

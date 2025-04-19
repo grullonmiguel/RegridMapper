@@ -2,9 +2,9 @@
 
 namespace RegridMapper.Views
 {
-    public partial class ParcelView : UserControl
+    public partial class RealAuctionView : UserControl
     {
-        public ParcelView()
+        public RealAuctionView()
         {
             InitializeComponent();
         }

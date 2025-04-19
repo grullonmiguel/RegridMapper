@@ -6,7 +6,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:RegridMapper.Views">
 
-    <Border Padding="16 0 16 16">
+    <Border Padding="16 0 16 16"  Background="{StaticResource Brushes.Background}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
