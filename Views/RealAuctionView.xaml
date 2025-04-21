@@ -1,14 +1,249 @@
 ﻿<UserControl x:Class="RegridMapper.Views.RealAuctionView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"             
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors">
+    <Grid Background="{StaticResource Brushes.Background}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-    <Border Padding="16 0 16 16"  Background="{StaticResource Brushes.Background}">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-        </Grid>
-    </Border>
+        <!-- Buttons -->
+        <WrapPanel Margin="8 0">
+            <!-- Start -->
+            <Button 
+                Content="START" 
+                IsEnabled="{Binding CanScrape}" 
+                Tag="{StaticResource Geometry.Info}"
+                Style="{StaticResource  Buttons.Link}" 
+                Command="{Binding StartScrapingCommand}" />
+
+            <!-- Clear -->
+            <Button 
+                Content="COPY" 
+                Tag="{StaticResource Geometry.Copy}"
+                Command="{Binding CopyParcelsCommand}" 
+                Style="{StaticResource  Buttons.Link}"  />
+        </WrapPanel>
+
+        <TextBlock 
+            Margin="8 0"
+            FontWeight="SemiBold" 
+            VerticalAlignment="Center"
+            HorizontalAlignment="Right"
+            Text="{Binding AuctionCounty}" 
+            FontSize="{StaticResource Fonts.Large}"
+            Foreground="{StaticResource Brushes.Primary}" />
+
+        <!-- Parcel List -->
+        <DataGrid 
+                Grid.Row="1" Margin="0 4 0 0"
+                ItemsSource="{Binding ParcelList}" 
+                LoadingRow="DataGrid_LoadingRow" 
+                HorizontalScrollBarVisibility="Auto">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="PARCEL ID" Binding="{Binding ParcelID}" />
+                <DataGridTemplateColumn Header="GIS" Width="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button 
+                                Content="LINK"
+                                Style="{StaticResource Buttons.Hyperlink}"
+                                Command="{Binding DataContext.NavigateToRegridCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                CommandParameter="{Binding}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.ClipboardContentBinding>
+                        <Binding Path="RegridUrl"/>
+                    </DataGridTemplateColumn.ClipboardContentBinding>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="APPRAISAL" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button 
+                                Content="LINK"
+                                Style="{StaticResource Buttons.Hyperlink}"
+                                Command="{Binding DataContext.NavigateAppraiserCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                CommandParameter="{Binding}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.ClipboardContentBinding>
+                        <Binding Path="AppraiserUrl"/>
+                    </DataGridTemplateColumn.ClipboardContentBinding>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="OPENING BID" Binding="{Binding AskingPrice, StringFormat=C}" Width="Auto" />
+                <DataGridTextColumn Header="ASSESSED" Binding="{Binding AssessedValue, StringFormat=C}" Width="Auto" />
+                <DataGridTextColumn Header="CASE #" Binding="{Binding DetailUrl}" Width="Auto" />
+                <DataGridTextColumn Header="ADDRESS" Binding="{Binding Address}" Width="*"/>
+            </DataGrid.Columns>
+            <!-- Context Menu -->
+            <DataGrid.ContextMenu>
+                <ContextMenu Style="{StaticResource ContextMenuStyle}">
+                    <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy Parcel IDs to Clipboard" Command="{Binding CopyParcelNumbersCommand}" IsEnabled="{Binding ParcelsSelected}">
+                        <MenuItem.Icon>
+                            <Viewbox Width="16" Height="16">
+                                <Path Data="{StaticResource Geometry.Copy}" />
+                            </Viewbox>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <!--<MenuItem Style="{StaticResource MenuItemStyle}" Header="Fetch Selected Parcels from Regrid" Command="{Binding RegridQuerySelectedCommand}" IsEnabled="{Binding ParcelsSelected}">
+                        <MenuItem.Icon>
+                            <Viewbox Width="16" Height="16">
+                                <Path Data="{StaticResource Geometry.Copy}" />
+                            </Viewbox>
+                        </MenuItem.Icon>
+                    </MenuItem>-->
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding SelectedParcelsCommand}" CommandParameter="{Binding SelectedItems, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </DataGrid>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Padding="8 12" >
+            <Grid>
+                <!-- Definitions -->
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <!-- Auction URL-->
+                <Button Tag="{StaticResource Geometry.Edit}" Style="{StaticResource  Buttons.Link}" Margin="0 0 4 0" Command="{Binding CountySettingsEditCommand}" />
+                <TextBlock Grid.Column="1" Text="Auction URL:" FontSize="{StaticResource Fonts.Small}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                <Button 
+                    Grid.Column="2" 
+                    Margin="8 0 0 0" 
+                    Content="{Binding AuctionURL}" 
+                    Command="{Binding NavigateToAuctionUrlCommand}"  
+                    Style="{StaticResource Buttons.Link}" 
+                    Visibility="{Binding CanScrape, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </Grid>
+        </Border>
+
+        <!-- Settings -->
+        <Border Padding="24" Grid.RowSpan="3" Background="{StaticResource Brushes.Background}" Visibility="{Binding ShowCountySettings, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                    
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="{StaticResource Brushes.Accent}" CornerRadius="75 75 0 0" Margin="0 0 16 0">
+                        <Grid>
+                            <TextBlock Text="STEP 1: Choose State" FontWeight="Bold" HorizontalAlignment="Center" Margin="0 40 0 20" />
+                            <DataGrid
+                                Margin="4 80 4 0" Background="Transparent"
+                                HeadersVisibility="None"
+                                RowStyle="{StaticResource DataGridRowAlternate}"
+                                CellStyle="{StaticResource DataGridCellAlternate}"
+                                ItemsSource="{Binding States}" 
+                                SelectedItem="{Binding Path=StateSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="County" Binding="{Binding Name}" Width="*" />
+                                    </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1" Background="{StaticResource Brushes.Accent}" CornerRadius="75 75 0 0" Margin="8 0">
+                        <Grid>
+                            <TextBlock Text="STEP 2: Choose County" FontWeight="Bold" HorizontalAlignment="Center" Margin="0 40 0 20" />
+                            <DataGrid
+                                Margin="4 80 4 0" Background="Transparent"
+                                HeadersVisibility="None"
+                                ItemsSource="{Binding Counties}"                                   
+                                RowStyle="{StaticResource DataGridRowAlternate}"
+                                CellStyle="{StaticResource DataGridCellAlternate}"
+                                SelectedItem="{Binding Path=CountySelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="County" Binding="{Binding Name}" />
+                                    <DataGridTemplateColumn Header="County Website" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button 
+                                                    Content="County Website"
+                                                    Style="{StaticResource Buttons.Hyperlink}"
+                                                    Command="{Binding DataContext.NavigateToCountyUrlCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                    CommandParameter="{Binding}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Background="{StaticResource Brushes.Accent}" CornerRadius="75 75 0 0" Margin="16 0 0 0">
+                        <Grid>
+                            <StackPanel>
+                                <TextBlock Text="STEP 3: Auction Date" FontWeight="Bold" HorizontalAlignment="Center" Margin="0 40 0 20" />
+                                <DatePicker HorizontalAlignment="Center" SelectedDate="{Binding AuctionDate, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Grid Grid.Row="2" Margin="0 8 0 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button 
+                        Content="BACK"
+                        Tag="{StaticResource Geometry.Close}" 
+                        Style="{StaticResource  Buttons.Link}" 
+                        Command="{Binding CountySettingsCloseCommand}" />
+
+                    <Button 
+                        Grid.Column="1" 
+                        Margin="8 0 0 0" 
+                        Content="{Binding AuctionURL}" 
+                        Command="{Binding NavigateToAuctionUrlCommand}" 
+                        Style="{StaticResource Buttons.Link}" 
+                        Visibility="{Binding CanScrape, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                    <Button 
+                        Content="SAVE"
+                        Grid.Column="2"
+                        IsEnabled="{Binding CanScrape}"
+                        Tag="{StaticResource Geometry.Paste}" 
+                        Style="{StaticResource Buttons.Link}" 
+                        Command="{Binding AuctionUrlSaveCommand}" />
+                </Grid>
+
+
+                <!--<ListBox
+                    Grid.Row="3"
+                    Background="Transparent"
+                    Focusable="False"
+                    SelectedValuePath="Name"
+                    DisplayMemberPath="Name" 
+                    BorderThickness="0"
+                    ItemsSource="{Binding Path=Counties, Mode=OneWay}"
+                    SelectedItem="{Binding Path=CountySelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />-->
+
+
+            </Grid>
+        </Border>
+    </Grid> 
 </UserControl>

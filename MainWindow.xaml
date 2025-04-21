@@ -26,7 +26,11 @@
 
                 <WrapPanel HorizontalAlignment="Right">
 
-                    <Button 
+                    <RadioButton Content="Real Auction" Command="{Binding ChangeViewCommand}" 
+                                 CommandParameter="{x:Type viewModels:RealAuctionViewModel}" />
+                    <RadioButton Content="Regrid" Command="{Binding ChangeViewCommand}" 
+                                 CommandParameter="{x:Type viewModels:ParcelViewModel}" />
+                    <!--<Button 
                         Click="TriggerAnimation"
                         Style="{StaticResource Buttons.Icon}"
                         Command="{Binding ChangeViewCommand}"
@@ -35,7 +39,7 @@
                         Click="TriggerAnimation"
                         Style="{StaticResource Buttons.Icon}"
                         Command="{Binding ChangeViewCommand}"
-                        CommandParameter="{x:Type viewModels:RealAuctionViewModel}"/>
+                        CommandParameter="{x:Type viewModels:RealAuctionViewModel}"/>-->
                 </WrapPanel>
                 <!-- Buttons -->
             </Grid>

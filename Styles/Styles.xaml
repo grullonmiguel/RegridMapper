@@ -21,19 +21,27 @@
     <Color x:Key="Theme.Tertiary">#FF289774</Color>
     <Color x:Key="Theme.Accent">#338EE1C7</Color>
     <Color x:Key="Theme.Background">#3E3E3E</Color>
+
+    <Color x:Key="Theme.BackgroundPrimary">#FF282D33</Color>
+    <Color x:Key="Theme.BackgroundSecondary">#FF373E46</Color>
+    <Color x:Key="Theme.BackgroundTertiary">#FF292F34</Color>
+
     <Color x:Key="Theme.Foreground">#FFFFFF</Color>
     <Color x:Key="Theme.ForegroundSecondary">#DCF6ED</Color>
     <Color A="225" R="0" G="0" B="0" x:Key="Theme.Dialog" />
 
     <!-- Brushes for UI Elements -->
-    <SolidColorBrush x:Key="Brushes.Primary" Color="{StaticResource Theme.Primary}"/>
-    <SolidColorBrush x:Key="Brushes.Secondary" Color="{StaticResource Theme.Secondary}"/>
-    <SolidColorBrush x:Key="Brushes.Tertiary" Color="{StaticResource Theme.Tertiary}"/>
-    <SolidColorBrush x:Key="Brushes.Accent" Color="{StaticResource Theme.Accent}"/>
-    <SolidColorBrush x:Key="Brushes.Background" Color="{StaticResource Theme.Background}"/>
-    <SolidColorBrush x:Key="Brushes.Foreground" Color="{StaticResource Theme.Foreground}"/>
-    <SolidColorBrush x:Key="Brushes.ForegroundSecondary" Color="{StaticResource Theme.ForegroundSecondary}"/>
-    <SolidColorBrush x:Key="Brushes.Dialog" Color="{StaticResource Theme.Dialog}"/>
+    <SolidColorBrush x:Key="Brushes.Primary" Color="{StaticResource Theme.Primary}" options:Freeze="True"/>
+    <SolidColorBrush x:Key="Brushes.Secondary" Color="{StaticResource Theme.Secondary}" options:Freeze="True"/>
+    <SolidColorBrush x:Key="Brushes.Tertiary" Color="{StaticResource Theme.Tertiary}" options:Freeze="True"/>
+    <SolidColorBrush x:Key="Brushes.Accent" Color="{StaticResource Theme.Accent}" options:Freeze="True"/>
+    <SolidColorBrush x:Key="Brushes.Background" Color="{StaticResource Theme.BackgroundPrimary}" options:Freeze="True"/>
+    <SolidColorBrush x:Key="Brushes.BackgroundPrimary" Color="{StaticResource Theme.BackgroundPrimary}" options:Freeze="True" />
+    <SolidColorBrush x:Key="Brushes.BackgroundSecondary" Color="{StaticResource Theme.BackgroundSecondary}" options:Freeze="True" />
+    <SolidColorBrush x:Key="Brushes.BackgroundTertiary" Color="{StaticResource Theme.BackgroundTertiary}" options:Freeze="True" />
+    <SolidColorBrush x:Key="Brushes.Foreground" Color="{StaticResource Theme.Foreground}" options:Freeze="True"/>
+    <SolidColorBrush x:Key="Brushes.ForegroundSecondary" Color="{StaticResource Theme.ForegroundSecondary}" options:Freeze="True"/>
+    <SolidColorBrush x:Key="Brushes.Dialog" Color="{StaticResource Theme.Dialog}" options:Freeze="True"/>
     <!--#endregion-->
 
     <!--#region Geometry -->
@@ -46,6 +54,7 @@
     <Geometry x:Key="Geometry.Alert">M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z</Geometry>
     <Geometry x:Key="Geometry.Close">M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z</Geometry>
     <Geometry x:Key="Geometry.MapOutline">M11.5 9C11.5 7.62 12.62 6.5 14 6.5C15.1 6.5 16.03 7.21 16.37 8.19C16.45 8.45 16.5 8.72 16.5 9C16.5 10.38 15.38 11.5 14 11.5C12.91 11.5 12 10.81 11.64 9.84C11.55 9.58 11.5 9.29 11.5 9M5 9C5 13.5 10.08 19.66 11 20.81L10 22C10 22 3 14.25 3 9C3 5.83 5.11 3.15 8 2.29C6.16 3.94 5 6.33 5 9M14 2C17.86 2 21 5.13 21 9C21 14.25 14 22 14 22C14 22 7 14.25 7 9C7 5.13 10.14 2 14 2M14 4C11.24 4 9 6.24 9 9C9 10 9 12 14 18.71C19 12 19 10 19 9C19 6.24 16.76 4 14 4Z</Geometry>
+    <Geometry x:Key="Geometry.Edit">M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z</Geometry>
 
     <Geometry x:Key="Geometry.Error">M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2C6.47,2 2,6.47 2,12C2,17.53 6.47,22 12,22C17.53,22 22,17.53 22,12C22,6.47 17.53,2 12,2M14.59,8L12,10.59L9.41,8L8,9.41L10.59,12L8,14.59L9.41,16L12,13.41L14.59,16L16,14.59L13.41,12L16,9.41L14.59,8Z</Geometry>
     <Geometry x:Key="Geometry.Exclamation">M11,15H13V17H11V15M11,7H13V13H11V7M12,2C6.47,2 2,6.5 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20Z</Geometry>
@@ -341,6 +350,33 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <Style TargetType="{x:Type DataGridRow}" x:Key="DataGridRowAlternate">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style TargetType="{x:Type DataGridCell}" x:Key="DataGridCellAlternate">
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="BorderThickness" Value="0 0 0 .5"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Brushes.Primary}" />
+        <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}" />
+        <Setter Property="Foreground" Value="{StaticResource Brushes.ForegroundSecondary}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type DataGridCell}">
+                    <Border BorderThickness="{TemplateBinding BorderThickness}" 
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            Background="{TemplateBinding Background}">
+                        <ContentPresenter Margin="4 2" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{StaticResource Brushes.Background}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <!--#endregion-->
     
     <!--#region Context Menu Style -->
@@ -422,6 +458,151 @@
     </Style>
 
     <!--#endregion-->
+    
+    <!--#region DatePicker-->
+    <Style TargetType="CalendarDayButton" x:Key="SelectedDateStyle">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{StaticResource Brushes.Background}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Trigger>
+            <Trigger Property="IsToday" Value="True">
+                <Setter Property="Background" Value="#80000000"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="Calendar" x:Key="PopupCalendarStyle">
+        <Setter Property="Background" Value="{StaticResource  Brushes.Accent}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="CalendarDayButtonStyle" Value="{StaticResource SelectedDateStyle}"/>
+    </Style>
+
+    <Style TargetType="{x:Type DatePicker}">
+        <Setter Property="Foreground" Value="#FFFFFFFF" />
+        <Setter Property="IsTodayHighlighted" Value="True" />
+        <Setter Property="SelectedDateFormat" Value="Short" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="#FFFFFF" />
+        <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="DisplayDateStart" Value="{x:Static sys:DateTime.Today}" />
+        <Setter Property="CalendarStyle" Value="{StaticResource PopupCalendarStyle}"/>
+    </Style>
+    <Style TargetType="DatePickerTextBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="IsReadOnly" Value="True" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type DatePickerTextBox}">
+                    <Grid>
+                        <Grid.Resources>
+                            <SolidColorBrush x:Key="WatermarkBrush" Color="Red"/>
+                        </Grid.Resources>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0"/>
+                                    <VisualTransition GeneratedDuration="0:0:0.1" To="MouseOver"/>
+                                </VisualStateGroup.Transitions>
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="MouseOver" />
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="WatermarkStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0"/>
+                                </VisualStateGroup.Transitions>
+                                <VisualState x:Name="Unwatermarked"/>
+                                <VisualState x:Name="Watermarked">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" To="0" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="ContentElement"/>
+                                        <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="PART_Watermark"/>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0"/>
+                                </VisualStateGroup.Transitions>
+                                <VisualState x:Name="Unfocused"/>
+                                <VisualState x:Name="Focused" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Border x:Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="1" Opacity="1" Padding="{TemplateBinding Padding}">
+                            <Grid x:Name="WatermarkContent" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                                <Border x:Name="ContentElement" BorderBrush="#FFFFFFFF" BorderThickness="0"/>
+                                <Border x:Name="watermark_decorator" BorderBrush="#FFFFFFFF" BorderThickness="0">
+                                    <ContentControl x:Name="PART_Watermark" Focusable="False" IsHitTestVisible="False" Opacity="0" Padding="2"/>
+                                </Border>
+                                <ScrollViewer x:Name="PART_ContentHost" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="0" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--#endregion-->
+
+
+    <Style TargetType="RadioButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border 
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="{TemplateBinding Padding}">
+                        <Grid>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <!-- Default Appearance -->
+        <Setter Property="Foreground" Value="#FFFFFF"/>
+        <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}"/>
+        <Setter Property="Padding" Value="10,5"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1"/>
+
+        <Style.Triggers>
+            <!-- Hover Effect -->
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="White"/>
+            </Trigger>
+
+            <!-- Pressed Effect -->
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
+            </Trigger>
+
+            <!-- Selected Effect -->
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource Brushes.Accent}"/>
+                <Setter Property="Foreground" Value="{StaticResource Brushes.Primary}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
 
     <Style x:Key="AppLogo" TargetType="ContentControl">
         <Setter Property="Template">

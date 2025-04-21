@@ -6,7 +6,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:RegridMapper.Views">
 
-    <Border Padding="16 0 16 16"  Background="{StaticResource Brushes.Background}">
+    <Border Background="{StaticResource Brushes.Background}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -23,7 +23,7 @@
                     Command="{Binding LoadFromClipboardCommand}" 
                     IsEnabled="{Binding IsScraping, Converter={StaticResource InverseBooleanConverter}}"
                     Visibility="{Binding CanPaste, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                
+
                 <!-- Clear -->
                 <Button 
                     Content="CLEAR" 
@@ -31,7 +31,7 @@
                     Command="{Binding ClearDataCommand}" 
                     Style="{StaticResource  Buttons.Link}"
                     IsEnabled="{Binding IsScraping, Converter={StaticResource InverseBooleanConverter}}"
-                    Visibility="{Binding CanScrape, Converter={StaticResource BooleanToVisibilityConverter}}"/>                
+                    Visibility="{Binding CanScrape, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                 <!-- Regrid -->
                 <Button 
@@ -57,7 +57,7 @@
                     Command="{Binding RegridQueryCancelCommand}"
                     Visibility="{Binding IsScraping, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </WrapPanel>
-            
+
             <!-- Parcel DataGrid -->
             <DataGrid 
                 Grid.Row="1" HorizontalScrollBarVisibility="Auto"
@@ -74,7 +74,7 @@
                                 <Grid>
                                     <Border BorderBrush="#f6dd65" BorderThickness="1" Background="#30f6dd65" Padding="6 4" CornerRadius="6"
                                             Visibility="{Binding MultipleMatchesFound, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <StackPanel Orientation="Horizontal">                                            
+                                        <StackPanel Orientation="Horizontal">
                                             <Viewbox Width="14" Height="14">
                                                 <Path Data="{StaticResource Geometry.Alert}" Fill="#f6dd65"  />
                                             </Viewbox>
@@ -244,9 +244,6 @@
             <WrapPanel Grid.Row="2" Margin="0 16 0 0">
                 <TextBlock Text="{Binding TotalParcels}" />
             </WrapPanel>
-
-            
         </Grid>
     </Border>
-
 </UserControl>

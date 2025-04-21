@@ -15,14 +15,21 @@ namespace RegridMapper.ViewModels
             {
                 SetProperty(ref _parcelID, value);
 
-                if (value != null)
-                {
-                    AppraisalUrl = $"https://www.assessormelvinburgess.com/propertyDetails?IR=true&parcelid={ParcelID}";
-                    DetailUrl = $"https://public-sctn.epropertyplus.com/landmgmtpub/remote/public/property/viewSummary?parcelNumber={ParcelID}";
-                }
+                //if (value != null)
+                //{
+                //    AppraiserUrl = $"https://www.assessormelvinburgess.com/propertyDetails?IR=true&parcelid={ParcelID}";
+                //    DetailUrl = $"https://public-sctn.epropertyplus.com/landmgmtpub/remote/public/property/viewSummary?parcelNumber={ParcelID}";
+                //}
             }
         }
         private string? _parcelID;
+
+        public decimal? AskingPrice
+        {
+            get => _askingPrice;
+            set => SetProperty(ref _askingPrice, value);
+        }
+        private decimal? _askingPrice;
 
         public string? Address
         {
@@ -163,13 +170,6 @@ namespace RegridMapper.ViewModels
         /// Returns a formatted string representing the parcel details.
         /// </summary>
         public override string ToString() => $"ParcelID: {ParcelID}, Address: {Address}";
-
-        public string? AppraisalUrl
-        {
-            get => _appraisalUrl;
-            set => SetProperty(ref _appraisalUrl, value);
-        }
-        private string? _appraisalUrl;
 
         public bool MultipleMatchesFound
         {

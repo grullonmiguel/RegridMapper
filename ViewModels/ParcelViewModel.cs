@@ -395,7 +395,7 @@ namespace RegridMapper.ViewModels
                 {
                     FormatUrl(item.RegridUrl, "LINK"),
                     FormatUrl(item.DetailUrl, "LINK"),
-                    FormatUrl(item.AppraisalUrl, "LINK"),
+                    FormatUrl(item.AppraiserUrl, "LINK"),
                     FormatUrl(item.GoogleUrl, "LINK"),
                     FormatUrl(item.FemaUrl, item.FloodZone),
                     FormatUrl(item.RealtorUrl, "LINK"),

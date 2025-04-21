@@ -2,8 +2,10 @@
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Support.UI;
 using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Utilities;
+using SeleniumExtras.WaitHelpers;
 using System.Diagnostics;
 
 namespace RegridMapper.Services
@@ -13,6 +15,7 @@ namespace RegridMapper.Services
         private bool _disposed = false;
         private IWebDriver? _driver;
         private readonly Logger _logger;
+        private WebDriverWait _wait;
 
         public IWebDriver? WebDriver => _driver; // Read-only accessor
 
@@ -29,6 +32,7 @@ namespace RegridMapper.Services
                 debuggerAddress = string.Empty;
 
             _driver = CreateWebDriver(browser, headless, debuggerAddress);
+            _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(5));
         }
 
         private IWebDriver CreateWebDriver(BrowserType browser, bool headless, string? debuggerAddress)
@@ -53,7 +57,7 @@ namespace RegridMapper.Services
                     chromeOptions.AddArgument("--disable-gpu");
                     chromeOptions.AddArgument("--disable-extensions");
                     chromeOptions.AddArgument("--blink-settings=imagesEnabled=false");
-                    chromeOptions.AddArgument("--window-size=1920,1080");
+                    chromeOptions.AddArgument("--window-size=1280,720");
                     chromeOptions.AddArgument("--no-sandbox");
                     chromeOptions.AddArgument("--ignore-certificate-errors");
                     chromeOptions.AddArgument("--disable-popup-blocking");
@@ -102,6 +106,87 @@ namespace RegridMapper.Services
             }
         }
 
+        public async Task<List<string>> CaptureHTMLTable()
+        {
+            var data = new List<string>();
+
+            try
+            {
+                // Ensure page is fully loaded before scraping
+                await Task.Delay(300);
+
+                // Find elements asynchronously
+                var elements = await Task.Run(() => _driver.FindElements(By.XPath("//table//tr")));
+
+                // Extract data asynchronously using parallel processing
+                var extractedItems = await Task.Run(() => elements.AsParallel().Select(element => element.Text.Trim())
+                    .Where(text => !string.IsNullOrEmpty(text) &&
+                                   text.StartsWith("USER NAME", StringComparison.OrdinalIgnoreCase))
+                    .ToList());
+
+                data.AddRange(extractedItems);
+            }
+            catch (NoSuchElementException)
+            {
+                Console.WriteLine("No matching elements found.");
+            }
+            catch (WebDriverException)
+            {
+                Console.WriteLine("WebDriver error occurred.");
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Unexpected error occurred.");
+            }
+
+            return data;
+        }
+
+        /// <summary>
+        /// Retry Mechanism for Clicking Next Page – Handles transient failures.
+        /// </summary>
+        public bool TryClickNextPage(int maxRetries = 3)
+        {
+            int attempts = 0;
+            while (attempts < maxRetries)
+            {
+                try
+                {
+                    var nextPageButton = _wait.Until(ExpectedConditions.ElementToBeClickable(By.CssSelector(".PageRight")));
+                    nextPageButton?.Click();
+                    return true;
+                }
+                catch (TimeoutException)
+                {
+                    Console.WriteLine($"Attempt {attempts + 1}: Next page button not clickable.");
+                }
+                catch (NoSuchElementException)
+                {
+                    Console.WriteLine($"Attempt {attempts + 1}: Next page button not found.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Attempt {attempts + 1}: Next page button not found.");
+                }
+
+                attempts++;
+            }
+
+            return false;
+        }
+
+        public async Task NavigateToUrl(string url)
+        {
+            try
+            {
+                _driver.Navigate().GoToUrl(url);
+            }
+            catch (WebDriverException ex)
+            {
+                await Task.Run(() => _logger.LogExceptionAsync(ex));
+            }
+        }
+
         // Verify WebDriver process is running
         public bool IsWebDriverRunning()
         {
@@ -114,7 +199,6 @@ namespace RegridMapper.Services
 
             return true;
         }
-
 
         /// <summary>
         /// Safely disposes the WebDriver instance.
