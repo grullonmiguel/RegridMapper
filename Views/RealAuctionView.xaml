@@ -43,7 +43,7 @@
                 LoadingRow="DataGrid_LoadingRow" 
                 HorizontalScrollBarVisibility="Auto">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="PARCEL ID" Binding="{Binding ParcelID}" />
+                <DataGridTextColumn Header="PARCEL ID" Binding="{Binding ParcelID}" Width="130" />
                 <DataGridTemplateColumn Header="GIS" Width="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -58,7 +58,7 @@
                         <Binding Path="RegridUrl"/>
                     </DataGridTemplateColumn.ClipboardContentBinding>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="APPRAISAL" >
+                <DataGridTemplateColumn Header="APPRAISAL" Width="100" >
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Button 

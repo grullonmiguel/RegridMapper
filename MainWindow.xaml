@@ -11,43 +11,29 @@
         Height="768" Width="1024"
         MinHeight="480" MinWidth="640">
 
-    <Grid Background="{StaticResource Brushes.Background}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
+    <Border Style="{StaticResource Borders.Primary}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Border Padding="16">
+            <!-- Header -->
             <Grid>
                 <!-- Logo-->
                 <ContentControl Style="{StaticResource AppLogo}"/>
 
-
-                <WrapPanel HorizontalAlignment="Right">
-
-                    <RadioButton Content="Real Auction" Command="{Binding ChangeViewCommand}" 
-                                 CommandParameter="{x:Type viewModels:RealAuctionViewModel}" />
-                    <RadioButton Content="Regrid" Command="{Binding ChangeViewCommand}" 
-                                 CommandParameter="{x:Type viewModels:ParcelViewModel}" />
-                    <!--<Button 
-                        Click="TriggerAnimation"
-                        Style="{StaticResource Buttons.Icon}"
-                        Command="{Binding ChangeViewCommand}"
-                        CommandParameter="{x:Type viewModels:ParcelViewModel}"/>
-                    <Button 
-                        Click="TriggerAnimation"
-                        Style="{StaticResource Buttons.Icon}"
-                        Command="{Binding ChangeViewCommand}"
-                        CommandParameter="{x:Type viewModels:RealAuctionViewModel}"/>-->
-                </WrapPanel>
                 <!-- Buttons -->
+                <WrapPanel HorizontalAlignment="Right">
+                    <RadioButton Content="Real Auction" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:RealAuctionViewModel}" />
+                    <RadioButton Content="Regrid" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:ParcelViewModel}" />
+                </WrapPanel>
             </Grid>
-        </Border>
 
-        <!-- Views -->
-        <ContentControl Grid.Row="1" x:Name="ViewContainer"  Content="{Binding CurrentViewModel}" />
-    </Grid>
+            <!-- Views -->
+            <ContentControl Grid.Row="1" x:Name="ViewContainer"  Content="{Binding CurrentViewModel}" />
+        </Grid>
+    </Border>
 
     <Window.Resources>
         <Storyboard x:Key="FadeAnimation">

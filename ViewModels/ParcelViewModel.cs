@@ -30,8 +30,6 @@ namespace RegridMapper.ViewModels
 
         public ObservableCollection<ParcelData> SelectedParcels { get; set; } = new();
 
-        public bool CanPaste => ParcelList?.Count <= 0;
-
         public bool CanScrape => ParcelList.Count > 0;
 
         public bool IsScraping
@@ -57,7 +55,7 @@ namespace RegridMapper.ViewModels
 
         public bool ParcelsSelected => SelectedParcels.Any();
 
-        public string TotalParcels => ParcelList.Count <= 0 ? "" : $"Total Rows: {ParcelList.Count}";
+        public string TotalParcels => ParcelList.Count <= 0 ? "" : $"(Total Records: {ParcelList.Count})";
 
         #endregion
 
@@ -130,12 +128,15 @@ namespace RegridMapper.ViewModels
 
         #region Commands
 
-        public ICommand ClearDataCommand => new RelayCommand(ClearData);
+        public ICommand ClearDataCommand => new RelayCommand(ClearData, ()=> CanDeleteRecords());
         public ICommand SelectedParcelsCommand => new RelayCommand<IList>(OnSelectedParcelsChanged);
 
         // Clipboard Commands
         public ICommand CopySelectedParcelsCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelsSelected);
-        public ICommand LoadFromClipboardCommand => new RelayCommand(async () => await LoadFromClipboard());
+        public ICommand CopyAllToClipboardCommand => new RelayCommand(async () => await SaveAllToClipboard(), () => ParcelList.Any());
+        
+        public ICommand LoadFromClipboardCommand => new RelayCommand(async () => await LoadFromClipboard(), () => CanLoadFromClipboard());
+
 
         // Regrid Scraping Commands
         public ICommand RegridQueryCancelCommand => new RelayCommand(async () => await CancelScraping());
@@ -287,6 +288,12 @@ namespace RegridMapper.ViewModels
 
         #region Clipboard
 
+        private bool CanLoadFromClipboard()
+            =>!IsScraping && ParcelList?.Count <= 0;
+
+        private bool CanDeleteRecords()
+            => !IsScraping && ParcelList.Count > 0;
+
         private async Task LoadFromClipboard()
         {
             try
@@ -309,67 +316,54 @@ namespace RegridMapper.ViewModels
             }
             finally
             {
-                NotifyPropertiesChanged(nameof(CanPaste), nameof(CanScrape), nameof(TotalParcels));
+                NotifyPropertiesChanged(nameof(CanScrape), nameof(TotalParcels));
             }
         }
 
-        private async Task SaveToClipboards()
-
+        private async Task SaveAllToClipboard()
         {
-            if (SelectedParcels == null || !SelectedParcels.Any())
+            if (ParcelList is null || !ParcelList.Any())
                 return; // Exit if no parcels are selected
 
             var clipboardText = new StringBuilder();
 
-            // Add the headers
-            clipboardText.AppendLine($"Type\t" + 
-                                     $"County\t" +
-                                     $"City\t" +
-                                     $"Parcel ID\t" +
-                                     $"Regrid\t" +
-                                     $"Address\t" +
-                                     $"Owner\t" +
-                                     $"Appraisal\t" +
-                                     $"Assessed Value\t" +
-                                     $"Acres\t" +
-                                     $"Maps\t" +
-                                     $"Fema\t" +
-                                     $"Realtor\t" +
-                                     $"Redfin\t" +
-                                     $"Zillow\t");
+            // Define Headers
+            string[] headers = { "TYPE", "COUNTY", "CITY", "PARCEL ID", "GIS", "DETAIL", "ADDRESS", "OWNER", "APPRAISAL", "ASSESSED VALUE", "ACRES", "MAPS", "FEMA", "REALTOR", "REDFIN", "ZILLOW" };
 
-            foreach (var item in SelectedParcels)
+            // Append headers
+            clipboardText.AppendLine(string.Join("\t", headers));
+
+            // Helper method to format hyperlinks correctly for Google Sheets
+            static string FormatUrl(string url, string alias) => string.IsNullOrWhiteSpace(url) ? string.Empty : $"=HYPERLINK(\"{url.Replace("\"", "\"\"")}\", \"{alias}\")";
+
+            foreach (var item in ParcelList)
             {
-                // Structure the hyperlinl with an alias for Google Sheets or Excel
-                var regridURL   = string.IsNullOrWhiteSpace(item.RegridUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RegridUrl, "LINK");
-                var mapsURL     = string.IsNullOrWhiteSpace(item.GoogleUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.GoogleUrl.Replace("\"", "\"\""), "LINK");
-                var femaURL     = string.IsNullOrWhiteSpace(item.FemaUrl)     ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.FemaUrl.Replace("\"", "\"\""), item.FloodZone);
-                var realtorURL  = string.IsNullOrWhiteSpace(item.RealtorUrl)  ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RealtorUrl.Replace("\"", "\"\""), "LINK");
-                var redfinURL   = string.IsNullOrWhiteSpace(item.RedfinUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.RedfinUrl.Replace("\"", "\"\""), "LINK");
-                var zillowURL   = string.IsNullOrWhiteSpace(item.ZillowUrl)   ? "" : string.Format(AppConstants.HYPERLINK_FORMAT, item.ZillowUrl.Replace("\"", "\"\""), "LINK");
+                // Generate hyperlinks with correct spreadsheet formatting
+                var urls = new[]
+                {
+                    FormatUrl(item.RegridUrl, "LINK"),
+                    FormatUrl(item.DetailUrl, "LINK"),
+                    FormatUrl(item.AppraiserUrl, "LINK"),
+                    FormatUrl(item.GoogleUrl, "LINK"),
+                    FormatUrl(item.FemaUrl, item.FloodZone),
+                    FormatUrl(item.RealtorUrl, "LINK"),
+                    FormatUrl(item.RedfinUrl, "LINK"),
+                    FormatUrl(item.ZillowUrl, "LINK")
+                };
 
-                clipboardText.AppendLine($"{item.ZoningType}\t" +
-                                         $"{item.County}\t" +
-                                         $"{item.City}\t" +
-                                         $"{item.ParcelID}\t" +
-                                         $"{regridURL}\t" +
-                                         $"{item.Address}\t" +
-                                         $"{item.OwnerName}\t" +
-                                         $"LINK\t" +
-                                         $"{item.AssessedValue}\t" +
-                                         $"{item.Acres}\t" +
-                                         $"{mapsURL}\t" +
-                                         $"{femaURL}\t" +
-                                         $"{realtorURL}\t" +
-                                         $"{redfinURL}\t" +
-                                         $"{zillowURL}\t");
+                // Create row data while ensuring Excel formatting compatibility
+                string[] row =
+                {
+                    item.ZoningType, item.County, item.City, item.ParcelID, urls[0],urls[1],
+                    item.Address, item.OwnerName, urls[2], item.AssessedValue, item.Acres,
+                    urls[3], urls[4], urls[5], urls[6], urls[7]
+                };
+
+                clipboardText.AppendLine(string.Join("\t", row));
             }
 
-            // Runs clipboard operation on the UI thread, preventing STA errors.
-            await Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                Clipboard.SetText(clipboardText.ToString());
-            });
+            // Clipboard operation runs on UI thread
+            await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText.ToString()));
         }
 
         private async Task SaveToClipboard()
@@ -426,7 +420,7 @@ namespace RegridMapper.ViewModels
         {
             ParcelList.Clear();
             RegridStatus = string.Empty;
-            NotifyPropertiesChanged(nameof(CanPaste), nameof(CanScrape), nameof(TotalParcels));
+            NotifyPropertiesChanged(nameof(CanScrape), nameof(TotalParcels));
         }
 
         private void OnSelectedParcelsChanged(IList? selectedItems)
