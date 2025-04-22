@@ -13,6 +13,7 @@
             <!-- Converters -->
             <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <local:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+            <local:BooleanToOpacityConverter x:Key="BooleanToOpacityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -4,7 +4,7 @@
     {
         public string? Name { get; set; }
         public string? AuctionUrl { get; set; }
-        public string? AppraisalURL { get; set; }
+        public string? AppraiserUrl { get; set; }
         public string? DetailsURL { get; set; }
         public string? RealAuctionURL { get; set; }
     }

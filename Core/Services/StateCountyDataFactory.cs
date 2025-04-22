@@ -15,7 +15,7 @@ namespace RegridMapper.Core.Services
             {
                 Name = name,
                 AuctionUrl = auctionUrl,
-                AppraisalURL = appraisalUrl,
+                AppraiserUrl = appraisalUrl,
                 DetailsURL = detailUrl,
                 RealAuctionURL = auctionUrl?.IndexOf(".cfm") is int splitIndex and >= 0
                     ? auctionUrl.Substring(0, splitIndex + 4)

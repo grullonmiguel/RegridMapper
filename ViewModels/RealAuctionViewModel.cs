@@ -30,7 +30,7 @@ namespace RegridMapper.ViewModels
         public ICommand StartScrapingCommand => new RelayCommand(async () => await ScrapeParcels());
         public ICommand CountySettingsEditCommand => new RelayCommand(() => ShowCountyEditDialog());
         public ICommand CountySettingsCloseCommand => new RelayCommand(() => CloseCountyEditDialog());
-        public ICommand AuctionUrlSaveCommand => new RelayCommand(async () => await SaveAuctionUrl(), ()=> CanScrape);
+        public ICommand AuctionUrlSaveCommand => new RelayCommand(async () => await SaveAuctionUrl(), ()=> StateSelected != null && CountySelected != null && AuctionDate.HasValue);
 
         // Clipboard Commands
         public ICommand CopyParcelsCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelList.Any());
@@ -38,18 +38,22 @@ namespace RegridMapper.ViewModels
 
         // URL Navigation Commands
         public ICommand NavigateToAuctionUrlCommand => new RelayCommand(() => NavigateToAuctionUrl());
-        public ICommand NavigateAppraiserCommand => CreateNavigateCommand(item => item?.AppraisalURL);
+        public ICommand NavigateAppraiserCommand => CreateNavigateCommand(item => item?.AppraiserUrl);
         public ICommand NavigateToCountyUrlCommand => CreateNavigateCommand(item => item?.RealAuctionURL);
         public ICommand CreateNavigateCommand(Func<US_County, string> urlSelector) => new RelayCommand<US_County>(item => UrlHelper.OpenUrl(urlSelector(item)), item => item != null && UrlHelper.IsValidUrl(urlSelector(item)));
 
         #endregion
 
         #region Properties 
-        
+
         public bool ShowCountySettings
         {
             get => _showCountySettings;
-            set => SetProperty(ref _showCountySettings, value);
+            set
+            {
+                SetProperty(ref _showCountySettings, value);
+
+            }
         }
         private bool _showCountySettings;
 
@@ -75,7 +79,7 @@ namespace RegridMapper.ViewModels
                     SetProperty(ref _countySelected, value);
                     AuctionCounty = value?.Name ?? string.Empty;
                     _preformattedAuctionUrl = value?.AuctionUrl ?? string.Empty;
-                    _preformattedAppraiserUrl = value?.AppraisalURL ?? string.Empty;
+                    _preformattedAppraiserUrl = value?.AppraiserUrl ?? string.Empty;
                     UpdateAuctionUrl();
                     OnPropertyChanged(nameof(CanScrape));
                 }
@@ -133,7 +137,7 @@ namespace RegridMapper.ViewModels
         }
         private string _auctionURL;
 
-        public string TotalParcels => ParcelList.Count <= 0 ? "" : $"Total Rows: {ParcelList.Count}";
+        public string TotalParcels => ParcelList.Count <= 0 ? "" : $"(Total Records: {ParcelList.Count})";
 
         public string AuctionCounty 
         { 
@@ -225,6 +229,7 @@ namespace RegridMapper.ViewModels
                 var elapsedTime = DateTime.Now - startTime;
 
                 IsScraping = false; // Indicate process end
+                OnPropertyChanged(nameof(TotalParcels));
             }
         }
 

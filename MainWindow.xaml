@@ -19,28 +19,36 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <Grid>
-                <!-- Logo-->
-                <ContentControl Style="{StaticResource AppLogo}"/>
+            <Border BorderBrush="{StaticResource Brushes.Accent}" BorderThickness="0 0 0 1" Padding="0 0 0 16" >
+                <Grid>
+                    <!-- Logo-->
+                    <ContentControl Style="{StaticResource AppLogo}"/>
 
-                <!-- Buttons -->
-                <WrapPanel HorizontalAlignment="Right">
-                    <RadioButton Content="Real Auction" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:RealAuctionViewModel}" />
-                    <RadioButton Content="Regrid" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:ParcelViewModel}" />
-                </WrapPanel>
-            </Grid>
+                    <!-- Buttons -->
+                    <WrapPanel HorizontalAlignment="Right">
+                        <RadioButton Content="Real Auction" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:RealAuctionViewModel}" Click="TriggerAnimation" />
+                        <RadioButton Content="Regrid" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:ParcelViewModel}" Click="TriggerAnimation" />
+                    </WrapPanel>
+                </Grid>
+            </Border>
 
             <!-- Views -->
-            <ContentControl Grid.Row="1" x:Name="ViewContainer"  Content="{Binding CurrentViewModel}" />
+            <ContentControl Grid.Row="1" x:Name="ViewContainer"  Content="{Binding CurrentViewModel}" >
+                <ContentControl.RenderTransform>
+                    <TranslateTransform/>
+                </ContentControl.RenderTransform>
+            </ContentControl>
         </Grid>
     </Border>
 
     <Window.Resources>
+        <ExponentialEase x:Key="SmoothEase" Exponent="4" EasingMode="EaseOut"/>
         <Storyboard x:Key="FadeAnimation">
             <DoubleAnimation Storyboard.TargetName="ViewContainer"
-                             Storyboard.TargetProperty="Opacity"
-                             From="0" To="1" Duration="0:0:0.5"/>
+                     Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                     From="-100" To="0" Duration="0:0:0.2"
+                     EasingFunction="{StaticResource SmoothEase}"/>
+            <DoubleAnimation Storyboard.TargetName="ViewContainer" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:1.0"/>
         </Storyboard>
     </Window.Resources>
-
 </Window>
