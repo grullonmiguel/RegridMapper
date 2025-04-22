@@ -74,7 +74,7 @@
                         <!-- Clear -->
                         <Button 
                             Grid.Column="4"
-                            Content="Delete" 
+                            Content="Clear" 
                             Margin="4 0 8 0"
                             Tag="{StaticResource Geometry.Delete}"
                             Command="{Binding ClearDataCommand}" 
@@ -96,39 +96,19 @@
                     Grid.Row="1" HorizontalScrollBarVisibility="Auto"
                     ItemsSource="{Binding ParcelList}"  HeadersVisibility="Column" >
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Parcel ID" Binding="{Binding ParcelID}" Width="150" />
-                        <DataGridTemplateColumn Header="Status" Width="150">
+                        <DataGridTextColumn Header="Parcel ID" Binding="{Binding ParcelID}" Width="200" />
+                        <DataGridTemplateColumn Header="Status" Width="140">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Grid>
-                                        <Border BorderBrush="#f6dd65" BorderThickness="1" Background="#30f6dd65" Padding="6 4" CornerRadius="6"
-                                                Visibility="{Binding MultipleMatchesFound, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Viewbox Width="14" Height="14">
-                                                    <Path Data="{StaticResource Geometry.Alert}" Fill="#f6dd65"  />
-                                                </Viewbox>
-                                                <TextBlock Text="Multiple Matches" Foreground="#f6dd65" Margin="8 0 0 0" VerticalAlignment="Center" />
-                                            </StackPanel>
-                                        </Border>
-                                        <Border BorderBrush="#ff8686" BorderThickness="1" Background="#30ff8686" Padding="6 4" CornerRadius="6"
-                                                Visibility="{Binding NoMatchDetected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Viewbox Width="14" Height="14">
-                                                    <Path Data="{StaticResource Geometry.Alert}" Fill="#ff8686" />
-                                                </Viewbox>
-                                                <TextBlock Text="Not Found" Foreground="#ff8686" Margin="8 0 0 0" VerticalAlignment="Center" />
-                                            </StackPanel>
-                                        </Border>
-                                    </Grid>
+                                    <ContentControl Style="{StaticResource ScrapeStatusStyle}" Content="{Binding ScrapeStatus}" />
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTextColumn Header="Type" Binding="{Binding ZoningType}" Width="100" />
-                        <DataGridTextColumn Header="City" Binding="{Binding City}" Width="Auto" />
-                        <DataGridTextColumn Header="Address" Binding="{Binding Address}"  Width="Auto"/>
-                        <DataGridTextColumn Header="Owner" Binding="{Binding OwnerName}"  Width="Auto"/>
-                        <DataGridTextColumn Header="Assessed" Binding="{Binding AssessedValue, StringFormat=C}" Width="Auto" />
-                        <DataGridTextColumn Header="Acres" Binding="{Binding Acres}" Width="80" />
+                        <DataGridTextColumn Header="Address" Binding="{Binding Address}"  />
+                        <DataGridTextColumn Header="Owner" Binding="{Binding OwnerName}" />
+                        <DataGridTextColumn Header="Assessed" Binding="{Binding AssessedValue, StringFormat=C}" />
+                        <DataGridTextColumn Header="Acres" Binding="{Binding Acres}" />
                         <DataGridTemplateColumn Header="GIS" Width="80">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -174,7 +154,7 @@
                                 <Binding Path="FemaUrl"/>
                             </DataGridTemplateColumn.ClipboardContentBinding>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="Realtor" Width="95" >
+                        <DataGridTemplateColumn Header="Realtor" Width="95" Visibility="Collapsed" >
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button 
@@ -204,7 +184,7 @@
                                 <Binding Path="RedfinUrl"/>
                             </DataGridTemplateColumn.ClipboardContentBinding>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="Zillow">
+                        <DataGridTemplateColumn Header="Zillow" Width="*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button 
@@ -217,21 +197,6 @@
                             <!-- Ensure copied content includes the URL -->
                             <DataGridTemplateColumn.ClipboardContentBinding>
                                 <Binding Path="ZillowUrl"/>
-                            </DataGridTemplateColumn.ClipboardContentBinding>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="Details" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button 
-                                        Content="LINK"
-                                        Style="{StaticResource Buttons.Hyperlink}"
-                                        Command="{Binding DataContext.NavigateDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                        CommandParameter="{Binding}" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                            <!-- Ensure copied content includes the URL -->
-                            <DataGridTemplateColumn.ClipboardContentBinding>
-                                <Binding Path="DetailsUrl"/>
                             </DataGridTemplateColumn.ClipboardContentBinding>
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
@@ -252,13 +217,13 @@
                                     </Viewbox>
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Style="{StaticResource MenuItemStyle}" Header="Alternate Address" Command="{Binding OpenStreetQuerySelectedParcelsCommand}" IsEnabled="{Binding ParcelsSelected}">
+                            <!--<MenuItem Style="{StaticResource MenuItemStyle}" Header="Alternate Address" Command="{Binding OpenStreetQuerySelectedParcelsCommand}" IsEnabled="{Binding ParcelsSelected}">
                                 <MenuItem.Icon>
                                     <Viewbox Width="16" Height="16">
                                         <Path Data="{StaticResource Geometry.MapOutline}" />
                                     </Viewbox>
                                 </MenuItem.Icon>
-                            </MenuItem>
+                            </MenuItem>-->
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                     <i:Interaction.Triggers>

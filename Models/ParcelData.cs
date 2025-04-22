@@ -171,19 +171,13 @@ namespace RegridMapper.ViewModels
         /// </summary>
         public override string ToString() => $"ParcelID: {ParcelID}, Address: {Address}";
 
-        public bool MultipleMatchesFound
+        public ScrapeStatus ScrapeStatus
         {
-            get => _multipleMatchesFound;
-            set => SetProperty(ref _multipleMatchesFound, value);
+            get => _scrapeStatus;
+            set => SetProperty(ref _scrapeStatus, value);
         }
-        private bool _multipleMatchesFound;
+        private ScrapeStatus _scrapeStatus;
 
-        public bool NoMatchDetected
-        {
-            get => _noMatchDetected;
-            set => SetProperty(ref _noMatchDetected, value);
-        }
-        private bool _noMatchDetected;
 
         public void SetPropertyValue(string propertyName, string value)
         {

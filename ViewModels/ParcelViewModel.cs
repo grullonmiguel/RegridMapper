@@ -209,7 +209,7 @@ namespace RegridMapper.ViewModels
                             // Verify something was scraped
                             if (string.IsNullOrWhiteSpace(htmlSource))
                             {
-                                item.NoMatchDetected = true;
+                                item.ScrapeStatus = ScrapeStatus.NotFound;
                                 CurrentScrapingElement = $"NOT FOUND: {item?.ParcelID}";
                                 await _logger.LogAsync($"Empty response for Parcel ID: {item.ParcelID}");
                                 continue;

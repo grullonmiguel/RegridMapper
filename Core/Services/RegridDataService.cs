@@ -81,6 +81,8 @@ namespace RegridMapper.Core.Services
                 // Format the acres value by removing the word acres
                 if (!string.IsNullOrEmpty(item.Acres))
                     item.Acres = item.Acres.ToLower().Replace(" acres", "");
+
+                item.ScrapeStatus =  ScrapeStatus.Complete;
             }
             catch (WebDriverException ex)
             {
@@ -105,9 +107,8 @@ namespace RegridMapper.Core.Services
         {
             if (results == 0 || results > 1)
             {
-                item.NoMatchDetected = results == 0;
-                item.MultipleMatchesFound = results > 1;
-                item.ZoningType = results == 0 ? $"Not found in Regrid" : $"Multiple matches found";
+                item.ZoningType = results == 0 ? $"Not found" : $"Multiple matches";
+                item.ScrapeStatus = results == 0? ScrapeStatus.NotFound : ScrapeStatus.MultipleMatches;
                 return false;
             }
             return true;

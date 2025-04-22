@@ -24,6 +24,17 @@ namespace RegridMapper.Core.Configuration
         [Description("Georgia")]
         GA
     }
+
+    public enum ScrapeStatus
+    {
+        Default,
+        [Description("Complete")]
+        Complete,
+        [Description("Multiple Matches")]
+        MultipleMatches,
+        [Description("Not Found")]
+        NotFound
+    }
     
     public enum County
     {
