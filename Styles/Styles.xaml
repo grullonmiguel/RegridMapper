@@ -231,22 +231,103 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <!--#endregion-->
-
-    <!--#region Grid -->
-    <Style TargetType="Grid">
+    <Style x:Key="Buttons.Close" TargetType="Button" >
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Width" Value="24"/>
+        <Setter Property="ToolTip" Value="Close"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="#FFFFFF"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Viewbox Width="{TemplateBinding Width}">
+                        <Border CornerRadius="4" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <Canvas Width="24" Height="24">
+                                <Path Fill="{TemplateBinding Foreground}" Data="{StaticResource Geometry.Close}" />
+                            </Canvas>
+                        </Border>
+                    </Viewbox>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="{StaticResource Brushes.Tertiary}"/>
+                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value=".3"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
     <!--#endregion-->
 
+    <!--#region RadioButton -->
+
+    <Style TargetType="RadioButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border 
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="{TemplateBinding Padding}">
+                        <Grid>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <!-- Default Appearance -->
+        <Setter Property="Foreground" Value="#FFFFFF"/>
+        <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}"/>
+        <Setter Property="Padding" Value="10,5"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1"/>
+
+        <Style.Triggers>
+            <!-- Hover Effect -->
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="White"/>
+            </Trigger>
+
+            <!-- Pressed Effect -->
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
+            </Trigger>
+
+            <!-- Selected Effect -->
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource Brushes.Accent}"/>
+                <Setter Property="Foreground" Value="{StaticResource Brushes.Primary}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <!--#endregion-->
+
+    <!--#region Path -->
     <Style TargetType="Path">
         <Setter Property="Fill" Value="{StaticResource Brushes.Primary}"/>
-        <!-- Hover Effect -->
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Fill" Value="{StaticResource Brushes.Secondary}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
+    <!--#endregion-->
 
     <!--#region TextBlock -->
     <Style TargetType="{x:Type TextBlock}" x:Key="BaseTextBlockStyle">
@@ -449,6 +530,163 @@
     </Style>
     <!--#endregion-->
     
+    <!--#region ComboBox-->
+    <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="20" />
+            </Grid.ColumnDefinitions>
+            <Border x:Name="Border" 
+                    Grid.ColumnSpan="2"
+                    CornerRadius="0"
+                    BorderThickness="1"
+                    BorderBrush="#FFFFFF"
+                    Background="{StaticResource Brushes.Background}" />
+            <Border Grid.Column="0"
+                    CornerRadius="0" 
+                    Margin="1" 
+                    BorderThickness="0,0,1,0" 
+                    BorderBrush="#FFFFFF"
+                    Background="{StaticResource Brushes.Background}" />
+            <Path x:Name="Arrow"
+                    Grid.Column="1"     
+                    Fill="#FFFFFF"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Data="M0,0 L0,2 L4,6 L8,2 L8,0 L4,4 z" />
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="ToggleButton.IsMouseOver" Value="true">
+                <Setter TargetName="Border" Property="Background" Value="{StaticResource Brushes.Accent}" />
+                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource Brushes.Primary}" />
+            </Trigger>
+            <Trigger Property="ToggleButton.IsChecked" Value="true">
+                <Setter TargetName="Border" Property="Background" Value="{StaticResource Brushes.Secondary}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value=".3"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ComboBoxTextBox" TargetType="{x:Type TextBox}">
+        <Border x:Name="PART_ContentHost" Focusable="False" Background="{TemplateBinding Background}" />
+    </ControlTemplate>
+
+    <Style x:Key="{x:Type ComboBox}" TargetType="{x:Type ComboBox}">
+        <Setter Property="SnapsToDevicePixels" Value="true"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+        <Setter Property="MinWidth" Value="120"/>
+        <Setter Property="MinHeight" Value="28"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBox}">
+                    <Grid>
+                        <ToggleButton 
+                                Name="ToggleButton" 
+                                Template="{StaticResource ComboBoxToggleButton}" 
+                                Grid.Column="2" 
+                                Focusable="false"
+                                IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
+                                ClickMode="Press">
+                        </ToggleButton>
+                        <ContentPresenter Name="ContentSite" IsHitTestVisible="False"  Content="{TemplateBinding SelectionBoxItem}"
+                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                Margin="8,4,23,4"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Left" />
+                        <TextBox x:Name="PART_EditableTextBox"
+                                Style="{x:Null}" 
+                                Template="{StaticResource ComboBoxTextBox}" 
+                                HorizontalAlignment="Left" 
+                                VerticalAlignment="Center" 
+                                Margin="3,3,23,3"
+                                Focusable="True" 
+                                Background="#FF3F3F3F"
+                                Foreground="Green"
+                                Visibility="Hidden"
+                                IsReadOnly="{TemplateBinding IsReadOnly}"/>
+                        <Popup 
+                                Name="Popup"
+                                Placement="Bottom"
+                                IsOpen="{TemplateBinding IsDropDownOpen}"
+                                AllowsTransparency="True" 
+                                Focusable="False"
+                                PopupAnimation="Slide">
+
+                            <Grid Name="DropDown"
+                                  SnapsToDevicePixels="True"                
+                                  MinWidth="{TemplateBinding ActualWidth}"
+                                  MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                <Border 
+                                    x:Name="DropDownBorder"
+                                    Background="{StaticResource Brushes.Background}"
+                                    BorderBrush="#FFFFFF"
+                                    BorderThickness="1 0 1 1"/>
+                                <ScrollViewer Margin="0" SnapsToDevicePixels="True">
+                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
+                                </ScrollViewer>
+                            </Grid>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasItems" Value="false">
+                            <Setter TargetName="DropDownBorder" Property="MinHeight" Value="95"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="#888888"/>
+                        </Trigger>
+                        <Trigger Property="IsGrouping" Value="true">
+                            <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+                        </Trigger>
+                        <Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="true">
+                            <Setter TargetName="DropDownBorder" Property="CornerRadius" Value="0"/>
+                            <Setter TargetName="DropDownBorder" Property="Margin" Value="0,0,0,0"/>
+                        </Trigger>
+                        <Trigger Property="IsEditable"  Value="true">
+                            <Setter Property="IsTabStop" Value="false"/>
+                            <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="ContentSite" Property="Visibility" Value="Hidden"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="{x:Type ComboBoxItem}" TargetType="{x:Type ComboBoxItem}">
+        <Setter Property="SnapsToDevicePixels" Value="true"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                    <Border Name="Border" Background="Transparent" Padding="8" HorizontalAlignment="Stretch" SnapsToDevicePixels="true">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="true">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource Brushes.Accent}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="#888888"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--#endregion-->
+    
     <!--#region Context Menu Style -->
     <Style x:Key="ContextMenuStyle" TargetType="ContextMenu">
         <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -529,7 +767,7 @@
 
     <!--#endregion-->
     
-    <!--#region DatePicker-->
+    <!--#region DatePicker-->   
     <Style TargetType="CalendarDayButton" x:Key="SelectedDateStyle">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="White"/>
@@ -548,10 +786,11 @@
     </Style>
 
     <Style TargetType="Calendar" x:Key="PopupCalendarStyle">
-        <Setter Property="Background" Value="{StaticResource  Brushes.Accent}"/>
+        <Setter Property="Background" Value="{StaticResource Brushes.Background}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}"/>
+        <Setter Property="Foreground" Value="White"/>
         <Setter Property="CalendarDayButtonStyle" Value="{StaticResource SelectedDateStyle}"/>
     </Style>
 
@@ -559,9 +798,10 @@
         <Setter Property="Foreground" Value="#FFFFFFFF" />
         <Setter Property="IsTodayHighlighted" Value="True" />
         <Setter Property="SelectedDateFormat" Value="Short" />
-        <Setter Property="Padding" Value="4" />
-        <Setter Property="BorderThickness" Value=".5" />
+        <Setter Property="Padding" Value="8 4" />
+        <Setter Property="BorderThickness" Value="1" />
         <Setter Property="BorderBrush" Value="#FFFFFF" />
+        <Setter Property="Foreground" Value="White"/>
         <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="DisplayDateStart" Value="{x:Static sys:DateTime.Today}" />
@@ -642,53 +882,6 @@
         <Setter Property="Background" Value="{DynamicResource Brushes.BackgroundTertiary}"/>
     </Style>
     <!--#endregion-->
-
-    <Style TargetType="RadioButton">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="RadioButton">
-                    <Border 
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        Padding="{TemplateBinding Padding}">
-                        <Grid>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Grid>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-
-        <!-- Default Appearance -->
-        <Setter Property="Foreground" Value="#FFFFFF"/>
-        <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}"/>
-        <Setter Property="Padding" Value="10,5"/>
-        <Setter Property="HorizontalAlignment" Value="Center"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="1"/>
-
-        <Style.Triggers>
-            <!-- Hover Effect -->
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="BorderBrush" Value="White"/>
-            </Trigger>
-
-            <!-- Pressed Effect -->
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
-            </Trigger>
-
-            <!-- Selected Effect -->
-            <Trigger Property="IsChecked" Value="True">
-                <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource Brushes.Accent}"/>
-                <Setter Property="Foreground" Value="{StaticResource Brushes.Primary}"/>
-            </Trigger>
-        </Style.Triggers>
-    </Style>
     
     <!--#region ContentControl -->
 
