@@ -1,0 +1,99 @@
+﻿<UserControl x:Class="RegridMapper.Views.MapView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:RegridMapper.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <!-- State List -->
+        <DataGrid
+            Width="160"
+            Margin="0 16 0 0" 
+            Background="Transparent"
+            HeadersVisibility="None"
+            ItemsSource="{Binding States}"                                   
+            RowStyle="{StaticResource DataGridRowAlternate}"
+            CellStyle="{StaticResource DataGridCellAlternate}"
+            SelectedItem="{Binding Path=StateSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="State" Binding="{Binding Name}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Main Content -->
+        <Grid Grid.Column="1" Margin="16 16 16 0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- sales type -->
+            <TextBlock 
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left"
+                Style="{DynamicResource TextBlocks.Heading1}"
+                Text="{Binding StateSelected.SalesType, Converter={StaticResource EnumDescriptionConverter}}"  />
+
+            <!-- Selected State Info -->
+            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top">
+                <!-- State Name -->
+                <TextBlock Text="{Binding StateSelected.Name}" Style="{DynamicResource TextBlocks.Heading1}" HorizontalAlignment="Right" />
+                <!-- County Count -->
+                <Button 
+                    HorizontalAlignment="Right"
+                    Content="{Binding CountyCount}"
+                    FontSize="{StaticResource Fonts.Small}"
+                    Style="{StaticResource  Buttons.Hyperlink}" 
+                    Command="{Binding CountySettingsEditCommand}" />
+            </StackPanel>
+
+            <!-- US Map -->
+            <ContentControl Grid.Row="1" Content="{Binding}" ContentTemplate="{StaticResource USMapTemplate}" />
+
+            <!-- Interest / Redemption / Frequency -->
+            <Border Grid.Row="2" Style="{StaticResource Borders.Secondary}" Padding="16 8" Margin="0 8 0 0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Interest Rate -->
+                    <StackPanel Width="100">
+                        <TextBlock Text="Interest Rate" FontSize="{StaticResource Fonts.Small}" />
+                        <TextBlock Text="{Binding StateSelected.InterestRate}" Foreground="{DynamicResource Brushes.ForegroundSecondary}"/>
+                    </StackPanel>
+
+                    <!-- redemption period -->
+                    <StackPanel Width="150" Grid.Column="1">
+                        <TextBlock Text="Redemption Period" FontSize="{StaticResource Fonts.Small}" />
+                        <TextBlock Text="{Binding StateSelected.RedemptionPeriod}" Foreground="{DynamicResource Brushes.ForegroundSecondary}"/>
+                    </StackPanel>
+
+                    <!-- Frequency -->
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Frequency" FontSize="{StaticResource Fonts.Small}" />
+                        <TextBlock Text="{Binding StateSelected.Frequency}" Foreground="{DynamicResource Brushes.ForegroundSecondary}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

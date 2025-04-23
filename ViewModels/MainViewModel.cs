@@ -21,7 +21,6 @@ namespace RegridMapper.ViewModels
         }
         private BaseViewModel _currentViewModel;
 
-
         #endregion
 
         #region Commands
@@ -32,14 +31,13 @@ namespace RegridMapper.ViewModels
             CurrentViewModel = GetCachedViewModel(viewModelType);
         });
 
-
         #endregion
 
         #region Constructor
 
         public MainViewModel()
         {
-            //SetDefaultView();
+            SetDefaultView();
         }
 
         #endregion
@@ -57,14 +55,11 @@ namespace RegridMapper.ViewModels
             return cachedViewModel;
         }
 
-
-
         private void SetDefaultView()
         {
             try
             {
-                // Set the default view model
-                //ChangeView(typeof(ParcelViewModel));
+                CurrentViewModel = GetCachedViewModel(typeof(MapViewModel));
             }
             catch { }
         }

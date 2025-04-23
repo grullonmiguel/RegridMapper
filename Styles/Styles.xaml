@@ -3,7 +3,8 @@
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
                     xmlns:options="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
-                    mc:Ignorable="options">
+                    mc:Ignorable="options"
+                    xmlns:local="clr-namespace:RegridMapper.Core.Configuration">
 
     <!-- Includes -->
     <ResourceDictionary.MergedDictionaries>
@@ -265,56 +266,6 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
-    <!--#endregion-->
-
-    <!--#region RadioButton -->
-
-    <Style TargetType="RadioButton">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="RadioButton">
-                    <Border 
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        Padding="{TemplateBinding Padding}">
-                        <Grid>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Grid>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-
-        <!-- Default Appearance -->
-        <Setter Property="Foreground" Value="#FFFFFF"/>
-        <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}"/>
-        <Setter Property="Padding" Value="10,5"/>
-        <Setter Property="HorizontalAlignment" Value="Center"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="1"/>
-
-        <Style.Triggers>
-            <!-- Hover Effect -->
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="BorderBrush" Value="White"/>
-            </Trigger>
-
-            <!-- Pressed Effect -->
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
-            </Trigger>
-
-            <!-- Selected Effect -->
-            <Trigger Property="IsChecked" Value="True">
-                <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource Brushes.Accent}"/>
-                <Setter Property="Foreground" Value="{StaticResource Brushes.Primary}"/>
-            </Trigger>
-        </Style.Triggers>
     </Style>
     <!--#endregion-->
 
@@ -954,5 +905,363 @@
 
     </Style>
     <!--#endregion-->
+
+    <!--#region RadioButton -->
+
+    <Style TargetType="RadioButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border 
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="{TemplateBinding Padding}">
+                        <Grid>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <!-- Default Appearance -->
+        <Setter Property="Foreground" Value="#FFFFFF"/>
+        <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}"/>
+        <Setter Property="Padding" Value="10,5"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1"/>
+
+        <Style.Triggers>
+            <!-- Hover Effect -->
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="White"/>
+            </Trigger>
+
+            <!-- Pressed Effect -->
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
+            </Trigger>
+
+            <!-- Selected Effect -->
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource Brushes.Accent}"/>
+                <Setter Property="Foreground" Value="{StaticResource Brushes.Primary}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Color x:Key="Theme.BackgroundDeed">#14161B</Color>
+    <Color x:Key="Theme.BackgroundLien">#23272F</Color>
+    <Color x:Key="Theme.BackgroundRedeem">#191C22</Color>
+    <Color x:Key="Theme.BackgroundHybrid">#000000</Color>
+
+    <SolidColorBrush x:Key="Brushes.BackgroundDeed" Color="{StaticResource Theme.BackgroundDeed}" options:Freeze="True" />
+    <SolidColorBrush x:Key="Brushes.BackgroundLien" Color="{StaticResource Theme.BackgroundLien}" options:Freeze="True" />
+    <SolidColorBrush x:Key="Brushes.BackgroundRedeem" Color="{StaticResource Theme.BackgroundRedeem}" options:Freeze="True" />
+    <SolidColorBrush x:Key="Brushes.BackgroundHybrid" Color="{StaticResource Theme.BackgroundHybrid}" options:Freeze="True" />
+
+    <Style x:Key="RadioButtons.State" TargetType="{x:Type RadioButton}">
+        <Setter Property="GroupName" Value="rdoStates" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="SnapsToDevicePixels" Value="true" />
+        <Setter Property="OverridesDefaultStyle" Value="true" />
+        <Setter Property="Background" Value="{DynamicResource Brushes.Background}"/>
+        <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid>
+                        <Path 
+                            x:Name="path"
+                            ToolTip="{TemplateBinding Tag}"  
+                            StrokeThickness=".5"
+                            Stroke="#33D5D3D8" >
+                            <Path.Style>
+                                <Style TargetType="Path">
+                                    <Style.Triggers>
+                                        <!-- Alabama -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="AL" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.AL}"/>
+                                        </DataTrigger>
+                                        <!-- Alaska -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="AK" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.AK}"/>
+                                            <!--<Setter Property="Margin" Value="958,100,0,320"  />
+                                            <Setter Property="Stretch" Value="Fill"  />-->
+                                        </DataTrigger>
+                                        <!-- Arizona -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="AZ" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.AZ}"/>
+                                        </DataTrigger>
+                                        <!-- Arkansas -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="AR" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.AR}"/>
+                                        </DataTrigger>
+                                        <!-- California -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="CA" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.CA}"/>
+                                        </DataTrigger>
+                                        <!-- Colorado -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="CO" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.CO}" />
+                                        </DataTrigger>
+                                        <!-- Connecticut -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="CT" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.CT}" />
+                                        </DataTrigger>
+                                        <!-- D.C. -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="DC" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.DC}" />
+                                        </DataTrigger>
+                                        <!-- Delaware -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="DE" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.DE}" />
+                                        </DataTrigger>
+                                        <!-- Florida -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="FL" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.FL}" />
+                                        </DataTrigger>
+                                        <!-- Georgia -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="GA" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.GA}" />
+                                        </DataTrigger>
+                                        <!-- Hawaii -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="HI" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.HI}" />
+                                            <!--<Setter Property="Margin" Value="985,400,50,105"  />
+                                            <Setter Property="Stretch" Value="Fill"  />-->
+                                        </DataTrigger>
+                                        <!-- Idaho -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="ID" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.ID}" />
+                                        </DataTrigger>
+                                        <!-- Illinois -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="IL" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.IL}" />
+                                        </DataTrigger>
+                                        <!-- Indiana -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="IN" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.IN}" />
+                                        </DataTrigger>
+                                        <!-- Iowa -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="IA" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.IA}" />
+                                        </DataTrigger>
+                                        <!-- Kansas -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="KS" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.KS}" />
+                                        </DataTrigger>
+                                        <!-- Kentucky -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="KY" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.KY}" />
+                                        </DataTrigger>
+                                        <!-- Louisiana -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="LA" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.LA}" />
+                                        </DataTrigger>
+                                        <!-- Massachusetts -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="MA" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.MA}" />
+                                        </DataTrigger>
+                                        <!-- Maryland -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="MD" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.MD}" />
+                                        </DataTrigger>
+                                        <!-- Maine -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="ME" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.ME}" />
+                                        </DataTrigger>
+                                        <!-- Michigan -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="MI" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.MI}" />
+                                        </DataTrigger>
+                                        <!-- Minnesota -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="MN" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.MN}" />
+                                        </DataTrigger>
+                                        <!-- Missouri -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="MO" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.MO}" />
+                                        </DataTrigger>
+                                        <!-- Mississippi -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="MS" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.MS}" />
+                                        </DataTrigger>
+                                        <!-- Montana -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="MT" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.MT}" />
+                                        </DataTrigger>
+                                        <!-- North Carolina -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="NC" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.NC}" />
+                                        </DataTrigger>
+                                        <!-- North Dakota -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="ND" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.ND}" />
+                                        </DataTrigger>
+                                        <!-- Nebraska -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="NE" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.NE}" />
+                                        </DataTrigger>
+                                        <!-- New Hampshire -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="NH" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.NH}" />
+                                        </DataTrigger>
+                                        <!-- New Jersey -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="NJ" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.NJ}" />
+                                        </DataTrigger>
+                                        <!-- New Mexico -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="NM" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.NM}" />
+                                        </DataTrigger>
+                                        <!-- Nevada -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="NV" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.NV}" />
+                                        </DataTrigger>
+                                        <!-- New York -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="NY" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.NY}" />
+                                        </DataTrigger>
+                                        <!-- Oklahoma -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="OK" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.OK}" />
+                                        </DataTrigger>
+                                        <!-- Ohio -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="OH" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.OH}" />
+                                        </DataTrigger>
+                                        <!-- Oregon -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="OR" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.OR}" />
+                                        </DataTrigger>
+                                        <!-- Pennsylvania -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="PA" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.PA}" />
+                                        </DataTrigger>
+                                        <!-- Rhode Island -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="RI" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.RI}" />
+                                        </DataTrigger>
+                                        <!-- South Carolina -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="SC" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.SC}" />
+                                        </DataTrigger>
+                                        <!-- South Dakota -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="SD" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.SD}" />
+                                        </DataTrigger>
+                                        <!-- Tennessee -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="TN" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.TN}" />
+                                        </DataTrigger>
+                                        <!-- Texas -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="TX" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.TX}" />
+                                        </DataTrigger>
+                                        <!-- Utah -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="UT" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.UT}" />
+                                        </DataTrigger>
+                                        <!-- Vermont -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="VT" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.VT}" />
+                                        </DataTrigger>
+                                        <!-- Virginia -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="VA" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.VA}" />
+                                        </DataTrigger>
+                                        <!-- Washington -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="WA" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.WA}" />
+                                        </DataTrigger>
+                                        <!-- West Virginia -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="WV" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.WV}" />
+                                        </DataTrigger>
+                                        <!-- Wisconsin -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="WI" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.WI}" />
+                                        </DataTrigger>
+                                        <!-- Wyoming -->
+                                        <DataTrigger Binding="{Binding StateID}" Value="WY" >
+                                            <Setter Property="Data" Value="{DynamicResource Geometry.WY}" />
+                                        </DataTrigger>
+                                        <!-- Deed -->
+                                        <DataTrigger Binding="{Binding SalesType}" Value="{x:Static local:SaleTypeCode.Deed}" >
+                                            <Setter Property="Fill" Value="{DynamicResource Brushes.BackgroundDeed}" />
+                                        </DataTrigger>
+                                        <!-- Lien -->
+                                        <DataTrigger Binding="{Binding SalesType}" Value="{x:Static local:SaleTypeCode.Lien}" >
+                                            <Setter Property="Fill" Value="{DynamicResource Brushes.BackgroundLien}" />
+                                        </DataTrigger>
+                                        <!-- Redeemable -->
+                                        <DataTrigger Binding="{Binding SalesType}" Value="{x:Static local:SaleTypeCode.Redeemable}" >
+                                            <Setter Property="Fill" Value="{DynamicResource Brushes.BackgroundRedeem}" />
+                                        </DataTrigger>
+                                        <!-- Hybrid -->
+                                        <DataTrigger Binding="{Binding SalesType}" Value="{x:Static local:SaleTypeCode.Hybrid}" >
+                                            <Setter Property="Fill" Value="{DynamicResource Brushes.BackgroundHybrid}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="path" Property="StrokeThickness" Value="1"/>
+                            <Setter TargetName="path" Property="Stroke" Value="{StaticResource Brushes.Primary}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseCaptured" Value="True">
+                            <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="path" Property="StrokeThickness" Value="1"/>
+                            <Setter TargetName="path" Property="Fill" Value="{StaticResource Brushes.Secondary}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value=".25"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--#endregion-->
+
+    <DataTemplate x:Key="USMapTemplate">
+        <Viewbox VerticalAlignment="Top">
+            <ItemsControl 
+                 Style="{x:Null}"  
+                 Grid.IsSharedSizeScope="True"
+                 ItemsSource="{Binding States}" 
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton 
+                             ToolTipService.InitialShowDelay="30000"
+                             Tag="{Binding Name}" 
+                             Content="{Binding StateID}" 
+                             IsChecked="{Binding IsSelected}"
+                             Style="{DynamicResource RadioButtons.State}" 
+                             Command="{Binding DataContext.StateSelectedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                             CommandParameter="{Binding StateID}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
 
 </ResourceDictionary>
