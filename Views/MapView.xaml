@@ -22,10 +22,10 @@
 
         <!-- State List -->
         <DataGrid
-            Width="160"
+            MaxWidth="160"
             Margin="0 16 0 0" 
             Background="Transparent"
-            HeadersVisibility="None"
+            HeadersVisibility="None"            
             ItemsSource="{Binding States}"                                   
             RowStyle="{StaticResource DataGridRowAlternate}"
             CellStyle="{StaticResource DataGridCellAlternate}"
@@ -33,6 +33,7 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="State" Binding="{Binding Name}" Width="*"/>
             </DataGrid.Columns>
+
         </DataGrid>
 
         <!-- Main Content -->
@@ -65,6 +66,17 @@
 
             <!-- US Map -->
             <ContentControl Grid.Row="1" Content="{Binding}" ContentTemplate="{StaticResource USMapTemplate}" />
+
+            <StackPanel Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
+                <CheckBox Content="Hybrid" Background="{StaticResource Brushes.BackgroundHybrid}" Margin="8 0"
+                          IsChecked="{Binding ShowHybridStates}" />
+                <CheckBox Content="Tax Deeds" Background="{StaticResource Brushes.BackgroundDeed}" Margin="8 0"
+                          IsChecked="{Binding ShowDeedStates}" />
+                <CheckBox Content="Tax Liens" Background="{StaticResource Brushes.BackgroundLien}" Margin="8 0"
+                          IsChecked="{Binding ShowLienStates}" />
+                <CheckBox Content="Redeemable Deeds" Background="{StaticResource Brushes.BackgroundRedeem}" Margin="8 0 4 0"
+                          IsChecked="{Binding ShowRedeemableStates}" />
+            </StackPanel>
 
             <!-- Interest / Redemption / Frequency -->
             <Border Grid.Row="2" Style="{StaticResource Borders.Secondary}" Padding="16 8" Margin="0 8 0 0">

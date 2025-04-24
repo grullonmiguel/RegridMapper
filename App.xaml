@@ -11,7 +11,6 @@
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->
-            <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <local:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
             <local:BooleanToOpacityConverter x:Key="BooleanToOpacityConverter"/>
             <local:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />

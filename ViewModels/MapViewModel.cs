@@ -2,7 +2,6 @@
 using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Services;
 using RegridMapper.Models;
-using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace RegridMapper.ViewModels
@@ -11,6 +10,7 @@ namespace RegridMapper.ViewModels
     {
         #region Fields
 
+        private bool _loaded = false;
         private readonly MapStateDataService _stateDataService = new();
 
         #endregion
@@ -46,6 +46,50 @@ namespace RegridMapper.ViewModels
                 StateSelected.Counties.Count == 1 ? "1 County" :
                 $"{StateSelected.Counties.Count} Counties";
 
+        public bool ShowHybridStates
+        {
+            get => _showHybrid;
+            set
+            {
+                SetProperty(ref _showHybrid, value);
+                UpdateStateStatus(SaleTypeCode.Hybrid, value);
+            }
+        }
+        private bool _showHybrid = true;
+
+        public bool ShowDeedStates
+        {
+            get => _showDeedStates;
+            set
+            {
+                SetProperty(ref _showDeedStates, value);
+                UpdateStateStatus(SaleTypeCode.Deed, value);
+            }
+        }
+        private bool _showDeedStates = true;
+
+        public bool ShowLienStates
+        {
+            get => _showLienStates;
+            set
+            {
+                SetProperty(ref _showLienStates, value);
+                UpdateStateStatus(SaleTypeCode.Lien, value);
+            }
+        }
+        private bool _showLienStates = true;
+
+        public bool ShowRedeemableStates
+        {
+            get => _showRedeemableStates;
+            set
+            {
+                SetProperty(ref _showRedeemableStates, value);
+                UpdateStateStatus(SaleTypeCode.Redeemable, value);
+            }
+        }
+        private bool _showRedeemableStates = true;
+
         #endregion
 
         #region Constructor
@@ -60,12 +104,17 @@ namespace RegridMapper.ViewModels
 
         private async Task OnLoaded()
         {
+            if (_loaded)
+                return;
+
             await GetStateList();
 
             if (States != null)
                 StateSelected = States.FirstOrDefault();
 
             OnPropertyChanged(nameof(States));
+
+            _loaded = true;
         }
 
         private async Task GetStateList()
@@ -93,6 +142,16 @@ namespace RegridMapper.ViewModels
                 }
             }
         }
+
+        private void UpdateStateStatus(SaleTypeCode type, bool enabled)
+        {
+            foreach(var s in States)
+            {
+                if (s.SalesType == type)
+                    s.IsEnabled = enabled;
+            }
+        }
+
         #endregion
     }
 }

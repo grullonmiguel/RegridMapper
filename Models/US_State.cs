@@ -30,6 +30,15 @@ namespace RegridMapper.Models
             }
         }
         private bool isSelected;
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set
+            {
+                SetProperty(ref _isEnabled, value);
+            }
+        }
+        private bool _isEnabled = true;
 
 
     }

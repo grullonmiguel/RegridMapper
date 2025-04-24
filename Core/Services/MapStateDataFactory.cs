@@ -2602,7 +2602,7 @@ namespace RegridMapper.Core.Services
         {
             StateID = state,
             Name = state.GetEnumDescription(),
-            SalesType = SaleTypeCode.Hybrid,
+            SalesType = SaleTypeCode.Deed,
             InterestRate = "18%",
             InterestRateComments = "18% With Bid Down",
             RedemptionPeriod = "1 Year",
