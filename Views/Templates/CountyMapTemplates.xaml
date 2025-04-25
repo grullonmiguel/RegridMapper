@@ -261,6 +261,22 @@
             </ItemsControl>
         </Viewbox>
     </DataTemplate>
+    <DataTemplate x:Key="Kentucky_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Kentucky}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
     <DataTemplate x:Key="Maine_DataTemplate">
         <Viewbox VerticalAlignment="Center">
             <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -424,24 +440,6 @@
     
     <!-- *************** WIP *************** -->
     
-    <!--24 Kentucky -->
-    <DataTemplate x:Key="Kentucky_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
     <!--23 Louisiana -->
     <DataTemplate x:Key="Louisiana_DataTemplate">
         <Viewbox VerticalAlignment="Center">
