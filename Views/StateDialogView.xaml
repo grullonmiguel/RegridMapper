@@ -16,6 +16,7 @@
     </UserControl.Resources>
 
         <Border
+            Margin="24"
             MaxWidth="1600"
             VerticalAlignment="Center" 
             HorizontalAlignment="Center" 

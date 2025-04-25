@@ -13,13 +13,7 @@ namespace RegridMapper.ViewModels
 
         public string? Name { get; private set; }
 
-        public List<US_County>? Counties { get; private set; }
-
-        public int Count { get; private set; }
-
-        public SaleTypeCode SalesType { get; private set; }
-
-        public US_County CountySelected
+        public US_County? CountySelected
         {
             get => _countySelected;
             set
@@ -28,7 +22,11 @@ namespace RegridMapper.ViewModels
                 UpdateCountySelected();
             }
         }
-        private US_County _countySelected;
+        private US_County? _countySelected;
+
+        public List<US_County>? Counties { get; private set; }
+
+        public SaleTypeCode SalesType { get; private set; }
 
         public string CountyCount { get; private set; }
 
@@ -52,7 +50,6 @@ namespace RegridMapper.ViewModels
             ID = state.StateID;
             Name = state.Name;
             Counties = state.Counties;
-            //Count = state.Count;
             SalesType = state.SalesType;
             GetSelectedCounty(Counties?.FirstOrDefault()?.Name);
 
@@ -111,6 +108,19 @@ namespace RegridMapper.ViewModels
         private void OpenWorstZipCodesURL(US_County? county)
         {
             //_systemService.OpenWebSearch($"{county?.Name} county, {Name}  worst zip codes");
+        }
+
+        #endregion
+
+        #region Disposable
+
+        protected override void OnDispose()
+        {
+            Name = null;
+            CountyCount = string.Empty;
+            Counties = null;
+            CountySelected = null;
+            base.OnDispose();
         }
 
         #endregion

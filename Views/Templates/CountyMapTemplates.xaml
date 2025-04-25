@@ -277,6 +277,22 @@
             </ItemsControl>
         </Viewbox>
     </DataTemplate>
+    <DataTemplate x:Key="Louisiana_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Louisiana}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
     <DataTemplate x:Key="Maine_DataTemplate">
         <Viewbox VerticalAlignment="Center">
             <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -325,6 +341,38 @@
             </ItemsControl>
         </Viewbox>
     </DataTemplate>
+    <DataTemplate x:Key="Michigan_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Michigan}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Minnesota_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Minnesota}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
     <DataTemplate x:Key="Mississippi_DataTemplate">
         <Viewbox VerticalAlignment="Center">
             <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -336,6 +384,70 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <RadioButton Style="{DynamicResource RadioButtons.Mississippi}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Missouri_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Missouri}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Montana_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Montana}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Nebraska_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Nebraska}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Nevada_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Nevada}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -357,6 +469,38 @@
             </ItemsControl>
         </Viewbox>
     </DataTemplate>
+    <DataTemplate x:Key="NewJersey_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.NewJersey}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="NewMexico_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.NewMexico}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
     <DataTemplate x:Key="NewYork_DataTemplate">
         <Viewbox VerticalAlignment="Center">
             <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -373,7 +517,7 @@
             </ItemsControl>
         </Viewbox>
     </DataTemplate>
-    <DataTemplate x:Key="Texas_DataTemplate">
+    <DataTemplate x:Key="NorthCarolina_DataTemplate">
         <Viewbox VerticalAlignment="Center">
             <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ItemsControl.ItemsPanel>
@@ -383,7 +527,87 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <RadioButton Style="{DynamicResource RadioButtons.Texas}" />
+                        <RadioButton Style="{StaticResource RadioButtons.NorthCarolina}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="NorthDakota_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.NorthDakota}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Ohio_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Ohio}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Oklahoma_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Oklahoma}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Oregon_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Oregon}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Pennsylvania_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Pennsylvania}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -405,6 +629,70 @@
             </ItemsControl>
         </Viewbox>
     </DataTemplate>
+    <DataTemplate x:Key="SouthCarolina_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.SouthCarolina}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="SouthDakota_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.SouthDakota}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Tennessee_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Tennessee}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Texas_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{DynamicResource RadioButtons.Texas}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
     <DataTemplate x:Key="Utah_DataTemplate">
         <Viewbox VerticalAlignment="Center">
             <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -416,6 +704,70 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <RadioButton Style="{DynamicResource RadioButtons.Utah}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Washington_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Washington}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="WestVirginia_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.WestVirginia}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Wisconsin_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Wisconsin}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
+    </DataTemplate>
+    <DataTemplate x:Key="Wyoming_DataTemplate">
+        <Viewbox VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource RadioButtons.Wyoming}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -439,330 +791,6 @@
     </DataTemplate>
     
     <!-- *************** WIP *************** -->
-    
-    <!--23 Louisiana -->
-    <DataTemplate x:Key="Louisiana_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--22 Michigan -->
-    <DataTemplate x:Key="Michigan_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--21 Minnesota -->
-    <DataTemplate x:Key="Minnesota_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--20 Missouri -->
-    <DataTemplate x:Key="Missouri_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--19 Montana -->
-    <DataTemplate x:Key="Montana_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--18 Nebraska -->
-    <DataTemplate x:Key="Nebraska_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--17 Nevada -->
-    <DataTemplate x:Key="Nevada_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--16 New Jersey -->
-    <DataTemplate x:Key="NewJersey_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--15 New Mexico -->
-    <DataTemplate x:Key="NewMexico_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--14 North Carolina -->
-    <DataTemplate x:Key="NorthCarolina_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--13 North Dakota -->
-    <DataTemplate x:Key="NorthDakota_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--12 Ohio -->
-    <DataTemplate x:Key="Ohio_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--11 Oklahoma -->
-    <DataTemplate x:Key="Oklahoma_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--10 Oregon -->
-    <DataTemplate x:Key="Oregon_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--09 Pennsylvania -->
-    <DataTemplate x:Key="Pennsylvania_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--08 South Carolina -->
-    <DataTemplate x:Key="SouthCarolina_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--07 South Dakota -->
-    <DataTemplate x:Key="SouthDakota_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--06 Tennessee -->
-    <DataTemplate x:Key="Tennessee_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
 
     <!--05 Virginia -->
     <DataTemplate x:Key="Virginia_DataTemplate">
@@ -775,61 +803,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--04 Washington -->
-    <DataTemplate x:Key="Washington_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--03 West Virginia -->
-    <DataTemplate x:Key="WestVirginia_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
-
-    <!--02 Wisconsin -->
-    <DataTemplate x:Key="Wisconsin_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
+                        <RadioButton Style="{StaticResource RadioButtons.Virginia}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -837,21 +811,5 @@
     </DataTemplate>
 
     <!--01 Wyoming -->
-    <DataTemplate x:Key="Wyoming_DataTemplate">
-        <Viewbox VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Counties}" Style="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Viewbox>
-    </DataTemplate>
 
 </ResourceDictionary>
