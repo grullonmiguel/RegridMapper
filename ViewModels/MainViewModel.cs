@@ -21,15 +21,26 @@ namespace RegridMapper.ViewModels
         }
         private BaseViewModel _currentViewModel;
 
+
+        public BaseDialogViewModel CurrentDialogViewModel
+        {
+            get => _currentDialogViewModel;
+            set => SetProperty(ref _currentDialogViewModel, value);
+        }
+        private BaseDialogViewModel _currentDialogViewModel;
+
+        public bool IsDialogVisible
+        {
+            get => _isDialogVisible;
+            set => SetProperty(ref _isDialogVisible, value);
+        }
+        private bool _isDialogVisible;
+
         #endregion
 
         #region Commands
 
-        public ICommand ChangeViewCommand => new RelayCommand<Type>(viewModelType =>
-        {
-            Console.WriteLine($"Executing ChangeViewCommand with {viewModelType.Name}");
-            CurrentViewModel = GetCachedViewModel(viewModelType);
-        });
+        public ICommand ChangeViewCommand => new RelayCommand<Type>(ChangeView);
 
         #endregion
 
@@ -43,6 +54,23 @@ namespace RegridMapper.ViewModels
         #endregion
 
         #region Methods
+
+        private void SetDefaultView()
+        {
+            try
+            {
+                ChangeView(typeof(MapViewModel));
+            }
+            catch { }
+        }
+
+        private void ChangeView(Type viewModelType)
+        {
+            CurrentViewModel = GetCachedViewModel(viewModelType);
+            CurrentViewModel.OnDialogOpen -= DisplayDialog;
+            CurrentViewModel.OnDialogOpen += DisplayDialog;
+        }
+
         private BaseViewModel GetCachedViewModel(Type viewModelType)
         {
             if (!_viewCache.Value.TryGetValue(viewModelType, out BaseViewModel cachedViewModel))
@@ -55,16 +83,41 @@ namespace RegridMapper.ViewModels
             return cachedViewModel;
         }
 
-        private void SetDefaultView()
+        #endregion
+
+        #region Dialog
+
+        private void DisplayDialog(object sender, BaseDialogViewModel viewModel)
         {
-            try
+            if (CurrentDialogViewModel != null)
             {
-                CurrentViewModel = GetCachedViewModel(typeof(MapViewModel));
+                viewModel.PreviousDialog = CurrentDialogViewModel;
             }
-            catch { }
+
+            CurrentDialogViewModel = viewModel;
+            CurrentDialogViewModel.RequestClose -= CloseDialog;
+            CurrentDialogViewModel.RequestClose += CloseDialog;
+
+            IsDialogVisible = true;
+        }
+
+        private void CloseDialog(object? sender, EventArgs e)
+        {
+            if (CurrentDialogViewModel != null)
+            {
+                if (CurrentDialogViewModel.PreviousDialog == null)
+                {
+                    CurrentDialogViewModel.Dispose();
+                    CurrentDialogViewModel = null;
+                    IsDialogVisible = false;
+                }
+                else
+                {
+                    CurrentDialogViewModel = CurrentDialogViewModel.PreviousDialog;
+                }
+            }
         }
 
         #endregion
-
     }
 }

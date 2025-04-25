@@ -10,6 +10,8 @@ namespace RegridMapper.ViewModels
     {
         private bool _disposed;
 
+        public event EventHandler<BaseDialogViewModel> OnDialogOpen;
+
         /// <summary>
         /// Raised when a property's value changes.
         /// </summary>
@@ -69,6 +71,12 @@ namespace RegridMapper.ViewModels
                 Console.WriteLine($"Dispose Error: {ex.Message}");
             }
         }
+
+        protected void RaiseDialogOpen(BaseDialogViewModel dialogViewModel)
+        {
+            OnDialogOpen?.Invoke(this, dialogViewModel);
+        }
+
 
         #endregion
     }

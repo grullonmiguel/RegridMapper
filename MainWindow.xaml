@@ -39,6 +39,14 @@
                     <TranslateTransform/>
                 </ContentControl.RenderTransform>
             </ContentControl>
+
+            <!-- Dialog -->
+            <ContentControl 
+                Grid.RowSpan="2"
+                Content="{Binding CurrentDialogViewModel}" 
+                Style="{StaticResource ContentControl.Dialog}" 
+                Background="{Binding CurrentDialogViewModel.MainBackground}"
+                Visibility="{Binding IsDialogVisible, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}" />
         </Grid>
     </Border>
 

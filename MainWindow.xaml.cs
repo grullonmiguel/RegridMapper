@@ -19,6 +19,5 @@ namespace RegridMapper
                 fadeAnimation?.Begin(ViewContainer);
             });
         }
-
     }
 }

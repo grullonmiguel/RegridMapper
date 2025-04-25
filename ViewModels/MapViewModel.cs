@@ -20,6 +20,8 @@ namespace RegridMapper.ViewModels
         public ICommand LoadedCommand => new RelayCommand(async () => await OnLoaded());
 
         public ICommand StateSelectedCommand => new RelayCommand<StateCode>(GetSelectedState);
+        
+        public ICommand StateViewCommand => new RelayCommand(()=> ShowSelectedState());
 
         #endregion
 
@@ -149,6 +151,14 @@ namespace RegridMapper.ViewModels
             {
                 if (s.SalesType == type)
                     s.IsEnabled = enabled;
+            }
+        }
+
+        private void ShowSelectedState()
+        {
+            if (StateSelected != null)
+            {
+                RaiseDialogOpen(new StateDialogViewModel(StateSelected));
             }
         }
 

@@ -33,7 +33,6 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="State" Binding="{Binding Name}" Width="*"/>
             </DataGrid.Columns>
-
         </DataGrid>
 
         <!-- Main Content -->
@@ -61,7 +60,7 @@
                     Content="{Binding CountyCount}"
                     FontSize="{StaticResource Fonts.Small}"
                     Style="{StaticResource  Buttons.Hyperlink}" 
-                    Command="{Binding CountySettingsEditCommand}" />
+                    Command="{Binding StateViewCommand}" />
             </StackPanel>
 
             <!-- US Map -->

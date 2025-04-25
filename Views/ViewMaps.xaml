@@ -15,4 +15,9 @@
         <views:MapView />
     </DataTemplate>
 
+    <!-- Dialogs -->
+    <DataTemplate DataType="{x:Type viewModels:StateDialogViewModel}" >
+        <views:StateDialogView/>
+    </DataTemplate>
+
 </ResourceDictionary>

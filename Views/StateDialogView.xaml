@@ -1,0 +1,234 @@
+﻿<UserControl x:Class="RegridMapper.Views.StateDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RegridMapper.Views"
+             mc:Ignorable="d" 
+             Loaded="UserControl_Loaded"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Views/Templates/CountyMapTemplates.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border Padding="24">
+        <Border
+            x:Name="root" 
+            MaxWidth="1600"
+            Padding="24"
+            VerticalAlignment="Center" 
+            HorizontalAlignment="Center" 
+            Style="{StaticResource Borders.Secondary}">
+
+            <Border.RenderTransform>
+                <TranslateTransform x:Name="SlideTransform" Y="-100"/>
+            </Border.RenderTransform>
+            
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <Grid>
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                        <!-- State -->
+                        <TextBlock Style="{StaticResource TextBlocks.Heading1}" Text="{Binding Name}" />
+                        <!-- County Count -->
+                        <TextBlock Text="{Binding CountyCount}" Foreground="{StaticResource Brushes.ForegroundSecondary}" VerticalAlignment="Center" Margin="12 0 0 0" FontSize="{DynamicResource Fonts.Small}" Opacity=".5"/>
+                    </StackPanel>
+
+                    <!-- County -->
+                    <TextBlock Style="{DynamicResource TextBlocks.Heading1}" Text="{Binding CountySelected.Name}" Foreground="{DynamicResource Brushes.ForegroundSecondary}" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0 8 0 0"/>
+
+                    <!-- OK -->
+                    <Button Command="{Binding OkCommand}" Style="{DynamicResource Buttons.Close}" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                </Grid>
+
+                <!-- Content -->
+                <Grid Grid.Row="1" Margin="0 0 0 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- County List -->
+                    <!--<ListBox
+                        Background="Transparent"
+                        Focusable="False"
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name" 
+                        BorderThickness="0"
+                        ItemsSource="{Binding Path=Counties, Mode=OneWay}"
+                        SelectedItem="{Binding Path=CountySelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />-->
+
+                    <DataGrid
+                        MaxWidth="160"
+                        Margin="0 16 0 0" 
+                        Background="Transparent"
+                        HeadersVisibility="None"            
+                        ItemsSource="{Binding Counties}"                                   
+                        RowStyle="{StaticResource DataGridRowAlternate}"
+                        CellStyle="{StaticResource DataGridCellAlternate}"
+                        SelectedItem="{Binding Path=CountySelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="State" Binding="{Binding Name}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- TAX OFFICE - APPRAISAL OFFICE - CLERK'S OFFICE-->
+                    <WrapPanel VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Margin="12 0 0 0" >
+                        <!-- TAX OFFICE -->
+                        <Button 
+                            Content="Tax Office"
+                            Style="{StaticResource Buttons.Hyperlink}"
+                            Command="{Binding Path=DataContext.TaxOfficeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                            CommandParameter="{Binding CountySelected}"/>
+                        <!-- APPRAISAL -->
+                        <Button 
+                            Grid.Column="2"
+                            Content="Appraisal Office" 
+                            Style="{StaticResource Buttons.Hyperlink}"
+                            Command="{Binding Path=DataContext.AppraisalOfficeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                            CommandParameter="{Binding CountySelected}"/>
+                        <!-- CLERK'S OFFICE -->
+                        <Button 
+                            Grid.Column="4"
+                            Content="Clerk's Office"
+                            Style="{StaticResource Buttons.Hyperlink}"
+                            Command="{Binding Path=DataContext.ClerkOfficeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                            CommandParameter="{Binding CountySelected}"/>
+                        <!-- BEST ZIP CODES -->
+                        <Button 
+                            Content="Best ZIP Codes"
+                            Style="{StaticResource Buttons.Hyperlink}"
+                            Command="{Binding Path=DataContext.BestZipCodesCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                            CommandParameter="{Binding CountySelected}"/>
+                        <!-- WORST ZIP CODES -->
+                        <Button 
+                            Content="Worst ZIP Codes"
+                            Style="{StaticResource Buttons.Hyperlink}"
+                            Command="{Binding Path=DataContext.WorstZipCodesCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                            CommandParameter="{Binding CountySelected}"/>
+                    </WrapPanel>
+
+                    <!-- County Map -->
+                    <ContentControl Content="{Binding}" Grid.Column="1" Margin="32 60 32 12">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Style.Triggers>
+                                    <!-- Alabama -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="AL">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Alabama_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Alaska -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="AK">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Alaska_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Arizona -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="AZ">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Arizona_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Arkansas -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="AR">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Arkansas_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- California -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="CA">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource California_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Colorado -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="CO">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Colorado_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Connecticut -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="CT">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Connecticut_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- D.C. -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="DC">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource DC_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Delaware -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="DE">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Delaware_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Florida -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="FL">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Florida_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Georgia -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="GA">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Georgia_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Hawaii -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="HI">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Hawaii_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Idaho -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="ID">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Idaho_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Illinois -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="IL">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Illinois_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Indiana -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="IN">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Indiana_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Maine -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="ME">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Maine_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Maryland -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="MD">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Maryland_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Massachusetts -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="MA">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Massachusetts_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Mississippi -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="MS">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Mississippi_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- New Hampshire -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="NH">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource NewHampshire_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- New York -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="NY">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource NewYork_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Rhode Island -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="RI">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource RhodeIsland_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Texas -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="TX">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Texas_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Utah -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="UT">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Utah_DataTemplate}" />
+                                    </DataTrigger>
+                                    <!-- Vermont -->
+                                    <DataTrigger Binding="{Binding Path=ID}" Value="VT">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Vermont_DataTemplate}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                    </ContentControl>
+                </Grid>
+            </Grid>
+
+        </Border>
+    </Border>
+</UserControl>
