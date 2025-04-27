@@ -31,7 +31,7 @@
 
     <Color x:Key="Theme.BackgroundPrimary">#FF282D33</Color>
     <Color x:Key="Theme.BackgroundSecondary">#FF373E46</Color>
-    <Color x:Key="Theme.BackgroundTertiary">#FF292F34</Color>
+    <Color x:Key="Theme.BackgroundTertiary">#FF20262E</Color>
 
     <Color x:Key="Theme.Foreground">#FFFFFF</Color>
     <Color x:Key="Theme.ForegroundSecondary">#DCF6ED</Color>
@@ -1121,6 +1121,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
                     <Border 
+                        CornerRadius="12"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
@@ -1136,17 +1137,17 @@
         <!-- Default Appearance -->
         <Setter Property="Foreground" Value="#FFFFFF"/>
         <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}"/>
-        <Setter Property="Padding" Value="10,5"/>
+        <Setter Property="Padding" Value="16,6"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderThickness" Value="0"/>
 
         <Style.Triggers>
             <!-- Hover Effect -->
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="BorderBrush" Value="White"/>
+                <Setter Property="Background" Value="{StaticResource Brushes.BackgroundSecondary}"/>
             </Trigger>
 
             <!-- Pressed Effect -->

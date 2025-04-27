@@ -25,11 +25,13 @@
                     <ContentControl Style="{StaticResource AppLogo}"/>
 
                     <!-- Buttons -->
-                    <WrapPanel HorizontalAlignment="Right">
-                        <RadioButton Content="Real Auction" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:RealAuctionViewModel}" Click="TriggerAnimation" />
-                        <RadioButton Content="Regrid" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:ParcelViewModel}" Click="TriggerAnimation" />
-                        <RadioButton Content="Map" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:MapViewModel}" Click="TriggerAnimation" IsChecked="True"/>
-                    </WrapPanel>
+                    <Border HorizontalAlignment="Right" CornerRadius="12" VerticalAlignment="Center" Style="{StaticResource Borders.Tertiary}">
+                        <WrapPanel HorizontalAlignment="Right">
+                            <RadioButton Content="Real Auction" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:RealAuctionViewModel}" Click="TriggerAnimation" />
+                            <RadioButton Content="Regrid" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:ParcelViewModel}" Click="TriggerAnimation" />
+                            <RadioButton Content="Map" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:MapViewModel}" Click="TriggerAnimation" IsChecked="True"/>
+                        </WrapPanel>
+                    </Border>
                 </Grid>
             </Border>
 

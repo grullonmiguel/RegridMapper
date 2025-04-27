@@ -78,7 +78,7 @@
             </StackPanel>
 
             <!-- Interest / Redemption / Frequency -->
-            <Border Grid.Row="2" Style="{StaticResource Borders.Secondary}" Padding="16 8" Margin="0 8 0 0">
+            <Border Grid.Row="2" Style="{StaticResource Borders.Tertiary}" Padding="16 8" Margin="0 8 0 0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />

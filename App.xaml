@@ -8,12 +8,14 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles/Styles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/RegridMapper;component/Views/ViewMaps.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Templates/CountyMapStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->
             <local:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
             <local:BooleanToOpacityConverter x:Key="BooleanToOpacityConverter"/>
             <local:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
+            <local:StateIDToStyleConverter x:Key="StateIDToStyleConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
