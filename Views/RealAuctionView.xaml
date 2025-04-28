@@ -206,7 +206,7 @@
                         ItemsSource="{Binding ParcelList}"
                         HorizontalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Parcel ID" Binding="{Binding ParcelID}" Width="130" />
+                            <DataGridTextColumn Header="Parcel ID" Binding="{Binding ParcelID}" Width="200" />
                             <DataGridTemplateColumn Header="GIS" Width="80">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>

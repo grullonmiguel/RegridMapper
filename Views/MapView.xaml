@@ -7,13 +7,13 @@
              xmlns:local="clr-namespace:RegridMapper.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    
+
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -68,13 +68,13 @@
 
             <StackPanel Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
                 <CheckBox Content="Hybrid" Background="{StaticResource Brushes.BackgroundHybrid}" Margin="8 0"
-                          IsChecked="{Binding ShowHybridStates}" />
+                          IsChecked="{Binding ShowHybridStates}" BorderThickness="0" />
                 <CheckBox Content="Tax Deeds" Background="{StaticResource Brushes.BackgroundDeed}" Margin="8 0"
-                          IsChecked="{Binding ShowDeedStates}" />
+                          IsChecked="{Binding ShowDeedStates}" BorderThickness="0" />
                 <CheckBox Content="Tax Liens" Background="{StaticResource Brushes.BackgroundLien}" Margin="8 0"
-                          IsChecked="{Binding ShowLienStates}" />
+                          IsChecked="{Binding ShowLienStates}" BorderThickness="0" />
                 <CheckBox Content="Redeemable Deeds" Background="{StaticResource Brushes.BackgroundRedeem}" Margin="8 0 4 0"
-                          IsChecked="{Binding ShowRedeemableStates}" />
+                          IsChecked="{Binding ShowRedeemableStates}" BorderThickness="0" />
             </StackPanel>
 
             <!-- Interest / Redemption / Frequency -->
@@ -85,14 +85,14 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    
+
                     <!-- Interest Rate -->
                     <StackPanel Width="100">
                         <TextBlock Text="Interest Rate" FontSize="{StaticResource Fonts.Small}" />
                         <TextBlock Text="{Binding StateSelected.InterestRate}" Foreground="{DynamicResource Brushes.ForegroundSecondary}"/>
                     </StackPanel>
 
-                    <!-- redemption period -->
+                    <!-- Redemption period -->
                     <StackPanel Width="150" Grid.Column="1">
                         <TextBlock Text="Redemption Period" FontSize="{StaticResource Fonts.Small}" />
                         <TextBlock Text="{Binding StateSelected.RedemptionPeriod}" Foreground="{DynamicResource Brushes.ForegroundSecondary}"/>

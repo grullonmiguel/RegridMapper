@@ -38,9 +38,11 @@ namespace RegridMapper.ViewModels
 
         // URL Navigation Commands
         public ICommand NavigateToAuctionUrlCommand => new RelayCommand(() => NavigateToAuctionUrl());
-        public ICommand NavigateAppraiserCommand => CreateNavigateCommand(item => item?.AppraiserUrl);
+        public ICommand NavigateAppraiserCommand => CreateNavigateCommandForParcels(item => item?.AppraiserUrl);
+        public ICommand NavigateToRegridCommand => CreateNavigateCommandForParcels(item => item?.RegridUrl);
         public ICommand NavigateToCountyUrlCommand => CreateNavigateCommand(item => item?.RealAuctionURL);
         public ICommand CreateNavigateCommand(Func<US_County, string> urlSelector) => new RelayCommand<US_County>(item => UrlHelper.OpenUrl(urlSelector(item)), item => item != null && UrlHelper.IsValidUrl(urlSelector(item)));
+        public ICommand CreateNavigateCommandForParcels(Func<ParcelData, string> urlSelector) => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(urlSelector(item)), item => item != null && UrlHelper.IsValidUrl(urlSelector(item)));
 
         #endregion
 
@@ -281,11 +283,12 @@ namespace RegridMapper.ViewModels
 
             HashSet<string> keywords = new HashSet<string>
             {
-                "Case #:",
-                "Opening Bid:",
-                "Parcel ID:",
-                "Assessed Value:",
-                "page of"
+                "Case",
+                "Opening",
+                "Parcel",
+                "Assessed",
+                "page of",
+                "Auction"
             };
 
             try
@@ -325,10 +328,15 @@ namespace RegridMapper.ViewModels
                                     currentItem.ParcelID = span.Slice("Parcel ID: ".Length).Trim().ToString();
                                     if (!string.IsNullOrEmpty(currentItem.ParcelID))
                                     {
+                                        // Modify Parcel ID for certain counties
                                         var parcel = currentItem.ParcelID;
                                         if(AuctionCounty == "Miami Dade")
                                             parcel = currentItem.ParcelID.Replace("-", "");
-                                        currentItem.AppraiserUrl = string.Format(_preformattedAppraiserUrl, parcel);
+                                        
+                                        // Appraiser's office web link
+                                        currentItem.AppraiserUrl = string.Format(_preformattedAppraiserUrl, Uri.EscapeDataString(parcel));
+
+                                        // Regrid web link
                                         currentItem.RegridUrl = string.Format(AppConstants.URL_Regrid, Uri.EscapeDataString(currentItem.ParcelID));
                                     }
 
@@ -342,7 +350,7 @@ namespace RegridMapper.ViewModels
                                     if (!string.IsNullOrEmpty(nextLine) && !keywords.Any(nextLine.StartsWith))
                                     {
                                         currentItem.Address += $", {nextLine}";
-                                        i++; // Skip next line
+                                        //i++; // Skip next line
                                     }
                                     break;
 

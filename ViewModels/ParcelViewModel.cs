@@ -137,7 +137,6 @@ namespace RegridMapper.ViewModels
         
         public ICommand LoadFromClipboardCommand => new RelayCommand(async () => await LoadFromClipboard(), () => CanLoadFromClipboard());
 
-
         // Regrid Scraping Commands
         public ICommand RegridQueryCancelCommand => new RelayCommand(async () => await CancelScraping());
         public ICommand RegridQueryAllParcelsCommand => new RelayCommand(async () => await ScrapeParcels(ParcelList.ToList()));
@@ -175,6 +174,10 @@ namespace RegridMapper.ViewModels
         {
             if (parcels == null || parcels.Count == 0)
                 return; // Avoid unnecessary execution if there are no parcels to process
+
+            // Check if Google Chrome with Debugging is running
+            if(await GoogleChromeHelper.IsChromeRunning() == false)
+                return;
             
             // Indicate process start
             IsScraping = true; 
@@ -187,7 +190,7 @@ namespace RegridMapper.ViewModels
                 await Task.Run(async () =>
                 {
                     // Connect to a chrome session with debugging enabled
-                    using var scraper = new SeleniumWebDriverService(BrowserType.Chrome, true, "127.0.0.1:9222");
+                    using var scraper = new SeleniumWebDriverService(BrowserType.Chrome, true, AppConstants.ChromeDebuggerAddress);
                     SemaphoreSlim semaphore = new(3);
 
                     for (int i = 0; i < parcels.Count; i++)

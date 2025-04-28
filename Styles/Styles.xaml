@@ -1493,6 +1493,47 @@
     </Style>
     <!--#endregion-->
 
+    <!--#region Tooltip -->
+    <Style x:Key="{x:Type ToolTip}" TargetType="ToolTip">
+        <Setter Property="HasDropShadow" Value="True" />
+        <Setter Property="OverridesDefaultStyle" Value="true" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Border 
+                        BorderThickness="2"
+                        Padding="8"
+                        CornerRadius="8"
+                        Background="{StaticResource Brushes.BackgroundDeed}"
+                        BorderBrush="{StaticResource Brushes.Secondary}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True">
+                            <ContentPresenter.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{DynamicResource Brushes.Secondary}"/>
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--#endregion-->
+
+    <!--#region ContentControl-->
+    <Style x:Key="ContentControl.Dialog" TargetType="ContentControl" >
+        <Setter Property="Background" Value="{StaticResource Brushes.DialogBackground}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border Background="{TemplateBinding Background}">
+                        <ContentPresenter />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--#endregion-->
 
     <Style TargetType="CheckBox">
         <Setter Property="Foreground" Value="{StaticResource Brushes.ForegroundSecondary}"/>
@@ -1564,22 +1605,5 @@
             </ItemsControl>
         </Viewbox>
     </DataTemplate>
-
-    <!--#region ContentControl-->
-
-    <Style x:Key="ContentControl.Dialog" TargetType="ContentControl" >
-        <Setter Property="Background" Value="{StaticResource Brushes.DialogBackground}" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ContentControl">
-                    <Border Background="{TemplateBinding Background}">
-                        <ContentPresenter />
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!--#endregion-->
 
 </ResourceDictionary>

@@ -6,10 +6,10 @@
         xmlns:local="clr-namespace:RegridMapper"
         xmlns:viewModels="clr-namespace:RegridMapper.ViewModels"
         mc:Ignorable="d"
-        WindowStartupLocation="CenterScreen"
-        Title="Regrid Mapper" 
+        Title="Virtual Assistant" 
         Height="768" Width="1024"
-        MinHeight="480" MinWidth="640">
+        MinHeight="480" MinWidth="640"
+        WindowStartupLocation="CenterScreen">
 
     <Border Style="{StaticResource Borders.Primary}">
         <Grid>
@@ -27,9 +27,9 @@
                     <!-- Buttons -->
                     <Border HorizontalAlignment="Right" CornerRadius="12" VerticalAlignment="Center" Style="{StaticResource Borders.Tertiary}">
                         <WrapPanel HorizontalAlignment="Right">
-                            <RadioButton Content="Real Auction" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:RealAuctionViewModel}" Click="TriggerAnimation" />
                             <RadioButton Content="Regrid" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:ParcelViewModel}" Click="TriggerAnimation" />
-                            <RadioButton Content="Map" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:MapViewModel}" Click="TriggerAnimation" IsChecked="True"/>
+                            <RadioButton Content="Real Auction" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:RealAuctionViewModel}" Click="TriggerAnimation" />
+                            <RadioButton Content="U.S. Map" Command="{Binding ChangeViewCommand}" CommandParameter="{x:Type viewModels:MapViewModel}" Click="TriggerAnimation" IsChecked="True"/>
                         </WrapPanel>
                     </Border>
                 </Grid>

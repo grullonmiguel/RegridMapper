@@ -7,6 +7,7 @@ using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Utilities;
 using SeleniumExtras.WaitHelpers;
 using System.Diagnostics;
+using System.Net.Http;
 
 namespace RegridMapper.Services
 {
@@ -237,6 +238,8 @@ namespace RegridMapper.Services
                 return null;
             }
         }
+
+       
 
         public void Dispose()
         {
