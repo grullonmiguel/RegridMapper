@@ -57,6 +57,18 @@ namespace RegridMapper.ViewModels
 
         public string TotalParcels => ParcelList.Count <= 0 ? "" : $"(Total Records: {ParcelList.Count})";
 
+
+        public bool ShowSettings
+        {
+            get => _showSettings;
+            set
+            {
+                SetProperty(ref _showSettings, value);
+
+            }
+        }
+        private bool _showSettings;
+
         #endregion
 
         #region CanScrape Properties
@@ -131,10 +143,13 @@ namespace RegridMapper.ViewModels
         public ICommand ClearDataCommand => new RelayCommand(ClearData, ()=> CanDeleteRecords());
         public ICommand SelectedParcelsCommand => new RelayCommand<IList>(OnSelectedParcelsChanged);
 
+
+        public ICommand ShowSettingsCommand => new RelayCommand(() => ShowSettingsDialog());
+        public ICommand SettingsCloseCommand => new RelayCommand(() => CloseSettingsDialog());
+
         // Clipboard Commands
         public ICommand CopySelectedParcelsCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelsSelected);
-        public ICommand CopyAllToClipboardCommand => new RelayCommand(async () => await SaveAllToClipboard(), () => ParcelList.Any());
-        
+        public ICommand CopyAllToClipboardCommand => new RelayCommand(async () => await SaveAllToClipboard(), () => ParcelList.Any());        
         public ICommand LoadFromClipboardCommand => new RelayCommand(async () => await LoadFromClipboard(), () => CanLoadFromClipboard());
 
         // Regrid Scraping Commands
@@ -413,6 +428,36 @@ namespace RegridMapper.ViewModels
 
             // Clipboard operation runs on UI thread
             await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText.ToString()));
+        }
+
+        #endregion
+
+        #region Settings
+
+        private void CloseSettingsDialog()
+        {
+            ShowSettings = false;
+            LoadSettings();
+        }
+
+        private void ShowSettingsDialog()
+        {
+            ShowSettings = true;
+        }
+
+        private void LoadSettings()
+        {
+            try
+            {
+                //AuctionURL = SettingsService.LoadSetting<string>("AuctionURL");
+                //AuctionCounty = SettingsService.LoadSetting<string>("AuctionCounty");
+                //_preformattedAppraiserUrl = SettingsService.LoadSetting<string>("AppraiserURL");
+                //OnPropertyChanged(nameof(CanScrape));
+            }
+            catch (Exception)
+            {
+                // Provide recovery action
+            }
         }
 
         #endregion
