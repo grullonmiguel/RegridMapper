@@ -213,6 +213,7 @@ namespace RegridMapper.Core.Configuration
         public const string RegexZipCode = @"^\d{5}(-\d{4})?$";
 
         // URL Constants
+        public const string Google_Search = @"http://www.google.com.au/search?q={0}";
         public const string HYPERLINK_FORMAT = "=HYPERLINK(\"{0}\", \"{1}\")";
         public const string URL_Fema = "https://msc.fema.gov/portal/search?AddressQuery=";
         public const string URL_Google = "https://www.google.com/maps/search/";

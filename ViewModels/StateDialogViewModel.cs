@@ -7,6 +7,15 @@ namespace RegridMapper.ViewModels
 {
     public class StateDialogViewModel : BaseDialogViewModel
     {
+        #region Commands
+
+        public ICommand CountySelectedCommand => new RelayCommand<string>(GetSelectedCounty);
+        public ICommand AppraisalOfficeCommand => new RelayCommand(()=> OpenWebSearch("assessor's office"), CanOpenExternalUrl);
+        public ICommand ClerkOfficeCommand => new RelayCommand(()=> OpenWebSearch("clerk's office"), CanOpenExternalUrl);
+        public ICommand TaxOfficeCommand => new RelayCommand(() => OpenWebSearch(SalesType == SaleTypeCode.Lien ? "tax lien sale" : "tax deed sale"), CanOpenExternalUrl);
+
+        #endregion
+
         #region Properties
 
         public StateCode ID { get; private set; }
@@ -29,17 +38,6 @@ namespace RegridMapper.ViewModels
         public SaleTypeCode SalesType { get; private set; }
 
         public string CountyCount { get; private set; }
-
-        #endregion
-
-        #region Commands
-
-        public ICommand CountySelectedCommand => new RelayCommand<string>(GetSelectedCounty);
-        public ICommand AppraisalOfficeCommand => new RelayCommand<US_County>(OpenAppraisalOfficeURL);
-        public ICommand ClerkOfficeCommand => new RelayCommand<US_County>(OpenClerksOfficeURL);
-        public ICommand TaxOfficeCommand => new RelayCommand<US_County>(OpenTaxOfficeURL);
-        public ICommand BestZipCodesCommand => new RelayCommand<US_County>(OpenBestZipCodesURL);
-        public ICommand WorstZipCodesCommand => new RelayCommand<US_County>(OpenWorstZipCodesURL);
 
         #endregion
 
@@ -68,46 +66,24 @@ namespace RegridMapper.ViewModels
                 return;
 
             // Unselect all states first
-            foreach (var c in Counties)
-                c.IsSelected = false;
+            Counties.ForEach(c => c.IsSelected = false);
 
             // Update IsSelected property for selected state
-            foreach (var s in Counties)
-            {
-                if (s.Name == CountySelected?.Name)
-                {
-                    s.IsSelected = true;
-                    break;
-                }
-            }
+            var selectedCounty = Counties.FirstOrDefault(s => s.Name == CountySelected?.Name);
+            if (selectedCounty != null)
+                selectedCounty.IsSelected = true;
         }
 
         private void GetSelectedCounty(string? county)
             => CountySelected = Counties?.FirstOrDefault(x => x.Name == county);
 
-        private void OpenAppraisalOfficeURL(US_County? county)
-        {
-            //_systemService.OpenWebSearch($"{county?.Name} county, {Name} assessor's office");
-        }
+        private bool CanOpenExternalUrl()
+            => CountySelected != null;
 
-        private void OpenClerksOfficeURL(US_County? county)
+        private void OpenWebSearch(string keywords)
         {
-            //_systemService.OpenWebSearch($"{county?.Name} county, {Name} clerk's office");
-        }
-
-        private void OpenTaxOfficeURL(US_County? county)
-        {
-            //_systemService.OpenWebSearch($"{county?.Name} county, {Name} {(SalesType == SaleTypeCode.Lien ? "tax lien sale" : "tax deed sale")}");
-        }
-
-        private void OpenBestZipCodesURL(US_County? county)
-        {
-            //_systemService.OpenWebSearch($"{county?.Name} county, {Name}  best zip codes");
-        }
-
-        private void OpenWorstZipCodesURL(US_County? county)
-        {
-            //_systemService.OpenWebSearch($"{county?.Name} county, {Name}  worst zip codes");
+            if (CountySelected != null)
+                UrlHelper.OpenUrl(string.Format(AppConstants.Google_Search, $"{CountySelected?.Name} county, {Name} {keywords}"));
         }
 
         #endregion

@@ -40,23 +40,20 @@
                     Content="Tax Office"
                     FontSize="{StaticResource Fonts.Small}"
                     Style="{StaticResource Buttons.Hyperlink}"
-                    Command="{Binding Path=DataContext.TaxOfficeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                    CommandParameter="{Binding CountySelected}"/>
+                    Command="{Binding TaxOfficeCommand}" />
                 <!-- Appraisal Office -->
                 <Button 
                     Margin="16 0"
                     Content="Appraisal Office" 
                     FontSize="{StaticResource Fonts.Small}"
                     Style="{StaticResource Buttons.Hyperlink}"
-                    Command="{Binding Path=DataContext.AppraisalOfficeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                    CommandParameter="{Binding CountySelected}"/>
+                    Command="{Binding AppraisalOfficeCommand}" />
                 <!-- Clerk's Office -->
                 <Button 
                     Content="Clerk's Office"
                     FontSize="{StaticResource Fonts.Small}"
                     Style="{StaticResource Buttons.Hyperlink}"
-                    Command="{Binding Path=DataContext.ClerkOfficeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                    CommandParameter="{Binding CountySelected}"/>
+                    Command="{Binding ClerkOfficeCommand}" />
             </WrapPanel>
 
             <!-- County List -->
