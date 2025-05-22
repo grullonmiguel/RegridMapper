@@ -324,8 +324,11 @@ namespace RegridMapper.ViewModels
                                     currentItem.AskingPrice = decimal.TryParse(span.Slice("Opening Bid: $".Length).Trim().ToString(), out var bid) ? bid : 0;
                                     break;
 
-                                case string s when span.StartsWith("Parcel ID:"):
-                                    currentItem.ParcelID = span.Slice("Parcel ID: ".Length).Trim().ToString();
+                                case string s when span.StartsWith("Parcel ID:") || span.StartsWith("Alternate Key:"):
+
+                                    var prefix = span.StartsWith("Parcel ID:") ? "Parcel ID: " : "Alternate Key: ";
+                                    currentItem.ParcelID = span.Slice(prefix.Length).Trim().ToString();
+
                                     if (!string.IsNullOrEmpty(currentItem.ParcelID))
                                     {
                                         // Modify Parcel ID for certain counties
@@ -337,7 +340,8 @@ namespace RegridMapper.ViewModels
                                         currentItem.AppraiserUrl = string.Format(_preformattedAppraiserUrl, Uri.EscapeDataString(parcel));
 
                                         // Regrid web link
-                                        currentItem.RegridUrl = string.Format(AppConstants.URL_Regrid, Uri.EscapeDataString(currentItem.ParcelID));
+                                        if(prefix.StartsWith("Parcel ID:"))
+                                            currentItem.RegridUrl = string.Format(AppConstants.URL_Regrid, Uri.EscapeDataString(currentItem.ParcelID));
                                     }
 
                                     break;

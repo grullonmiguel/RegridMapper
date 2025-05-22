@@ -39,28 +39,30 @@ namespace RegridMapper.Core.Services
             }
         }
 
-        public static bool LaunchChrome()
+        public static void LaunchChromeWithDebugging()
         {
-            string chromePath = @"C:\Program Files\Google\Chrome\Application\chrome.exe"; // Adjust if necessary
-            string arguments = "--remote-debugging-port=9222 --user-data-dir=\"C:\\ChromeSession\"";
+            var chromePath = @"C:\Program Files\Google\Chrome\Application\chrome.exe";
+            var userDataDir = @"C:\ChromeSession";
+            var debuggingPort = 9222;
+            var debuggerUrl = $"http://127.0.0.1:{debuggingPort}/json";
 
-            ProcessStartInfo psi = new()
+            // Start Chrome
+            var processInfo = new ProcessStartInfo
             {
                 FileName = chromePath,
-                Arguments = arguments,
-                UseShellExecute = false
+                Arguments = $"--remote-debugging-port={debuggingPort} --user-data-dir=\"{userDataDir}\" --new-window",
+                Verb = "runas", // Launch as Administrator
+                UseShellExecute = true // Required for 'runas'
             };
 
             try
             {
-                Process.Start(psi);
+                Process.Start(processInfo);
                 Console.WriteLine("Chrome launched with debugging enabled.");
-                return true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to open Chrome: {ex.Message}");
-                return false;
             }
 
         }

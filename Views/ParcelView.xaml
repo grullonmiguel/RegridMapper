@@ -58,7 +58,20 @@
                 <TextBlock Text="Settings" Style="{StaticResource TextBlocks.Heading1}" />
 
                 <!-- Close Button -->
-                <Button Style="{StaticResource  Buttons.Close}" Command="{Binding SettingsCloseCommand}" />
+                <Button Style="{StaticResource  Buttons.Close}" Command="{Binding SettingsCloseCommand}"  />
+                
+                <!-- Use Google Crome with Debugging -->
+                <CheckBox Grid.Row="1" Content="Use Chrome with Debugger" IsChecked="{Binding UseChromeWithDebugger}" Margin="0 16"/>
+
+                <!-- Close Button -->
+                <Button Grid.Row="1" 
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Center"
+                        Content="Open"
+                        Style="{StaticResource  Buttons.Link}" 
+                        IsEnabled="{Binding UseChromeWithDebugger}"
+                        Command="{Binding OpenGoogleChromeCommand}" 
+                        Tag="{StaticResource Geometry.GoogleChrome}" />
             </Grid>
         </Border>
 
@@ -72,9 +85,25 @@
 
             <!-- Page Title -->
             <TextBlock Style="{StaticResource TextBlocks.Heading1}" Margin="0 16">
-            <Run Text="Regrid" />
-            <Run Text="{Binding TotalParcels, Mode=OneWay}" />
+                <Run Text="Regrid" />
+                <Run Text="{Binding TotalParcels, Mode=OneWay}" />
             </TextBlock>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
+                <!-- Running-->
+                <TextBlock Foreground="#F69465" VerticalAlignment="Center" FontSize="{StaticResource Fonts.Large}">
+                    <Run Text="{Binding RegridStatus}" />
+                    <Run Text="{Binding CurrentScrapingElement}" />
+                </TextBlock>                
+                <!-- Cancel -->
+                <Button 
+                    Content="Cancel" 
+                    Margin="8 0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource  Buttons.Primary}" 
+                    Command="{Binding RegridQueryCancelCommand}"
+                    Visibility="{Binding IsScraping, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </StackPanel>
 
             <!-- Main Content -->
             <Border Grid.Row="1" Style="{StaticResource Borders.Secondary}">
@@ -105,20 +134,6 @@
                                 Style="{StaticResource  Buttons.Link}" 
                                 Command="{Binding ShowSettingsCommand}" />
 
-                            <!-- Cancel -->
-                            <Button 
-                                Content="Cancel" 
-                                Tag="{StaticResource Geometry.WebCancel}"
-                                Style="{StaticResource  Buttons.Link}" 
-                                Command="{Binding RegridQueryCancelCommand}"
-                                Visibility="{Binding IsScraping, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-
-                            <!-- Running-->
-                            <TextBlock Foreground="#f69465" VerticalAlignment="Center" Grid.Column="1">
-                                <Run Text="{Binding RegridStatus}" />
-                                <Run Text="{Binding CurrentScrapingElement}" />
-                            </TextBlock>
-
                             <!-- Paste -->
                             <Button 
                                 Grid.Column="2"
@@ -148,12 +163,12 @@
 
                             <!-- Regrid -->
                             <Button 
-                            Grid.Column="5"
-                            Content="Scrape" 
-                            IsEnabled="{Binding CanScrape}"
-                            Tag="{StaticResource Geometry.Regrid}"
-                            Style="{StaticResource  Buttons.Primary}"
-                            Command="{Binding RegridQueryAllParcelsCommand}"  />
+                                Grid.Column="5"
+                                Content="Scrape" 
+                                IsEnabled="{Binding CanScrape}"
+                                Tag="{StaticResource Geometry.Regrid}"
+                                Style="{StaticResource  Buttons.Primary}"
+                                Command="{Binding RegridQueryAllParcelsCommand}"  />
                         </Grid>
                     </Border>
 

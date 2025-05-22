@@ -30,7 +30,7 @@ namespace RegridMapper.ViewModels
 
         public ObservableCollection<ParcelData> SelectedParcels { get; set; } = new();
 
-        public bool CanScrape => ParcelList.Count > 0;
+        public bool CanScrape => ParcelList.Count > 0 && !IsScraping;
 
         public bool IsScraping
         {
@@ -57,7 +57,6 @@ namespace RegridMapper.ViewModels
 
         public string TotalParcels => ParcelList.Count <= 0 ? "" : $"(Total Records: {ParcelList.Count})";
 
-
         public bool ShowSettings
         {
             get => _showSettings;
@@ -68,6 +67,13 @@ namespace RegridMapper.ViewModels
             }
         }
         private bool _showSettings;
+
+        public bool UseChromeWithDebugger
+        {
+            get => _useChromeWithDebbuger;
+            set => SetProperty(ref _useChromeWithDebbuger, value);
+        }
+        private bool _useChromeWithDebbuger;
 
         #endregion
 
@@ -143,9 +149,10 @@ namespace RegridMapper.ViewModels
         public ICommand ClearDataCommand => new RelayCommand(ClearData, ()=> CanDeleteRecords());
         public ICommand SelectedParcelsCommand => new RelayCommand<IList>(OnSelectedParcelsChanged);
 
-
         public ICommand ShowSettingsCommand => new RelayCommand(() => ShowSettingsDialog());
         public ICommand SettingsCloseCommand => new RelayCommand(() => CloseSettingsDialog());
+
+        public ICommand OpenGoogleChromeCommand => new RelayCommand(() => GoogleChromeHelper.LaunchChromeWithDebugging());
 
         // Clipboard Commands
         public ICommand CopySelectedParcelsCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelsSelected);
@@ -153,9 +160,20 @@ namespace RegridMapper.ViewModels
         public ICommand LoadFromClipboardCommand => new RelayCommand(async () => await LoadFromClipboard(), () => CanLoadFromClipboard());
 
         // Regrid Scraping Commands
+        private CancellationTokenSource _cancellationTokenSource;
         public ICommand RegridQueryCancelCommand => new RelayCommand(async () => await CancelScraping());
-        public ICommand RegridQueryAllParcelsCommand => new RelayCommand(async () => await ScrapeParcels(ParcelList.ToList()));
-        public ICommand RegridQuerySelectedCommand => new RelayCommand(async () => await ScrapeParcels(SelectedParcels.ToList()), () => ParcelsSelected);
+        public ICommand RegridQueryAllParcelsCommand => new RelayCommand(async () =>
+        {
+            _cancellationTokenSource?.Cancel(); // Cancel any previous operation
+            _cancellationTokenSource = new CancellationTokenSource();
+            await ScrapeParcels(ParcelList.ToList(), _cancellationTokenSource.Token);
+        });
+        public ICommand RegridQuerySelectedCommand => new RelayCommand(async () =>
+        {
+            _cancellationTokenSource?.Cancel(); // Cancel any previous operation
+            _cancellationTokenSource = new CancellationTokenSource();
+            await ScrapeParcels(SelectedParcels.ToList(), _cancellationTokenSource.Token);
+        }, () => ParcelsSelected);
 
         // URL Navigation Commands
         public ICommand NavigateAppraiserCommand => CreateNavigateCommand(item => item?.AppraiserUrl);
@@ -185,31 +203,40 @@ namespace RegridMapper.ViewModels
 
         #region Regrid Scraping
 
-        private async Task ScrapeParcels(List<ParcelData> parcels)
+        private async Task ScrapeParcels(List<ParcelData> parcels, CancellationToken cancellationToken)
         {
             if (parcels == null || parcels.Count == 0)
                 return; // Avoid unnecessary execution if there are no parcels to process
-
-            // Check if Google Chrome with Debugging is running
-            if(await GoogleChromeHelper.IsChromeRunning() == false)
-                return;
             
+            if (await GoogleChromeHelper.IsChromeRunning() == false && UseChromeWithDebugger)
+                return; // Check if Google Chrome with Debugging is running
+
             // Indicate process start
-            IsScraping = true; 
+            IsScraping = true;
+            NotifyPropertiesChanged(nameof(CanScrape));
 
             // Record the start time
             var startTime = DateTime.Now;
+
+            string? chrome = UseChromeWithDebugger ? AppConstants.ChromeDebuggerAddress : string.Empty;
 
             try
             {
                 await Task.Run(async () =>
                 {
                     // Connect to a chrome session with debugging enabled
-                    using var scraper = new SeleniumWebDriverService(BrowserType.Chrome, true, AppConstants.ChromeDebuggerAddress);
+                    using var scraper = new SeleniumWebDriverService(BrowserType.Chrome, UseChromeWithDebugger, chrome);
                     SemaphoreSlim semaphore = new(3);
 
                     for (int i = 0; i < parcels.Count; i++)
                     {
+                        // Check if cancellation is requested and exit early if so
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            RegridStatus = "Scraping process canceled.";
+                            return;
+                        }
+
                         var item = parcels[i];
                         await semaphore.WaitAsync();
 
@@ -253,7 +280,8 @@ namespace RegridMapper.ViewModels
                             OnPropertyChanged(nameof(ParcelList));
                         }
                     }
-                });
+                }, cancellationToken);
+
             }
             finally
             {
@@ -263,13 +291,15 @@ namespace RegridMapper.ViewModels
 
                 IsScraping = false; // Indicate process end
                 CurrentScrapingElement = string.Empty;
-                NotifyPropertiesChanged(nameof(IsScraping), nameof(RegridStatus));
+                NotifyPropertiesChanged(nameof(IsScraping), nameof(RegridStatus), nameof(CanScrape));
             }
         }
 
         private Task CancelScraping()
         {
             _cancelScraping = true;
+            _cancellationTokenSource?.Cancel();
+
             return Task.CompletedTask;
         }
 
