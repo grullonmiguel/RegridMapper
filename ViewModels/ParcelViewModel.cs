@@ -376,7 +376,7 @@ namespace RegridMapper.ViewModels
             var clipboardText = new StringBuilder();
 
             // Define Headers
-            string[] headers = { "TYPE", "COUNTY", "CITY", "PARCEL ID", "GIS", "DETAIL", "ADDRESS", "OWNER", "APPRAISAL", "ASSESSED VALUE", "ACRES", "MAPS", "FEMA", "REALTOR", "REDFIN", "ZILLOW" };
+            string[] headers = { "TYPE", "CITY", "PARCEL ID", "GIS", "ADDRESS", "OWNER", "APPRAISAL", "ASSESSED VALUE", "ACRES", "MAPS", "FEMA", "REALTOR", "REDFIN", "ZILLOW" };
 
             // Append headers
             clipboardText.AppendLine(string.Join("\t", headers));
@@ -390,10 +390,9 @@ namespace RegridMapper.ViewModels
                 var urls = new[]
                 {
                     FormatUrl(item.RegridUrl, "LINK"),
-                    FormatUrl(item.DetailUrl, "LINK"),
                     FormatUrl(item.AppraiserUrl, "LINK"),
                     FormatUrl(item.GoogleUrl, "LINK"),
-                    FormatUrl(item.FemaUrl, item.FloodZone),
+                    FormatUrl(item.FemaUrl, $"ZONE {item.FloodZone}"),
                     FormatUrl(item.RealtorUrl, "LINK"),
                     FormatUrl(item.RedfinUrl, "LINK"),
                     FormatUrl(item.ZillowUrl, "LINK")
@@ -402,9 +401,9 @@ namespace RegridMapper.ViewModels
                 // Create row data while ensuring Excel formatting compatibility
                 string[] row =
                 {
-                    item.ZoningType, item.County, item.City, item.ParcelID, urls[0],urls[1],
-                    item.Address, item.OwnerName, urls[2], item.AssessedValue, item.Acres,
-                    urls[3], urls[4], urls[5], urls[6], urls[7]
+                    item.ZoningType, item.City, item.ParcelID, urls[0],
+                    item.Address, item.OwnerName, urls[1], item.AssessedValue, item.Acres,
+                    urls[2], urls[3], urls[4], urls[5], urls[6]
                 };
 
                 clipboardText.AppendLine(string.Join("\t", row));
@@ -422,7 +421,7 @@ namespace RegridMapper.ViewModels
             var clipboardText = new StringBuilder();
 
             // Define Headers
-            string[] headers = { "TYPE", "COUNTY", "CITY", "PARCEL ID", "GIS", "DETAIL", "ADDRESS", "OWNER", "APPRAISAL", "ASSESSED VALUE", "ACRES", "MAPS", "FEMA", "REALTOR", "REDFIN", "ZILLOW" };
+            string[] headers = { "TYPE", "CITY", "PARCEL ID", "GIS", "ADDRESS", "OWNER", "APPRAISAL", "ASSESSED VALUE", "ACRES", "MAPS", "FEMA", "REALTOR", "REDFIN", "ZILLOW" };
 
             // Append headers
             clipboardText.AppendLine(string.Join("\t", headers));
@@ -436,10 +435,9 @@ namespace RegridMapper.ViewModels
                 var urls = new[]
                 {
                     FormatUrl(item.RegridUrl, "LINK"),
-                    FormatUrl(item.DetailUrl, "LINK"),
                     FormatUrl(item.AppraiserUrl, "LINK"),
                     FormatUrl(item.GoogleUrl, "LINK"),
-                    FormatUrl(item.FemaUrl, item.FloodZone),
+                    FormatUrl(item.FemaUrl, $"ZONE {item.FloodZone}"),
                     FormatUrl(item.RealtorUrl, "LINK"),
                     FormatUrl(item.RedfinUrl, "LINK"),
                     FormatUrl(item.ZillowUrl, "LINK")
@@ -448,9 +446,9 @@ namespace RegridMapper.ViewModels
                 // Create row data while ensuring Excel formatting compatibility
                 string[] row =
                 {
-                    item.ZoningType, item.County, item.City, item.ParcelID, urls[0],urls[1],
-                    item.Address, item.OwnerName, urls[2], item.AssessedValue, item.Acres,
-                    urls[3], urls[4], urls[5], urls[6], urls[7]
+                    item.ZoningType, item.City, item.ParcelID, urls[0],
+                    item.Address, item.OwnerName, urls[1], item.AssessedValue, item.Acres,
+                    urls[2], urls[3], urls[4], urls[5], urls[6]
                 };
 
                 clipboardText.AppendLine(string.Join("\t", row));
