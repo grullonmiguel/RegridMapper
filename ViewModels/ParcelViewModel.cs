@@ -1,13 +1,18 @@
 ﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 using RegridMapper.Core.Commands;
 using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Services;
 using RegridMapper.Core.Utilities;
 using RegridMapper.Services;
+using RegridMapper.Views;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Input;
 
 namespace RegridMapper.ViewModels
@@ -16,11 +21,14 @@ namespace RegridMapper.ViewModels
     {
         #region Fields
 
+        private bool _runScraping;
         private bool _cancelScraping; 
         private readonly Logger _logger;
         private readonly SeleniumWebDriverService _scraper;
         private readonly RegridDataService _regriDataService = new();
         private readonly OpenStreetMapService _openStreetMapService = new();
+        private readonly RegridVerifyDialogViewModel _regridConfirmDialogVM = new();
+        private MultipleMatchesDialogViewModel _multipleMatchesDialogViewModel;
 
         #endregion
 
@@ -161,6 +169,7 @@ namespace RegridMapper.ViewModels
 
         // Regrid Scraping Commands
         private CancellationTokenSource _cancellationTokenSource;
+        public ICommand RegridViewMultipleMatchesCommand => new RelayCommand(async () => await ViewMultipleMatches(), () => CanViewMultipleMatches());
         public ICommand RegridQueryCancelCommand => new RelayCommand(async () => await CancelScraping());
         public ICommand RegridQueryAllParcelsCommand => new RelayCommand(async () =>
         {
@@ -228,14 +237,24 @@ namespace RegridMapper.ViewModels
                     using var scraper = new SeleniumWebDriverService(BrowserType.Chrome, UseChromeWithDebugger, chrome);
                     SemaphoreSlim semaphore = new(3);
 
+                    // Open Main Regrid Page
+                    if(!UseChromeWithDebugger)
+                    ShowRegridConfirmDialogPrompt();
+                    await scraper.CaptureHTMLSource("https://app.regrid.com/us#");
+
                     for (int i = 0; i < parcels.Count; i++)
                     {
                         // Check if cancellation is requested and exit early if so
                         if (cancellationToken.IsCancellationRequested)
                         {
                             RegridStatus = "Scraping process canceled.";
+                            _runScraping = false;
                             return;
                         }
+
+                        // Wait until the Boolean condition becomes true
+                        if (!UseChromeWithDebugger)
+                            await WaitForConditionAsync(() => _runScraping, 1000, cancellationToken);
 
                         var item = parcels[i];
                         await semaphore.WaitAsync();
@@ -295,12 +314,141 @@ namespace RegridMapper.ViewModels
             }
         }
 
+        private async Task ScrapeParcelWithMultipleMaches(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url) || SelectedParcels.Count != 1)
+                return; // Avoid unnecessary execution if there are no parcels to process
+
+            if (await GoogleChromeHelper.IsChromeRunning() == false && UseChromeWithDebugger)
+                return; // Check if Google Chrome with Debugging is running
+
+            // Indicate process start
+            IsScraping = true;
+            NotifyPropertiesChanged(nameof(CanScrape));
+
+            // Record the start time
+            var startTime = DateTime.Now;
+
+            string? chrome = UseChromeWithDebugger ? AppConstants.ChromeDebuggerAddress : string.Empty;
+
+            try
+            {
+                await Task.Run(async () =>
+                {
+                    // Connect to a chrome session with debugging enabled
+                    using var scraper = new SeleniumWebDriverService(BrowserType.Chrome, UseChromeWithDebugger, chrome);
+                    SemaphoreSlim semaphore = new(3);
+
+                    // Open Main Regrid Page
+                    if (!UseChromeWithDebugger)
+                        ShowRegridConfirmDialogPrompt();
+
+                    await scraper.CaptureHTMLSource("https://app.regrid.com/us#");
+
+                    // Wait until the Boolean condition becomes true
+                    if (!UseChromeWithDebugger)
+                        await WaitForConditionAsync(() => _runScraping, 1000);
+
+                    var item = SelectedParcels.FirstOrDefault();
+                    await semaphore.WaitAsync();
+
+                    try
+                    {
+                        RegridStatus = $"Processing {item.ParcelID}.";
+                        CurrentScrapingElement = item?.ParcelID;
+
+                        // Set initial Regrid URL
+                        item.RegridUrl = url;
+
+                        // Get the HTML for the selected Parcel ID
+                        var htmlSource = await scraper.CaptureHTMLSource(item?.RegridUrl);
+
+                        // Verify something was scraped
+                        if (string.IsNullOrWhiteSpace(htmlSource))
+                        {
+                            item.ScrapeStatus = ScrapeStatus.NotFound;
+                            CurrentScrapingElement = $"NOT FOUND: {item?.ParcelID}";
+                            await _logger.LogAsync($"Empty response for Parcel ID: {item.ParcelID}");
+                            return;
+                        }
+
+                        await _regriDataService.GetParcelDataElements(item, scraper);
+                    }
+                    catch (WebDriverTimeoutException ex)
+                    {
+                        await _logger.LogExceptionAsync(ex);
+                    }
+                    catch (WebDriverException ex)
+                    {
+                        await _logger.LogExceptionAsync(ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        await _logger.LogExceptionAsync(ex);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                        OnPropertyChanged(nameof(ParcelList));
+                    }
+                });
+            }
+            finally
+            {
+                // Display ellapsed time in minutes and seconds
+                var elapsedTime = DateTime.Now - startTime;
+                RegridStatus = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
+
+                IsScraping = false; // Indicate process end
+                CurrentScrapingElement = string.Empty;
+                NotifyPropertiesChanged(nameof(IsScraping), nameof(RegridStatus), nameof(CanScrape), nameof(SelectedParcels), nameof(ParcelList));
+            }
+        }
+
         private Task CancelScraping()
         {
             _cancelScraping = true;
             _cancellationTokenSource?.Cancel();
 
             return Task.CompletedTask;
+        }
+
+        private async Task WaitForConditionAsync(Func<bool> condition, int pollingInterval = 500, CancellationToken cancellationToken = default)
+        {
+            while (!condition() && !cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(pollingInterval, cancellationToken);
+            }
+        }
+
+        private void ShowRegridConfirmDialogPrompt()
+        {
+            _regridConfirmDialogVM.ConfirmChanged -= RegridConfirmDialogVM_ConfirmChanged;
+            _regridConfirmDialogVM.ConfirmChanged += RegridConfirmDialogVM_ConfirmChanged;
+            RaiseDialogOpen(_regridConfirmDialogVM);
+        }
+
+        private void RegridConfirmDialogVM_ConfirmChanged(object? sender, bool e)
+        {
+            _runScraping = e;
+            _regridConfirmDialogVM.ConfirmChanged -= RegridConfirmDialogVM_ConfirmChanged;
+        }
+
+        private async Task ViewMultipleMatches()
+        {
+            await Task.CompletedTask;
+
+            _multipleMatchesDialogViewModel = new MultipleMatchesDialogViewModel(SelectedParcels?.FirstOrDefault());
+            _multipleMatchesDialogViewModel.ScrapeChanged -= _multipleMatchesDialogViewModel_ScrapeChanged;
+            _multipleMatchesDialogViewModel.ScrapeChanged += _multipleMatchesDialogViewModel_ScrapeChanged;
+            RaiseDialogOpen(_multipleMatchesDialogViewModel);
+        }
+
+        private void _multipleMatchesDialogViewModel_ScrapeChanged(object? sender, string e)
+        {
+            // Scrape for selected parcel
+            ScrapeParcelWithMultipleMaches(e);
+            _multipleMatchesDialogViewModel.ScrapeChanged -= _multipleMatchesDialogViewModel_ScrapeChanged;
         }
 
         #endregion
@@ -341,6 +489,15 @@ namespace RegridMapper.ViewModels
 
         private bool CanDeleteRecords()
             => !IsScraping && ParcelList.Count > 0;
+
+        private bool CanViewMultipleMatches()
+        {
+            if (IsScraping || SelectedParcels?.Count != 1)
+                return false;
+
+            var parcel = SelectedParcels?.FirstOrDefault(); 
+            return parcel?.ScrapeStatus == ScrapeStatus.MultipleMatches;
+        }
 
         private async Task LoadFromClipboard()
         {

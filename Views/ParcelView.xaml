@@ -291,13 +291,21 @@
                                         </Viewbox>
                                     </MenuItem.Icon>
                                 </MenuItem>
-                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Fetch Selected Parcels from Regrid" Command="{Binding RegridQuerySelectedCommand}" IsEnabled="{Binding ParcelsSelected}">
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Selected Parcels" Command="{Binding RegridQuerySelectedCommand}" IsEnabled="{Binding ParcelsSelected}">
                                     <MenuItem.Icon>
                                         <Viewbox Width="16" Height="16">
                                             <Path Data="{StaticResource Geometry.Regrid}" />
                                         </Viewbox>
                                     </MenuItem.Icon>
                                 </MenuItem>
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="View Multiple Matches" Command="{Binding RegridViewMultipleMatchesCommand}">
+                                    <MenuItem.Icon>
+                                        <Viewbox Width="16" Height="16">
+                                            <Path Data="{StaticResource Geometry.Regrid}" />
+                                        </Viewbox>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+
                                 <!--<MenuItem Style="{StaticResource MenuItemStyle}" Header="Alternate Address" Command="{Binding OpenStreetQuerySelectedParcelsCommand}" IsEnabled="{Binding ParcelsSelected}">
                                 <MenuItem.Icon>
                                     <Viewbox Width="16" Height="16">

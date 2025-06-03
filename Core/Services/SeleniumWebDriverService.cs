@@ -80,7 +80,7 @@ namespace RegridMapper.Services
         /// <summary>
         /// Navigates to the specified URL and returns the page source.
         /// </summary>
-        public async Task<string?> CaptureHTMLSource(string parcelUrl)
+        public async Task<string?> CaptureHTMLSource(string url)
         {
             // Ensure WebDriver process is active
             if (!IsWebDriverRunning() || _driver == null) 
@@ -95,7 +95,7 @@ namespace RegridMapper.Services
                 _ = _driver.Title;
 
                 // It behaves like manually typing the URL into a browser and pressing Enter.
-                _driver.Navigate().GoToUrl(parcelUrl);
+                _driver.Navigate().GoToUrl(url);
 
                 // Captures and returns the HTML content of the page.
                 return _driver.PageSource;

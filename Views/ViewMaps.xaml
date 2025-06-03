@@ -20,4 +20,12 @@
         <views:StateDialogView/>
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type viewModels:RegridVerifyDialogViewModel}" >
+        <views:RegridVerifyDialogView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModels:MultipleMatchesDialogViewModel}" >
+        <views:MultipleMatchesDialogView/>
+    </DataTemplate>
+
 </ResourceDictionary>

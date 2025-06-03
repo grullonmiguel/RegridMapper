@@ -1,5 +1,7 @@
 ﻿using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Utilities;
+using RegridMapper.Models;
+using System.Collections.ObjectModel;
 
 namespace RegridMapper.ViewModels
 {
@@ -8,6 +10,14 @@ namespace RegridMapper.ViewModels
     /// </summary>
     public class ParcelData : BaseViewModel
     {
+        // Property to store multiple matches
+        public List<RegridSearchResult> RegridSearchResults
+        { 
+            get => _regridSearchResults; 
+            set => SetProperty(ref _regridSearchResults, value);
+        }
+        private List<RegridSearchResult> _regridSearchResults = [];
+
         public string? ParcelID
         {
             get => _parcelID;
@@ -177,7 +187,6 @@ namespace RegridMapper.ViewModels
             set => SetProperty(ref _scrapeStatus, value);
         }
         private ScrapeStatus _scrapeStatus;
-
 
         public void SetPropertyValue(string propertyName, string value)
         {

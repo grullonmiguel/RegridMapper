@@ -1,0 +1,66 @@
+﻿<UserControl x:Class="RegridMapper.Views.MultipleMatchesDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="UserControl_Loaded">
+    <Border
+        Padding="24"
+        Width="640"
+        Height="480"
+        VerticalAlignment="Center" 
+        HorizontalAlignment="Center" 
+        Style="{StaticResource Borders.Secondary}">
+
+        <Border.RenderTransform>
+            <TranslateTransform x:Name="SlideTransform" Y="-100"/>
+        </Border.RenderTransform>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <!-- State Name / County Count -->
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                <TextBlock Text="Multiple Matches Found" Style="{StaticResource TextBlocks.Heading1}"/>                
+                <!-- County Count -->
+                <Button 
+                    Content="{Binding ParcelID}"
+                    FontSize="{StaticResource Fonts.Small}"
+                    Style="{StaticResource  Buttons.Hyperlink}" 
+                    Command="{Binding RegridUrlCommand}" />
+            </StackPanel>
+
+            <!-- Close Button-->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Command="{Binding OkCommand}" Style="{DynamicResource Buttons.Close}" Margin="8 0 0 0" />
+            </StackPanel>
+
+            <!-- Parcel DataGrid -->
+            <DataGrid 
+                Margin="0 24 0 0"
+                Grid.Row="1" 
+                SelectionMode="Single"
+                HeadersVisibility="Column" 
+                HorizontalScrollBarVisibility="Auto" 
+                ItemsSource="{Binding RegridSearchResults}"
+                SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Address" Binding="{Binding ParcelAddress}" />
+                    <DataGridTextColumn Header="City" Binding="{Binding ParcelCity}" />
+                    <DataGridTemplateColumn Header="" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button 
+                                     Content="Scrape"
+                                     Style="{StaticResource Buttons.Hyperlink}"
+                                     Command="{Binding DataContext.ScrapeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                     CommandParameter="{Binding}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Border>
+</UserControl>

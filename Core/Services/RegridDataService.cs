@@ -1,8 +1,10 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using RegridMapper.Core.Configuration;
+using RegridMapper.Models;
 using RegridMapper.Services;
 using RegridMapper.ViewModels;
+using SeleniumExtras.WaitHelpers;
 using System.Text.RegularExpressions;
 
 namespace RegridMapper.Core.Services
@@ -33,10 +35,11 @@ namespace RegridMapper.Core.Services
                 // Find number of matches returned
                 var matchCount = GetRegridMatchCount(htmlSource);
 
+                if (matchCount > 1)
+                    HandleMultipleMatches(item, htmlSource, matchCount, scraper);
+
                 // Handle match count logic separately
                 if (!ResultsFound(matchCount, item)) return;
-
-                //await Task.Delay(300); // Allow page transition
 
                 var wait = new WebDriverWait(scraper.WebDriver, TimeSpan.FromSeconds(5));
                 var divContainer = wait.Until(d => scraper.FindElementSafely(By.CssSelector("div.headline.parcel-result")));
@@ -55,19 +58,32 @@ namespace RegridMapper.Core.Services
                 var element = divContainer.FindElement(By.TagName("a"));
                 js.ExecuteScript("arguments[0].click();", element);
 
-                //divContainer.FindElement(By.TagName("a")).Click();
-                //wait = new WebDriverWait(scraper.WebDriver, TimeSpan.FromSeconds(2));
-
                 // Wait for the URL to change (indicating a page transition)
                 wait.Until(d => d.Url != previousUrl);
 
-                // Allow page transition
-                //wait = new WebDriverWait(scraper.WebDriver, TimeSpan.FromSeconds(2));
+                await GetParcelDataElements(item, scraper);
+            }
+            catch (WebDriverException ex)
+            {
+                //CurrentScrapingElement = $"Web scraping error: {ex.Message}";
+            }
+            catch (Exception ex)
+            {
+                //CurrentScrapingElement = $"Unexpected error: {ex.Message}";
+            }
+        }
+
+        public async Task GetParcelDataElements(ParcelData item, SeleniumWebDriverService scraper)
+        {
+            try
+            {
+                var originalParcelID = item.ParcelID;
 
                 // Update the Regrid URL
                 item.RegridUrl = scraper.WebDriver.Url;
 
                 // Scrape the individual items
+                await UpdateElement(item, "ParcelID", true, "Parcel ID", scraper);
                 await UpdateElement(item, "ZoningType", ShouldScrapeZoning, AppConstants.RegridZoningType, scraper, AppConstants.RegridZoningType, "Zoning type", "Zoning Description", "Land Use");
                 await UpdateElement(item, "City", ShouldScrapeCity, AppConstants.RegridCity, scraper, AppConstants.RegridCity);
                 await UpdateElement(item, "ZipCode", ShouldScrapeZipCode, AppConstants.RegridZip, scraper, AppConstants.RegridZip, AppConstants.RegridZip2);
@@ -82,15 +98,52 @@ namespace RegridMapper.Core.Services
                 if (!string.IsNullOrEmpty(item.Acres))
                     item.Acres = item.Acres.ToLower().Replace(" acres", "");
 
-                item.ScrapeStatus =  ScrapeStatus.Complete;
-            }
-            catch (WebDriverException ex)
-            {
-                //CurrentScrapingElement = $"Web scraping error: {ex.Message}";
+                if (string.IsNullOrWhiteSpace(item.ParcelID))
+                    item.ParcelID = originalParcelID;
+
+                item.ScrapeStatus = ScrapeStatus.Complete;
             }
             catch (Exception ex)
             {
-                //CurrentScrapingElement = $"Unexpected error: {ex.Message}";
+
+            }
+        }
+
+        private void HandleMultipleMatches(ParcelData item, string htmlSource, int matchCount, SeleniumWebDriverService scraper)
+        {
+            try
+            {
+                // Wait for the search results container to load
+                var wait = new WebDriverWait(scraper.WebDriver, TimeSpan.FromSeconds(5));
+                
+                var divContainer = wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("#pjax-container > div.container > div:nth-child(2) > div > div.search-results")));
+                item.RegridSearchResults.Clear();
+                var elements = divContainer.FindElements(By.CssSelector(".headline.parcel-result"));
+
+                foreach (var element in elements)
+                {
+                    var anchorTag = element.FindElement(By.TagName("a"));
+                    var url = anchorTag.GetAttribute("href");
+                    var addressText = anchorTag.Text.Trim(); // Text inside the <a> tag
+
+                    // Get the text right below the link
+                    var cityText = "";
+                    try
+                    {
+                        cityText = element.FindElement(By.XPath("following-sibling::div")).Text.Trim();
+                    }
+                    catch (NoSuchElementException)
+                    {
+                        cityText = ""; // Handle cases where text doesn't exist
+                    }
+
+                    if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(addressText))
+                        item.RegridSearchResults.Add(new RegridSearchResult { ParcelAddress = addressText, ParcelCity = cityText, ParcelURL = url });
+                }
+            }
+            catch (Exception ex)
+            {
+                //
             }
         }
 
