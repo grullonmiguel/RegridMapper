@@ -171,13 +171,13 @@
                                 Command="{Binding CountySettingsEditCommand}" />
                             
                             <!-- Copy -->
-                            <Button 
+                            <!--<Button 
                                 Grid.Column="3"
                                 Content="Copy" 
                                 Margin="4 0"
                                 Tag="{StaticResource Geometry.Copy}"
                                 Style="{StaticResource  Buttons.Link}"  
-                                Command="{Binding CopyParcelsCommand}" />
+                                Command="{Binding CopyParcelsCommand}" />-->
 
                             <!-- Clear -->
                             <!--<Button 
@@ -243,6 +243,20 @@
                         <!-- Context Menu -->
                         <DataGrid.ContextMenu>
                             <ContextMenu Style="{StaticResource ContextMenuStyle}">
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy All to Clipboard" Command="{Binding CopyParcelsCommand}" >
+                                    <MenuItem.Icon>
+                                        <Viewbox Width="16" Height="16">
+                                            <Path Data="{StaticResource Geometry.Copy}" />
+                                        </Viewbox>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy Addresses to Clipboard" Command="{Binding CopyParcelAddressCommand}" IsEnabled="{Binding ParcelsSelected}">
+                                    <MenuItem.Icon>
+                                        <Viewbox Width="16" Height="16">
+                                            <Path Data="{StaticResource Geometry.Copy}" />
+                                        </Viewbox>
+                                    </MenuItem.Icon>
+                                </MenuItem>
                                 <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy Parcel IDs to Clipboard" Command="{Binding CopyParcelNumbersCommand}" IsEnabled="{Binding ParcelsSelected}">
                                     <MenuItem.Icon>
                                         <Viewbox Width="16" Height="16">

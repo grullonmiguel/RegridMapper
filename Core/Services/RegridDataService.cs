@@ -83,7 +83,7 @@ namespace RegridMapper.Core.Services
                 item.RegridUrl = scraper.WebDriver.Url;
 
                 // Scrape the individual items
-                await UpdateElement(item, "ParcelID", true, "Parcel ID", scraper);
+                await UpdateElement(item, "ParcelID", true, "Parcel ID", scraper, "Parcel ID");
                 await UpdateElement(item, "ZoningType", ShouldScrapeZoning, AppConstants.RegridZoningType, scraper, AppConstants.RegridZoningType, "Zoning type", "Zoning Description", "Land Use");
                 await UpdateElement(item, "City", ShouldScrapeCity, AppConstants.RegridCity, scraper, AppConstants.RegridCity);
                 await UpdateElement(item, "ZipCode", ShouldScrapeZipCode, AppConstants.RegridZip, scraper, AppConstants.RegridZip, AppConstants.RegridZip2);

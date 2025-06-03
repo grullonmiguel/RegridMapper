@@ -34,7 +34,8 @@ namespace RegridMapper.ViewModels
 
         // Clipboard Commands
         public ICommand CopyParcelsCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelList.Any());
-        public ICommand CopyParcelNumbersCommand => new RelayCommand(async () => await SaveParcelNumbersToClipboard(), () => ParcelList.Any());
+        public ICommand CopyParcelAddressCommand => new RelayCommand(async () => await SaveParcelNumbersToClipboard(true), () => ParcelList.Any());
+        public ICommand CopyParcelNumbersCommand => new RelayCommand(async () => await SaveParcelNumbersToClipboard(false), () => ParcelList.Any());
 
         // URL Navigation Commands
         public ICommand NavigateToAuctionUrlCommand => new RelayCommand(() => NavigateToAuctionUrl());
@@ -477,7 +478,7 @@ namespace RegridMapper.ViewModels
             await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText.ToString()));
         }
 
-        private async Task SaveParcelNumbersToClipboard()
+        private async Task SaveParcelNumbersToClipboard(bool copyAddress = false)
         {
             if (ParcelList is null || !ParcelList.Any())
                 return; // Exit if no parcels are selected
@@ -486,7 +487,7 @@ namespace RegridMapper.ViewModels
  
             foreach (var item in ParcelList)
             {
-                clipboardText.AppendLine(item.ParcelID);
+                clipboardText.AppendLine(copyAddress ? item.Address : item.ParcelID);
             }
 
             // Clipboard operation runs on UI thread
