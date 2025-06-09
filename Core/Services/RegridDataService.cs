@@ -101,6 +101,9 @@ namespace RegridMapper.Core.Services
                 if (string.IsNullOrWhiteSpace(item.ParcelID))
                     item.ParcelID = originalParcelID;
 
+                if (!string.IsNullOrWhiteSpace(item.FloodZone))
+                    item.FloodZone = $"Zone {item.FloodZone}";
+
                 item.ScrapeStatus = ScrapeStatus.Complete;
             }
             catch (Exception ex)
@@ -160,7 +163,7 @@ namespace RegridMapper.Core.Services
         {
             if (results == 0 || results > 1)
             {
-                item.ZoningType = results == 0 ? $"Not found" : $"Multiple matches";
+                item.ZoningType = results == 0 ? $"Not found" : $"Multiple";
                 item.ScrapeStatus = results == 0? ScrapeStatus.NotFound : ScrapeStatus.MultipleMatches;
                 return false;
             }

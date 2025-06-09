@@ -14,6 +14,7 @@
     <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
     <!--#region Font Sizes -->
+    <sys:Double x:Key="Fonts.Xsmall">10</sys:Double>
     <sys:Double x:Key="Fonts.Small">12</sys:Double>
     <sys:Double x:Key="Fonts.Medium">14</sys:Double>
     <sys:Double x:Key="Fonts.Large">18</sys:Double>
@@ -1081,12 +1082,12 @@
                 <ControlTemplate  TargetType="ContentControl">
                     <Border BorderThickness="0" Padding="4" CornerRadius="8" Background="{TemplateBinding Background}">
                         <StackPanel Orientation="Horizontal">
-                            <Viewbox Width="14" Height="14">
+                            <Viewbox Width="12" Height="12">
                                 <Path x:Name="StatusIcon" />
                             </Viewbox>
                             <TextBlock 
-                                x:Name="StatusText" Foreground="#FFFFFF" Margin="8 0 0 0"
-                                VerticalAlignment="Center" FontSize="{StaticResource Fonts.Small}" />
+                                x:Name="StatusText" Foreground="#FFFFFF" Margin="6 0 0 0"
+                                VerticalAlignment="Center" FontSize="{StaticResource Fonts.Xsmall}" />
                         </StackPanel>
                     </Border>
                     <!-- DataTriggers to change UI based on ScrapeStatus -->
@@ -1101,7 +1102,7 @@
                             <Setter Property="Background" Value="#4B5158" />
                             <Setter TargetName="StatusIcon" Property="Data" Value="{StaticResource Geometry.Alert}" />
                             <Setter TargetName="StatusIcon" Property="Fill" Value="#F6DD65" />
-                            <Setter TargetName="StatusText" Property="Text" Value="Multiple Matches" />
+                            <Setter TargetName="StatusText" Property="Text" Value="Multiple" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding ScrapeStatus}" Value="NotFound">
                             <Setter Property="Background" Value="#4B5158" />

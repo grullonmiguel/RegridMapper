@@ -16,7 +16,7 @@ namespace RegridMapper.Core.Configuration
         Default,
         [Description("Complete")]
         Complete,
-        [Description("Multiple Matches")]
+        [Description("Multiple")]
         MultipleMatches,
         [Description("Not Found")]
         NotFound
