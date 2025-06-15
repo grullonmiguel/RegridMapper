@@ -1,18 +1,11 @@
 ﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Support.UI;
 using RegridMapper.Core.Commands;
 using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Services;
 using RegridMapper.Core.Utilities;
 using RegridMapper.Services;
-using RegridMapper.Views;
-using System.Collections;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
-using System.Windows.Automation;
 using System.Windows.Input;
 
 namespace RegridMapper.ViewModels
@@ -23,36 +16,12 @@ namespace RegridMapper.ViewModels
 
         private bool _runScraping;
         private bool _cancelScraping; 
-        private readonly Logger _logger;
-        private readonly SeleniumWebDriverService _scraper;
-        private readonly RegridDataService _regriDataService = new();
-        private readonly OpenStreetMapService _openStreetMapService = new();
+
         private readonly RegridVerifyDialogViewModel _regridConfirmDialogVM = new();
-        private MultipleMatchesDialogViewModel _multipleMatchesDialogViewModel;
 
         #endregion
 
         #region Properties
-
-        public ObservableCollection<ParcelData> ParcelList { get; } = [];
-
-        public ObservableCollection<ParcelData> SelectedParcels { get; set; } = new();
-
-        public bool CanScrape => ParcelList.Count > 0 && !IsScraping;
-
-        public bool IsScraping
-        {
-            get => _isScraping;
-            set => SetProperty(ref _isScraping, value);
-        }
-        private bool _isScraping;
-
-        public string RegridStatus
-        {  
-            get => _regridStatus; 
-            set => SetProperty(ref _regridStatus, value); 
-        }
-        private string _regridStatus;
 
         public string CurrentScrapingElement
         {
@@ -60,21 +29,6 @@ namespace RegridMapper.ViewModels
             set => SetProperty(ref _currentScrapingElement, value);
         }
         private string _currentScrapingElement;
-
-        public bool ParcelsSelected => SelectedParcels.Any();
-
-        public string TotalParcels => ParcelList.Count <= 0 ? "" : $"(Total Records: {ParcelList.Count})";
-
-        public bool ShowSettings
-        {
-            get => _showSettings;
-            set
-            {
-                SetProperty(ref _showSettings, value);
-
-            }
-        }
-        private bool _showSettings;
 
         public bool UseChromeWithDebugger
         {
@@ -154,12 +108,6 @@ namespace RegridMapper.ViewModels
 
         #region Commands
 
-        public ICommand ClearDataCommand => new RelayCommand(ClearData, ()=> CanDeleteRecords());
-        public ICommand SelectedParcelsCommand => new RelayCommand<IList>(OnSelectedParcelsChanged);
-
-        public ICommand ShowSettingsCommand => new RelayCommand(() => ShowSettingsDialog());
-        public ICommand SettingsCloseCommand => new RelayCommand(() => CloseSettingsDialog());
-
         public ICommand OpenGoogleChromeCommand => new RelayCommand(() => GoogleChromeHelper.LaunchChromeWithDebugging());
 
         // Clipboard Commands
@@ -168,8 +116,6 @@ namespace RegridMapper.ViewModels
         public ICommand LoadFromClipboardCommand => new RelayCommand(async () => await LoadFromClipboard(), () => CanLoadFromClipboard());
 
         // Regrid Scraping Commands
-        private CancellationTokenSource _cancellationTokenSource;
-        public ICommand RegridViewMultipleMatchesCommand => new RelayCommand(async () => await ViewMultipleMatches(), () => CanViewMultipleMatches());
         public ICommand RegridQueryCancelCommand => new RelayCommand(async () => await CancelScraping());
         public ICommand RegridQueryAllParcelsCommand => new RelayCommand(async () =>
         {
@@ -184,21 +130,6 @@ namespace RegridMapper.ViewModels
             await ScrapeParcels(SelectedParcels.ToList(), _cancellationTokenSource.Token);
         }, () => ParcelsSelected);
 
-        // URL Navigation Commands
-        public ICommand NavigateAppraiserCommand => CreateNavigateCommand(item => item?.AppraiserUrl);
-        public ICommand NavigateDetailsCommand => CreateNavigateCommand(item => item?.DetailUrl);
-        public ICommand NavigateToFemaCommand => CreateNavigateCommand(item => item?.FemaUrl);
-        public ICommand NavigateToGoogleMapsCommand => CreateNavigateCommand(item => item?.GoogleUrl);
-        public ICommand NavigateToRegridCommand => CreateNavigateCommand(item => item?.RegridUrl);
-        public ICommand NavigateToRealtorCommand => CreateNavigateCommand(item => item?.RealtorUrl);
-        public ICommand NavigateToRedfinCommand => CreateNavigateCommand(item => item?.RedfinUrl);
-        public ICommand NavigateToZillowCommand => CreateNavigateCommand(item => item?.ZillowUrl);
-        public ICommand CreateNavigateCommand(Func<ParcelData, string> urlSelector) => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(urlSelector(item)), item => item != null && UrlHelper.IsValidUrl(urlSelector(item)));
-
-        // OpenStreetMap Commands
-        public ICommand OpenStreetQueryAllParcelsCommand => new RelayCommand(async () => await OpenStreetQueryAllParcels());
-        public ICommand OpenStreetQuerySelectedParcelsCommand => new RelayCommand(async () => await OpenStreetQuerySelectedParcels(), () => ParcelsSelected);
-
         #endregion
 
         #region Constructor
@@ -206,6 +137,8 @@ namespace RegridMapper.ViewModels
         public ParcelViewModel()
         {
             _logger = Logger.Instance;
+            SettingsOpenCommand = new RelayCommand(() => ShowSettingsDialog());
+            SettingsCloseCommand = new RelayCommand(() => CloseSettingsDialog());
         } 
 
         #endregion
@@ -238,8 +171,8 @@ namespace RegridMapper.ViewModels
                     SemaphoreSlim semaphore = new(3);
 
                     // Open Main Regrid Page
-                    if(!UseChromeWithDebugger)
-                    ShowRegridConfirmDialogPrompt();
+                    //if(!UseChromeWithDebugger)
+                    //ShowRegridConfirmDialogPrompt();
                     await scraper.CaptureHTMLSource("https://app.regrid.com/us#");
 
                     for (int i = 0; i < parcels.Count; i++)
@@ -247,7 +180,7 @@ namespace RegridMapper.ViewModels
                         // Check if cancellation is requested and exit early if so
                         if (cancellationToken.IsCancellationRequested)
                         {
-                            RegridStatus = "Scraping process canceled.";
+                            Status = "Scraping process canceled.";
                             _runScraping = false;
                             return;
                         }
@@ -261,7 +194,7 @@ namespace RegridMapper.ViewModels
 
                         try
                         {
-                            RegridStatus = $"Processing {i + 1} of {parcels.Count}.";
+                            Status = $"Processing {i + 1} of {parcels.Count}.";
                             CurrentScrapingElement = item?.ParcelID;
 
                             // Set initial Regrid URL
@@ -306,15 +239,15 @@ namespace RegridMapper.ViewModels
             {
                 // Display ellapsed time in minutes and seconds
                 var elapsedTime = DateTime.Now - startTime;                
-                RegridStatus = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
+                Status = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
 
                 IsScraping = false; // Indicate process end
                 CurrentScrapingElement = string.Empty;
-                NotifyPropertiesChanged(nameof(IsScraping), nameof(RegridStatus), nameof(CanScrape));
+                NotifyPropertiesChanged(nameof(IsScraping), nameof(Status), nameof(CanScrape));
             }
         }
 
-        private async Task ScrapeParcelWithMultipleMaches(string url)
+        protected override async Task ScrapeParcelWithMultipleMaches(string url)
         {
             if (string.IsNullOrWhiteSpace(url) || SelectedParcels.Count != 1)
                 return; // Avoid unnecessary execution if there are no parcels to process
@@ -340,8 +273,8 @@ namespace RegridMapper.ViewModels
                     SemaphoreSlim semaphore = new(3);
 
                     // Open Main Regrid Page
-                    if (!UseChromeWithDebugger)
-                        ShowRegridConfirmDialogPrompt();
+                    //if (!UseChromeWithDebugger)
+                    //    ShowRegridConfirmDialogPrompt();
 
                     await scraper.CaptureHTMLSource("https://app.regrid.com/us#");
 
@@ -354,7 +287,7 @@ namespace RegridMapper.ViewModels
 
                     try
                     {
-                        RegridStatus = $"Processing {item.ParcelID}.";
+                        Status = $"Processing {item.ParcelID}.";
                         CurrentScrapingElement = item?.ParcelID;
 
                         // Set initial Regrid URL
@@ -397,11 +330,11 @@ namespace RegridMapper.ViewModels
             {
                 // Display ellapsed time in minutes and seconds
                 var elapsedTime = DateTime.Now - startTime;
-                RegridStatus = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
+                Status = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
 
                 IsScraping = false; // Indicate process end
                 CurrentScrapingElement = string.Empty;
-                NotifyPropertiesChanged(nameof(IsScraping), nameof(RegridStatus), nameof(CanScrape), nameof(SelectedParcels), nameof(ParcelList));
+                NotifyPropertiesChanged(nameof(IsScraping), nameof(Status), nameof(CanScrape), nameof(SelectedParcels), nameof(ParcelList));
             }
         }
 
@@ -421,12 +354,12 @@ namespace RegridMapper.ViewModels
             }
         }
 
-        private void ShowRegridConfirmDialogPrompt()
-        {
-            _regridConfirmDialogVM.ConfirmChanged -= RegridConfirmDialogVM_ConfirmChanged;
-            _regridConfirmDialogVM.ConfirmChanged += RegridConfirmDialogVM_ConfirmChanged;
-            RaiseDialogOpen(_regridConfirmDialogVM);
-        }
+        //private void ShowRegridConfirmDialogPrompt()
+        //{
+        //    _regridConfirmDialogVM.ConfirmChanged -= RegridConfirmDialogVM_ConfirmChanged;
+        //    _regridConfirmDialogVM.ConfirmChanged += RegridConfirmDialogVM_ConfirmChanged;
+        //    RaiseDialogOpen(_regridConfirmDialogVM);
+        //}
 
         private void RegridConfirmDialogVM_ConfirmChanged(object? sender, bool e)
         {
@@ -434,51 +367,12 @@ namespace RegridMapper.ViewModels
             _regridConfirmDialogVM.ConfirmChanged -= RegridConfirmDialogVM_ConfirmChanged;
         }
 
-        private async Task ViewMultipleMatches()
-        {
-            await Task.CompletedTask;
-
-            _multipleMatchesDialogViewModel = new MultipleMatchesDialogViewModel(SelectedParcels?.FirstOrDefault());
-            _multipleMatchesDialogViewModel.ScrapeChanged -= _multipleMatchesDialogViewModel_ScrapeChanged;
-            _multipleMatchesDialogViewModel.ScrapeChanged += _multipleMatchesDialogViewModel_ScrapeChanged;
-            RaiseDialogOpen(_multipleMatchesDialogViewModel);
-        }
-
-        private void _multipleMatchesDialogViewModel_ScrapeChanged(object? sender, string e)
-        {
-            // Scrape for selected parcel
-            ScrapeParcelWithMultipleMaches(e);
-            _multipleMatchesDialogViewModel.ScrapeChanged -= _multipleMatchesDialogViewModel_ScrapeChanged;
-        }
-
-        #endregion
-
-        #region OpenStreetMap
-
-        private async Task OpenStreetQueryAllParcels()
-            => await OpenStreetScrapeParcels(ParcelList.ToList()); // Convert ObservableCollection to List
-
-        private async Task OpenStreetQuerySelectedParcels()
-            => await OpenStreetScrapeParcels(SelectedParcels.ToList());
-
-        private async Task OpenStreetScrapeParcels(List<ParcelData> parcels)
-        {
-            foreach (var parcel in parcels)
-            {
-                // Ensure coordinates are not null or empty before making the request
-                if (!string.IsNullOrWhiteSpace(parcel.GeographicCoordinate))
-                {
-                    var response = await _openStreetMapService.GetLocationDataAsync(parcel.GeographicCoordinate);
-
-                    // Optionally store the response inside the parcel object
-                    //parcel.LocationData = response;
-                }
-                else
-                {
-                    Console.WriteLine($"Skipping parcel with empty coordinates.");
-                }
-            }
-        }
+        //private void _multipleMatchesDialogViewModel_ScrapeChanged(object? sender, string e)
+        //{
+        //    // Scrape for selected parcel
+        //    ScrapeParcelWithMultipleMaches(e);
+        //    _multipleMatchesDialogViewModel.ScrapeChanged -= _multipleMatchesDialogViewModel_ScrapeChanged;
+        //}
 
         #endregion
 
@@ -486,18 +380,6 @@ namespace RegridMapper.ViewModels
 
         private bool CanLoadFromClipboard()
             =>!IsScraping && ParcelList?.Count <= 0;
-
-        private bool CanDeleteRecords()
-            => !IsScraping && ParcelList.Count > 0;
-
-        private bool CanViewMultipleMatches()
-        {
-            if (IsScraping || SelectedParcels?.Count != 1)
-                return false;
-
-            var parcel = SelectedParcels?.FirstOrDefault(); 
-            return parcel?.ScrapeStatus == ScrapeStatus.MultipleMatches;
-        }
 
         private async Task LoadFromClipboard()
         {
@@ -513,11 +395,11 @@ namespace RegridMapper.ViewModels
                 ParcelList.Clear();
                 ParcelList.AddRange(parcels); // More efficient than adding one by one
 
-                await _logger.LogAsync($"Loaded {ParcelList.Count} parcels from clipboard.");
+                await _logger!.LogAsync($"Loaded {ParcelList.Count} parcels from clipboard.");
             }
             catch (Exception ex)
             {
-                await _logger.LogExceptionAsync(ex);
+                await _logger!.LogExceptionAsync(ex);
             }
             finally
             {
@@ -559,7 +441,7 @@ namespace RegridMapper.ViewModels
                 string[] row =
                 {
                     item.ZoningType, item.City, urls[0], urls[1], 
-                    item.OwnerName, urls[2], item.AssessedValue,
+                    item.OwnerName, urls[2], item.AssessedValue.ToString(),
                     item.Acres, urls[3], urls[4], urls[5], urls[6]
                 };
 
@@ -604,7 +486,7 @@ namespace RegridMapper.ViewModels
                 string[] row =
                 {
                     item.ZoningType, item.City, urls[0], urls[1], 
-                    item.OwnerName, urls[2], item.AssessedValue, 
+                    item.OwnerName, urls[2], item.AssessedValue.ToString(), 
                     item.Acres, urls[3], urls[4], urls[5], urls[6]
                 };
 
@@ -649,41 +531,6 @@ namespace RegridMapper.ViewModels
 
         #region Helpers
 
-        private void ClearData()
-        {
-            ParcelList.Clear();
-            RegridStatus = string.Empty;
-            NotifyPropertiesChanged(nameof(CanScrape), nameof(TotalParcels));
-        }
-
-        private void OnSelectedParcelsChanged(IList? selectedItems)
-        {
-            if (selectedItems == null)
-                return; // Avoid null reference errors
-
-            // Use HashSet for fast lookups to prevent duplicate entries
-            var newSelection = new HashSet<ParcelData>(selectedItems.Cast<ParcelData>());
-
-            // Remove items that are no longer selected
-            SelectedParcels = new ObservableCollection<ParcelData>(
-                SelectedParcels.Where(parcel => newSelection.Contains(parcel))
-            );
-
-            // Add newly selected items
-            foreach (var parcel in newSelection)
-            {
-                if (!SelectedParcels.Contains(parcel)) // Prevent duplicates
-                    SelectedParcels.Add(parcel);
-            }
-
-            NotifyPropertiesChanged(nameof(SelectedParcels),nameof(ParcelsSelected));
-        }
-
-        private void NotifyPropertiesChanged(params string[] propertyNames)
-        {
-            foreach (var property in propertyNames)
-                OnPropertyChanged(property);
-        }
 
         private void UpdateRegridStatusLabel(ParcelData item, string message) => CurrentScrapingElement = $"{message} - {item.ParcelID} - ";
 

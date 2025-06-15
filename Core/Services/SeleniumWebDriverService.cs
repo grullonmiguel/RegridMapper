@@ -36,6 +36,25 @@ namespace RegridMapper.Services
             _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(5));
         }
 
+        public SeleniumWebDriverService(string userName, string password)
+        {
+            _logger = Logger.Instance;
+
+            // Validate the debugger address
+            _driver = CreateWebDriver(BrowserType.Chrome, false, string.Empty);
+
+            // Open the Regrid login page
+            _driver?.Navigate().GoToUrl("https://app.regrid.com/users/sign_in");
+
+            // Locate the username and password fields
+            _driver?.FindElement(By.Id("user_email")).SendKeys(userName);
+            _driver?.FindElement(By.Id("user_password")).SendKeys(password);
+
+            // Click the login button
+            _driver?.FindElement(By.Name("commit")).Click();
+            _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(5));
+        }
+
         private IWebDriver CreateWebDriver(BrowserType browser, bool headless, string? debuggerAddress)
         {
             switch (browser)

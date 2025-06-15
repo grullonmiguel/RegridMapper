@@ -67,7 +67,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border 
-                        Padding="4,2" 
+                        Padding="16,2" 
                         CornerRadius="4"  
                         BorderThickness="0" 
                         Background="{TemplateBinding Background}"
@@ -265,6 +265,70 @@
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value=".3"/>
                         </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <Style x:Key="Buttons.ScrapeStatus" TargetType="{x:Type Button}" BasedOn="{StaticResource Buttons.Base}">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border 
+                        Padding="4,2" 
+                        CornerRadius="4"  
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}" >
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="12" Height="12">
+                                <Path x:Name="StatusIcon" />
+                            </Viewbox>
+                            <TextBlock 
+                                x:Name="StatusText" Foreground="#FFFFFF" Margin="6 0 0 0"
+                                VerticalAlignment="Center" FontSize="{StaticResource Fonts.Xsmall}" />
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Foreground" Value="{StaticResource Brushes.Primary}"/>
+                            <Setter Property="Background" Value="#FFFFFF"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource Brushes.Secondary}"/>
+                            <Setter Property="Background" Value="{StaticResource Brushes.Secondary}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Cursor" Value="None"/>
+                        </Trigger>
+                        <DataTrigger Binding="{Binding ScrapeStatus}" Value="Complete">
+                            <Setter Property="IsEnabled" Value="False" />
+                            <Setter Property="Background" Value="#4B5158" />
+                            <Setter TargetName="StatusIcon" Property="Data" Value="{StaticResource Geometry.Checkmark}" />
+                            <Setter TargetName="StatusIcon" Property="Fill" Value="{StaticResource Brushes.Primary}" />
+                            <Setter TargetName="StatusText" Property="Text" Value="Success" />
+                            <Setter TargetName="StatusText" Property="Foreground" Value="{StaticResource Brushes.Primary}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ScrapeStatus}" Value="MultipleMatches">
+                            <Setter Property="Background" Value="#4B5158" />
+                            <Setter TargetName="StatusIcon" Property="Data" Value="{StaticResource Geometry.Alert}" />
+                            <Setter TargetName="StatusIcon" Property="Fill" Value="#F6DD65" />
+                            <Setter TargetName="StatusText" Property="Text" Value="Multiple" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ScrapeStatus}" Value="NotFound">
+                            <Setter Property="IsEnabled" Value="False" />
+                            <Setter Property="Background" Value="#4B5158" />
+                            <Setter TargetName="StatusIcon" Property="Data" Value="{StaticResource Geometry.Error}" />
+                            <Setter TargetName="StatusIcon" Property="Fill" Value="#F1948A" />
+                            <Setter TargetName="StatusText" Property="Text" Value="Not Found" />
+                            <Setter TargetName="StatusText" Property="Foreground" Value="#F1948A" />
+                        </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -687,7 +751,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="MenuItem">
-                    <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                    <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" x:Name="brd">
                         <Grid >
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -703,6 +767,7 @@
 
                             <!-- Menu Item Text -->
                             <TextBlock 
+                                x:Name="txt"
                                 Grid.Column="1" 
                                 Text="{TemplateBinding Header}" 
                                 Padding="{TemplateBinding Padding}" 
@@ -715,7 +780,8 @@
                             <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value=".3"/>
+                            <Setter TargetName="box" Property="Opacity" Value=".2"/>
+                            <Setter TargetName="txt" Property="Opacity" Value=".2"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

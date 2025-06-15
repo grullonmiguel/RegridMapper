@@ -21,6 +21,14 @@ namespace RegridMapper.Core.Configuration
         [Description("Not Found")]
         NotFound
     }
+
+    public enum ScrapeType
+    {
+        [Description("Scrape by Parcel ID")]
+        Parcel,
+        [Description("Scrape by Address")]
+        Address
+    }
     
     public enum County
     {

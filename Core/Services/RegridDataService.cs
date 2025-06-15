@@ -177,9 +177,15 @@ namespace RegridMapper.Core.Services
         {
             if (shouldScrape)
             {
-                //UpdateRegridStatusLabel(item, label);
-                var result = await FindElement(scraper.WebDriver, fallbackLabels);
-                item.SetPropertyValue(propertyName, result);
+                try
+                {
+                    var result = await FindElement(scraper.WebDriver, fallbackLabels);
+                    item.SetPropertyValue(propertyName, result);
+                }
+                catch (Exception ex)
+                {
+
+                }
             }
         }
 

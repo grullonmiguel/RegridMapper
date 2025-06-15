@@ -1,11 +1,10 @@
-﻿using RegridMapper.Core.Commands;
+﻿using OpenQA.Selenium;
+using RegridMapper.Core.Commands;
 using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Services;
 using RegridMapper.Core.Utilities;
 using RegridMapper.Models;
 using RegridMapper.Services;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
@@ -16,49 +15,41 @@ namespace RegridMapper.ViewModels
     {
         #region Fields
 
-        private readonly Logger _logger;
+        private string? _preformattedAuctionUrl;
+        private string? _preformattedAppraiserUrl;
         private readonly StateDataService _dataService;
-        private readonly SeleniumWebDriverService _scraper;
-
-        private string _preformattedAuctionUrl;
-        private string _preformattedAppraiserUrl;
 
         #endregion
 
         #region Commands
-
-        public ICommand StartScrapingCommand => new RelayCommand(async () => await ScrapeParcels());
-        public ICommand CountySettingsEditCommand => new RelayCommand(() => ShowCountyEditDialog());
-        public ICommand CountySettingsCloseCommand => new RelayCommand(() => CloseCountyEditDialog());
-        public ICommand AuctionUrlSaveCommand => new RelayCommand(async () => await SaveAuctionUrl(), ()=> StateSelected != null && CountySelected != null && AuctionDate.HasValue);
+        
+        public ICommand AuctionUrlSaveCommand => new RelayCommand(async ()=> await SaveAuctionUrl(), ()=> StateSelected != null && CountySelected != null && AuctionDate.HasValue);
 
         // Clipboard Commands
-        public ICommand CopyParcelsCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelList.Any());
-        public ICommand CopyParcelAddressCommand => new RelayCommand(async () => await SaveParcelNumbersToClipboard(true), () => ParcelList.Any());
-        public ICommand CopyParcelNumbersCommand => new RelayCommand(async () => await SaveParcelNumbersToClipboard(false), () => ParcelList.Any());
+        public ICommand CopyParcelsCommand => new RelayCommand(async ()=> await SaveToClipboard(), ()=> ParcelList.Any());
 
+        // Real Auction Scraping Commands
+        public ICommand ScrapeRealAuctionCommand => new RelayCommand(async ()=> await ScrapeRealAuctionList(), ()=> CanScrapeRealAuction);
+
+        // Regrid Commands
+        public ICommand ScrapeRegridByAddressCommand => new RelayCommand(async ()=> await ScrapeRegridParcels(ScrapeType.Address), () => ParcelList.Any() && !IsScraping);
+        public ICommand ScrapeRegridByParcelIDCommand => new RelayCommand(async ()=> await ScrapeRegridParcels(ScrapeType.Parcel), () => ParcelList.Any() && !IsScraping);
+  
         // URL Navigation Commands
         public ICommand NavigateToAuctionUrlCommand => new RelayCommand(() => NavigateToAuctionUrl());
-        public ICommand NavigateAppraiserCommand => CreateNavigateCommandForParcels(item => item?.AppraiserUrl);
-        public ICommand NavigateToRegridCommand => CreateNavigateCommandForParcels(item => item?.RegridUrl);
-        public ICommand NavigateToCountyUrlCommand => CreateNavigateCommand(item => item?.RealAuctionURL);
-        public ICommand CreateNavigateCommand(Func<US_County, string> urlSelector) => new RelayCommand<US_County>(item => UrlHelper.OpenUrl(urlSelector(item)), item => item != null && UrlHelper.IsValidUrl(urlSelector(item)));
-        public ICommand CreateNavigateCommandForParcels(Func<ParcelData, string> urlSelector) => new RelayCommand<ParcelData>(item => UrlHelper.OpenUrl(urlSelector(item)), item => item != null && UrlHelper.IsValidUrl(urlSelector(item)));
+        public ICommand NavigateToCountyUrlCommand => RealAuctionNavigateCommand(item => item?.RealAuctionURL);
+        public ICommand RealAuctionNavigateCommand(Func<US_County, string> urlSelector) => new RelayCommand<US_County>(item => UrlHelper.OpenUrl(urlSelector(item)), item => item != null && UrlHelper.IsValidUrl(urlSelector(item)));
 
         #endregion
 
         #region Properties 
 
-        public bool ShowCountySettings
+        public bool RegridColumnsVisible
         {
-            get => _showCountySettings;
-            set
-            {
-                SetProperty(ref _showCountySettings, value);
-
-            }
+            get => _regridColumnsVisible;
+            set => SetProperty(ref _regridColumnsVisible, value);
         }
-        private bool _showCountySettings;
+        private bool _regridColumnsVisible = false;
 
         public US_State? StateSelected
         {
@@ -91,6 +82,22 @@ namespace RegridMapper.ViewModels
         }
         private US_County? _countySelected;
 
+        public IEnumerable<US_State>? States
+        {
+            get => _states;
+            set => SetProperty(ref _states, value);
+        }
+        private IEnumerable<US_State>? _states;
+
+        public List<US_County>? Counties
+        {
+            get => _counties;
+            set => SetProperty(ref _counties, value);
+        }
+        private List<US_County>? _counties;
+        
+        public bool CanScrapeRealAuction => !string.IsNullOrWhiteSpace(AuctionURL) && !IsScraping;
+
         public DateTime? AuctionDate
         {
             get => _auctionDate;
@@ -106,41 +113,12 @@ namespace RegridMapper.ViewModels
         }
         private DateTime? _auctionDate;
 
-        public IEnumerable<US_State>? States
-        {
-            get => _states;
-            set => SetProperty(ref _states, value);
-        }
-        private IEnumerable<US_State>? _states;
-
-        public List<US_County>? Counties
-        {
-            get => _counties;
-            set => SetProperty(ref _counties, value);
-        }
-        private List<US_County>? _counties;
-
-        public ObservableCollection<ParcelData> ParcelList { get; } = [];
-
-        public ObservableCollection<ParcelData> SelectedParcels { get; set; } = new();
-        
-        public bool CanScrape => !string.IsNullOrWhiteSpace(AuctionURL);
-
-        public bool IsScraping
-        {
-            get => _isScraping;
-            set => SetProperty(ref _isScraping, value);
-        }
-        private bool _isScraping;
-
         public string AuctionURL
         {
             get => _auctionURL;
             set => SetProperty(ref _auctionURL, value);
         }
         private string _auctionURL;
-
-        public string TotalParcels => ParcelList.Count <= 0 ? "" : $"(Total Records: {ParcelList.Count})";
 
         public string AuctionCounty 
         { 
@@ -157,6 +135,8 @@ namespace RegridMapper.ViewModels
         {
             _dataService = new StateDataService();
             InitializeAsync();
+            SettingsOpenCommand = new RelayCommand(() => ShowCountyEditDialog());
+            SettingsCloseCommand = new RelayCommand(() => CloseCountyEditDialog());
         }
 
         private async void InitializeAsync()
@@ -169,9 +149,9 @@ namespace RegridMapper.ViewModels
 
         #region Methods
 
-        private async Task ScrapeParcels()
+        private async Task ScrapeRealAuctionList()
         {
-            if (!CanScrape || IsScraping)
+            if (!CanScrapeRealAuction || IsScraping)
                 return;
 
             ParcelList.Clear();
@@ -179,6 +159,8 @@ namespace RegridMapper.ViewModels
 
             // Indicate process start
             IsScraping = true;
+
+            RegridColumnsVisible = false;
 
             // Record the start time
             var startTime = DateTime.Now;
@@ -360,7 +342,11 @@ namespace RegridMapper.ViewModels
                                     break;
 
                                 case string s when span.StartsWith("Assessed Value:"):
-                                    currentItem.AssessedValue = span.Slice("Assessed Value: $".Length).Trim().ToString();
+                                    var val = span.Slice("Assessed Value: $".Length).Trim().ToString();
+
+                                    if (decimal.TryParse(val, out decimal assessedValue))
+                                        currentItem.AssessedValue = assessedValue;
+
                                     break;
                             }
                         }
@@ -381,7 +367,7 @@ namespace RegridMapper.ViewModels
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error processing auction properties: {ex.Message}");
+                //TODO: Debug.WriteLine($"Error processing auction properties: {ex.Message}");
             }
         }
 
@@ -396,13 +382,13 @@ namespace RegridMapper.ViewModels
        
         private void CloseCountyEditDialog()
         {
-            ShowCountySettings = false;
+            ShowSettings = false;
             LoadSettings();
         }
 
         private void ShowCountyEditDialog()
         {
-            ShowCountySettings = true;
+            ShowSettings = true;
         }
 
         private void NavigateToAuctionUrl()
@@ -448,7 +434,7 @@ namespace RegridMapper.ViewModels
             var clipboardText = new StringBuilder();
 
             // Define Headers
-            string[] headers = { "PARCEL ID", "GIS", "APPRAISAL", "OPENING BID", "ASSESSED VALUE", "CASE #", "ADDRESS"};
+            string[] headers = { "PARCEL ID / APPRAISER", "REGRID", "ADDRESS", "ASSESSED VALUE", "OPENING BID"};
 
             // Append headers
             clipboardText.AppendLine(string.Join("\t", headers));
@@ -461,14 +447,14 @@ namespace RegridMapper.ViewModels
                 // Generate hyperlinks with correct spreadsheet formatting
                 var urls = new[]
                 {
+                    FormatUrl(item.AppraiserUrl, item.ParcelID),
                     FormatUrl(item.RegridUrl, "LINK"),
-                    FormatUrl(item.AppraiserUrl, "LINK")
                 };
 
                 // Create row data while ensuring Excel formatting compatibility
                 string[] row =
                 {
-                    item.ParcelID, urls[0],urls[1], item.AskingPrice.ToString(), item.AssessedValue, item.DetailUrl, item.Address
+                    urls[0], urls[1], item.Address, item.AssessedValue.ToString(), item.AskingPrice.ToString()
                 };
 
                 clipboardText.AppendLine(string.Join("\t", row));
@@ -478,20 +464,108 @@ namespace RegridMapper.ViewModels
             await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText.ToString()));
         }
 
-        private async Task SaveParcelNumbersToClipboard(bool copyAddress = false)
+        #endregion
+
+        #region Regrid
+
+        protected override async Task ScrapeParcelWithMultipleMaches(string url)
         {
-            if (ParcelList is null || !ParcelList.Any())
-                return; // Exit if no parcels are selected
+            _cancellationTokenSource?.Cancel(); // Cancel any previous operation
+            _cancellationTokenSource = new CancellationTokenSource();
+            await ScrapeRegrid(SelectedParcels.ToList(), _cancellationTokenSource.Token, url);
+        }
 
-            var clipboardText = new StringBuilder();
- 
-            foreach (var item in ParcelList)
+        private async Task ScrapeRegridParcels(ScrapeType scrapeBy)
+        {
+            if (!CanScrape || IsScraping)
+                return;
+
+            _scrapeBy = scrapeBy;
+            _cancellationTokenSource?.Cancel(); // Cancel any previous operation
+            _cancellationTokenSource = new CancellationTokenSource();
+            await ScrapeRegrid(ParcelList.ToList(), _cancellationTokenSource.Token, string.Empty);
+        }
+
+        private async Task ScrapeRegrid(List<ParcelData> parcels, CancellationToken cancellationToken, string url = "")
+        {
+            await Task.CompletedTask;
+
+            if (!CanScrape || IsScraping)
+                return;
+
+            // Indicate process start
+            IsScraping = true;
+
+            // Record the start time
+            var startTime = DateTime.Now;
+
+            try
             {
-                clipboardText.AppendLine(copyAddress ? item.Address : item.ParcelID);
-            }
+                await Task.Run(async () =>
+                {
+                    // Connect to a chrome session with debugging enabled
+                    using var scraper = new SeleniumWebDriverService("user_name", "password!");
 
-            // Clipboard operation runs on UI thread
-            await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText.ToString()));
+                    RegridColumnsVisible = true;
+
+                    for (int i = 0; i < parcels.Count; i++)
+                    {
+                        // Check if cancellation is requested and exit early if so
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            Status = "Scraping process canceled.";
+                            return;
+                        }
+
+                        var item = parcels[i];
+
+                        try
+                        {
+                            Status = $"Processing {i + 1} of {parcels.Count}.";
+                            CurrentItem = _scrapeBy == ScrapeType.Parcel ? item?.ParcelID : item?.Address;
+
+                            // Set initial Regrid URL
+                            item!.RegridUrl = 
+                                !string.IsNullOrWhiteSpace(url) ? url : string.Format(AppConstants.URL_Regrid, Uri.EscapeDataString(CurrentItem));
+
+                            // Get the HTML for the selected Parcel ID
+                            var htmlSource = await scraper.CaptureHTMLSource(item!.RegridUrl);
+
+                            // Verify something was scraped
+                            if (string.IsNullOrWhiteSpace(htmlSource))
+                            {
+                                item.ScrapeStatus = ScrapeStatus.NotFound;
+                                Status = $"NOT FOUND: {item?.ParcelID}";
+                                await _logger!.LogAsync($"Empty response for Parcel ID: {CurrentItem}");
+                                continue;
+                            }
+
+                            if(string.IsNullOrWhiteSpace(url))
+                                await _regriDataService.GetParcelData(htmlSource, item, scraper);
+                            else
+                                await _regriDataService.GetParcelDataElements(item, scraper);
+                        }
+                        catch (WebDriverTimeoutException ex) { await _logger!.LogExceptionAsync(ex); }
+                        catch (WebDriverException ex)        { await _logger!.LogExceptionAsync(ex); }
+                        catch (Exception ex)                 { await _logger!.LogExceptionAsync(ex); }
+                        finally
+                        {
+                            NotifyPropertiesChanged(nameof(IsScraping), nameof(Status), nameof(CanScrape), nameof(SelectedParcels), nameof(ParcelList));
+                        }
+                    };
+                });
+            }
+            finally
+            {
+                // Display elapsed time in minutes and seconds
+                var elapsedTime = DateTime.Now - startTime;
+                Status = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
+ 
+                // Indicate process end
+                IsScraping = false;
+                CurrentItem = string.Empty;
+                NotifyPropertiesChanged(nameof(IsScraping), nameof(Status), nameof(CanScrape), nameof(SelectedParcels), nameof(ParcelList));
+            }
         }
 
         #endregion

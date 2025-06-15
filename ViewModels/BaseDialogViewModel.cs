@@ -5,7 +5,7 @@ using System.Windows.Media;
 
 namespace RegridMapper.ViewModels
 {
-    public class BaseDialogViewModel : BaseViewModel
+    public class BaseDialogViewModel : Observable
     {
         #region Events
 

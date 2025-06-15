@@ -92,7 +92,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
                 <!-- Running-->
                 <TextBlock Foreground="#F69465" VerticalAlignment="Center" FontSize="{StaticResource Fonts.Large}">
-                    <Run Text="{Binding RegridStatus}" />
+                    <Run Text="{Binding Status}" />
                     <Run Text="{Binding CurrentScrapingElement}" />
                 </TextBlock>                
                 <!-- Cancel -->
@@ -132,7 +132,7 @@
                                 Content="{Binding AuctionCounty}"
                                 Tag="{StaticResource Geometry.Edit}" 
                                 Style="{StaticResource  Buttons.Link}" 
-                                Command="{Binding ShowSettingsCommand}" />
+                                Command="{Binding SettingsOpenCommand}" />
 
                             <!-- Paste -->
                             <Button 
@@ -142,24 +142,6 @@
                                 Tag="{StaticResource Geometry.Paste}"
                                 Style="{StaticResource  Buttons.Link}" 
                                 Command="{Binding LoadFromClipboardCommand}" />
-
-                            <!-- Copy -->
-                            <Button 
-                                Grid.Column="3"
-                                Content="Copy" 
-                                Margin="4 0"
-                                Tag="{StaticResource Geometry.Copy}"
-                                Style="{StaticResource  Buttons.Link}"  
-                                Command="{Binding CopyAllToClipboardCommand}" />
-
-                            <!-- Clear -->
-                            <Button 
-                                Grid.Column="4"
-                                Content="Clear" 
-                                Margin="4 0 8 0"
-                                Tag="{StaticResource Geometry.Delete}"
-                                Command="{Binding ClearDataCommand}" 
-                                Style="{StaticResource  Buttons.Link}"/>
 
                             <!-- Regrid -->
                             <Button 
@@ -180,7 +162,10 @@
                             <DataGridTemplateColumn Header="Status" Width="90">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <ContentControl Style="{StaticResource ScrapeStatusStyle}" Content="{Binding ScrapeStatus}" />
+                                        <Button Style="{StaticResource Buttons.ScrapeStatus}"
+                                                Content="{Binding ScrapeStatus}"
+                                                Command="{Binding DataContext.RegridMultipleMatchesCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                CommandParameter="{Binding}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -285,23 +270,32 @@
                         <!-- Context Menu -->
                         <DataGrid.ContextMenu>
                             <ContextMenu Style="{StaticResource ContextMenuStyle}">
-                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy Selected Parcels to Clipboard" Command="{Binding CopySelectedParcelsCommand}" IsEnabled="{Binding ParcelsSelected}">
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Clear" Command="{Binding ClearDataCommand}">
                                     <MenuItem.Icon>
-                                        <Viewbox Width="16" Height="16">
+                                        <Viewbox Width="14" Height="14">
+                                            <Path Data="{StaticResource Geometry.Delete}" />
+                                        </Viewbox>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <Separator />
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy All to Clipboard" Command="{Binding CopyAllToClipboardCommand}" >
+                                    <MenuItem.Icon>
+                                        <Viewbox Width="14" Height="14">
                                             <Path Data="{StaticResource Geometry.Copy}" />
                                         </Viewbox>
                                     </MenuItem.Icon>
                                 </MenuItem>
-                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Selected Parcels" Command="{Binding RegridQuerySelectedCommand}" IsEnabled="{Binding ParcelsSelected}">
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy Selected Parcels to Clipboard" Command="{Binding CopySelectedParcelsCommand}" IsEnabled="{Binding ParcelsSelected}">
                                     <MenuItem.Icon>
-                                        <Viewbox Width="16" Height="16">
-                                            <Path Data="{StaticResource Geometry.Regrid}" />
+                                        <Viewbox Width="14" Height="14">
+                                            <Path Data="{StaticResource Geometry.Copy}" />
                                         </Viewbox>
                                     </MenuItem.Icon>
                                 </MenuItem>
-                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="View Multiple Matches" Command="{Binding RegridViewMultipleMatchesCommand}">
+                                <Separator />
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Selected Parcels" Command="{Binding RegridQuerySelectedCommand}" IsEnabled="{Binding ParcelsSelected}">
                                     <MenuItem.Icon>
-                                        <Viewbox Width="16" Height="16">
+                                        <Viewbox Width="14" Height="14">
                                             <Path Data="{StaticResource Geometry.Regrid}" />
                                         </Viewbox>
                                     </MenuItem.Icon>

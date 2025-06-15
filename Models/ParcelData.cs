@@ -1,7 +1,6 @@
 ﻿using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Utilities;
 using RegridMapper.Models;
-using System.Collections.ObjectModel;
 
 namespace RegridMapper.ViewModels
 {
@@ -83,12 +82,12 @@ namespace RegridMapper.ViewModels
         }
         private string? _ownerName;
 
-        public string? AssessedValue
+        public decimal? AssessedValue
         {
             get => _assessedValue;
             set => SetProperty(ref _assessedValue, value);
         }
-        private string? _assessedValue;
+        private decimal? _assessedValue;
 
         public string? ZoningType
         {

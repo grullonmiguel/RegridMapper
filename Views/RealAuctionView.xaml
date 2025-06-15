@@ -27,7 +27,7 @@
                 <TextBlock Text="Auction Settings" Style="{StaticResource TextBlocks.Heading1}" />
 
                 <!-- Close Button -->
-                <Button Style="{StaticResource  Buttons.Close}" Command="{Binding CountySettingsCloseCommand}" />
+                <Button Style="{StaticResource  Buttons.Close}" Command="{Binding SettingsCloseCommand}" />
 
                 <!-- Step 1 - Date -->
                 <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0 32 0 0">
@@ -100,7 +100,7 @@
                 <Style TargetType="Border">
                     <Setter Property="Width" Value="{Binding BorderWidth}" />
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding ShowCountySettings}" Value="True">
+                        <DataTrigger Binding="{Binding ShowSettings}" Value="True">
                             <DataTrigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard AccelerationRatio="0.4" DecelerationRatio="0.4">
@@ -126,7 +126,7 @@
         </Border>
         
         <!-- Right Column-->
-        <Grid Grid.Column="1" IsEnabled="{Binding ShowCountySettings, Converter={StaticResource InverseBooleanConverter}}" >
+        <Grid Grid.Column="1" IsEnabled="{Binding ShowSettings, Converter={StaticResource InverseBooleanConverter}}" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
@@ -155,7 +155,6 @@
                                 <ColumnDefinition Width="auto" />
                                 <ColumnDefinition Width="auto" />
                                 <ColumnDefinition />
-                                <ColumnDefinition Width="auto"  />
                                 <ColumnDefinition Width="auto" />
                                 <ColumnDefinition Width="auto" />
                                 <ColumnDefinition Width="auto" />
@@ -168,64 +167,42 @@
                                 Content="{Binding AuctionCounty}"
                                 Tag="{StaticResource Geometry.Edit}" 
                                 Style="{StaticResource  Buttons.Link}" 
-                                Command="{Binding CountySettingsEditCommand}" />
-                            
-                            <!-- Copy -->
-                            <!--<Button 
-                                Grid.Column="3"
-                                Content="Copy" 
-                                Margin="4 0"
-                                Tag="{StaticResource Geometry.Copy}"
-                                Style="{StaticResource  Buttons.Link}"  
-                                Command="{Binding CopyParcelsCommand}" />-->
-
-                            <!-- Clear -->
-                            <!--<Button 
-                                Grid.Column="4"
-                                Content="Delete" 
-                                Margin="4 0 8 0"
-                                Tag="{StaticResource Geometry.Delete}"
-                                Command="{Binding ClearDataCommand}" 
-                                Style="{StaticResource  Buttons.Link}"/>-->
+                                Command="{Binding SettingsOpenCommand}" />
 
                             <!-- Start -->
                             <Button 
                                 Grid.Column="5"
-                                Content="Scrape" 
-                                IsEnabled="{Binding CanScrape}" 
+                                Content="GET AUCTION LIST" 
                                 Tag="{StaticResource Geometry.Info}"
                                 Style="{StaticResource  Buttons.Primary}" 
-                                Command="{Binding StartScrapingCommand}" />
+                                Command="{Binding ScrapeRealAuctionCommand}" />
                         </Grid>
                     </Border>
 
                     <!-- Parcel List -->
+                    <FrameworkElement Grid.Row="1" x:Name="FrameWorkElementProxy" Visibility="Collapsed"/>
                     <DataGrid 
                         Grid.Row="1"
                         HeadersVisibility="Column"
                         ItemsSource="{Binding ParcelList}"
                         HorizontalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Parcel ID" Binding="{Binding ParcelID}" Width="200" />
-                            <DataGridTemplateColumn Header="GIS" Width="80">
+                            <DataGridTemplateColumn Header="Status" Width="80" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}}" >
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button 
-                                            Content="LINK"
-                                            Style="{StaticResource Buttons.Hyperlink}"
-                                            Command="{Binding DataContext.NavigateToRegridCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                            CommandParameter="{Binding}" />
+                                        <Button Style="{StaticResource Buttons.ScrapeStatus}"
+                                                Content="{Binding ScrapeStatus}"
+                                                Command="{Binding DataContext.RegridMultipleMatchesCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                CommandParameter="{Binding}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
-                                <DataGridTemplateColumn.ClipboardContentBinding>
-                                    <Binding Path="RegridUrl"/>
-                                </DataGridTemplateColumn.ClipboardContentBinding>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Appraisal" Width="100" >
+                            <DataGridTextColumn Header="Type" Binding="{Binding ZoningType}" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <DataGridTemplateColumn Header="Parcel ID / Appraiser" Width="Auto" >
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button 
-                                            Content="LINK"
+                                            Content="{Binding ParcelID}"
                                             Style="{StaticResource Buttons.Hyperlink}"
                                             Command="{Binding DataContext.NavigateAppraiserCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                             CommandParameter="{Binding}" />
@@ -235,42 +212,89 @@
                                     <Binding Path="AppraiserUrl"/>
                                 </DataGridTemplateColumn.ClipboardContentBinding>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Opening Bid" Binding="{Binding AskingPrice, StringFormat=C}" Width="Auto" />
+                            <DataGridTemplateColumn Header="Regrid" Width="75">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button 
+                                            Content="Regrid"
+                                            Style="{StaticResource Buttons.Hyperlink}"
+                                            Command="{Binding DataContext.NavigateToRegridCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                            CommandParameter="{Binding}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.ClipboardContentBinding>
+                                    <Binding Path="RegridUrl"/>
+                                </DataGridTemplateColumn.ClipboardContentBinding>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="Auto"/>
+                            <DataGridTextColumn Header="Owner Name" Binding="{Binding OwnerName}" MaxWidth="160" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             <DataGridTextColumn Header="Assessed" Binding="{Binding AssessedValue, StringFormat=C}" Width="Auto" />
-                            <DataGridTextColumn Header="Case #" Binding="{Binding DetailUrl}" Width="Auto" />
-                            <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="*"/>
+                            <DataGridTextColumn Header="Opening Bid" Binding="{Binding AskingPrice, StringFormat=C}" Width="Auto" />
+                            <DataGridTextColumn Header="Acres" Binding="{Binding Acres}" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <DataGridTemplateColumn Header="Fema" Width="80" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button 
+                                            Content="{Binding FloodZone}"
+                                            Style="{StaticResource Buttons.Hyperlink}"
+                                            Command="{Binding DataContext.NavigateToFemaCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                            CommandParameter="{Binding}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <!-- Ensure copied content includes the URL -->
+                                <DataGridTemplateColumn.ClipboardContentBinding>
+                                    <Binding Path="FemaUrl"/>
+                                </DataGridTemplateColumn.ClipboardContentBinding>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Zillow" Width="*" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button 
+                                            Content="Zillow"
+                                            Style="{StaticResource Buttons.Hyperlink}"
+                                            Command="{Binding DataContext.NavigateToZillowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                            CommandParameter="{Binding}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <!-- Ensure copied content includes the URL -->
+                                <DataGridTemplateColumn.ClipboardContentBinding>
+                                    <Binding Path="ZillowUrl"/>
+                                </DataGridTemplateColumn.ClipboardContentBinding>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                         <!-- Context Menu -->
                         <DataGrid.ContextMenu>
                             <ContextMenu Style="{StaticResource ContextMenuStyle}">
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Clear" Command="{Binding ClearDataCommand}">
+                                    <MenuItem.Icon>
+                                        <Viewbox Width="14" Height="14">
+                                            <Path Data="{StaticResource Geometry.Delete}" />
+                                        </Viewbox>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <Separator />
                                 <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy All to Clipboard" Command="{Binding CopyParcelsCommand}" >
                                     <MenuItem.Icon>
-                                        <Viewbox Width="16" Height="16">
+                                        <Viewbox Width="14" Height="14">
                                             <Path Data="{StaticResource Geometry.Copy}" />
                                         </Viewbox>
                                     </MenuItem.Icon>
                                 </MenuItem>
-                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy Addresses to Clipboard" Command="{Binding CopyParcelAddressCommand}" IsEnabled="{Binding ParcelsSelected}">
+                                <Separator />
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Regrid by Address" Command="{Binding ScrapeRegridByAddressCommand}">
                                     <MenuItem.Icon>
-                                        <Viewbox Width="16" Height="16">
-                                            <Path Data="{StaticResource Geometry.Copy}" />
+                                        <Viewbox Width="14" Height="14">
+                                            <Path Data="{StaticResource Geometry.Regrid}" />
                                         </Viewbox>
                                     </MenuItem.Icon>
                                 </MenuItem>
-                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy Parcel IDs to Clipboard" Command="{Binding CopyParcelNumbersCommand}" IsEnabled="{Binding ParcelsSelected}">
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Regrid by Parcel ID" Command="{Binding ScrapeRegridByParcelIDCommand}">
                                     <MenuItem.Icon>
-                                        <Viewbox Width="16" Height="16">
-                                            <Path Data="{StaticResource Geometry.Copy}" />
+                                        <Viewbox Width="14" Height="14">
+                                            <Path Data="{StaticResource Geometry.Regrid}" />
                                         </Viewbox>
                                     </MenuItem.Icon>
                                 </MenuItem>
-                                <!--<MenuItem Style="{StaticResource MenuItemStyle}" Header="Fetch Selected Parcels from Regrid" Command="{Binding RegridQuerySelectedCommand}" IsEnabled="{Binding ParcelsSelected}">
-                                    <MenuItem.Icon>
-                                        <Viewbox Width="16" Height="16">
-                                            <Path Data="{StaticResource Geometry.Copy}" />
-                                        </Viewbox>
-                                    </MenuItem.Icon>
-                                </MenuItem>-->
                             </ContextMenu>
                         </DataGrid.ContextMenu>
                         <i:Interaction.Triggers>
@@ -285,20 +309,8 @@
             <!-- Footer -->
             <Border Grid.Row="2" Padding="0 8 0 0" >
                 <Grid>
-                    <!-- Definitions -->
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-
                     <!-- Auction URL-->
                     <Button 
-                        Grid.Column="0" 
                         HorizontalAlignment="Left"
                         Content="{Binding AuctionURL}" 
                         Command="{Binding NavigateToAuctionUrlCommand}"                          

@@ -21,7 +21,6 @@ namespace RegridMapper.ViewModels
         }
         private BaseViewModel _currentViewModel;
 
-
         public BaseDialogViewModel CurrentDialogViewModel
         {
             get => _currentDialogViewModel;
@@ -70,7 +69,7 @@ namespace RegridMapper.ViewModels
             CurrentViewModel.OnDialogOpen -= DisplayDialog;
             CurrentViewModel.OnDialogOpen += DisplayDialog;
         }
-
+        
         private BaseViewModel GetCachedViewModel(Type viewModelType)
         {
             if (!_viewCache.Value.TryGetValue(viewModelType, out BaseViewModel cachedViewModel))
@@ -87,7 +86,7 @@ namespace RegridMapper.ViewModels
 
         #region Dialog
 
-        private void DisplayDialog(object sender, BaseDialogViewModel viewModel)
+        private void DisplayDialog(object? sender, BaseDialogViewModel viewModel)
         {
             if (CurrentDialogViewModel != null)
             {
