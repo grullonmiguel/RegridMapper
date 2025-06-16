@@ -153,8 +153,8 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="auto" />
                                 <ColumnDefinition />
+                                <ColumnDefinition Width="auto" />
                                 <ColumnDefinition Width="auto" />
                                 <ColumnDefinition Width="auto" />
                                 <ColumnDefinition Width="auto" />
@@ -168,6 +168,24 @@
                                 Tag="{StaticResource Geometry.Edit}" 
                                 Style="{StaticResource  Buttons.Link}" 
                                 Command="{Binding SettingsOpenCommand}" />
+
+                            <!-- Clear -->
+                            <Button 
+                                Grid.Column="2"
+                                Content="Clear" 
+                                Margin="4 0"
+                                Tag="{StaticResource Geometry.Delete}"
+                                Style="{StaticResource  Buttons.Link}" 
+                                Command="{Binding ClearDataCommand}" />
+
+                            <!-- Copy -->
+                            <Button 
+                                Grid.Column="3"
+                                Content="Copy" 
+                                Margin="4 0"
+                                Tag="{StaticResource Geometry.Copy}"
+                                Style="{StaticResource  Buttons.Link}" 
+                                Command="{Binding CopyParcelsCommand}" />
 
                             <!-- Start -->
                             <Button 
@@ -265,22 +283,6 @@
                         <!-- Context Menu -->
                         <DataGrid.ContextMenu>
                             <ContextMenu Style="{StaticResource ContextMenuStyle}">
-                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Clear" Command="{Binding ClearDataCommand}">
-                                    <MenuItem.Icon>
-                                        <Viewbox Width="14" Height="14">
-                                            <Path Data="{StaticResource Geometry.Delete}" />
-                                        </Viewbox>
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <Separator />
-                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy All to Clipboard" Command="{Binding CopyParcelsCommand}" >
-                                    <MenuItem.Icon>
-                                        <Viewbox Width="14" Height="14">
-                                            <Path Data="{StaticResource Geometry.Copy}" />
-                                        </Viewbox>
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <Separator />
                                 <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Regrid by Address" Command="{Binding ScrapeRegridByAddressCommand}">
                                     <MenuItem.Icon>
                                         <Viewbox Width="14" Height="14">

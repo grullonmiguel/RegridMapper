@@ -134,9 +134,27 @@
                                 Style="{StaticResource  Buttons.Link}" 
                                 Command="{Binding SettingsOpenCommand}" />
 
-                            <!-- Paste -->
+                            <!-- Clear -->
                             <Button 
                                 Grid.Column="2"
+                                Content="Clear" 
+                                Margin="4 0"
+                                Tag="{StaticResource Geometry.Delete}"
+                                Style="{StaticResource  Buttons.Link}" 
+                                Command="{Binding ClearDataCommand}" />
+
+                            <!-- Copy -->
+                            <Button 
+                                Grid.Column="3"
+                                Content="Copy" 
+                                Margin="4 0"
+                                Tag="{StaticResource Geometry.Copy}"
+                                Style="{StaticResource  Buttons.Link}" 
+                                Command="{Binding CopyParcelsCommand}" />
+
+                            <!-- Paste -->
+                            <Button 
+                                Grid.Column="4"
                                 Content="Paste" 
                                 Margin="4 0"
                                 Tag="{StaticResource Geometry.Paste}"
@@ -147,6 +165,7 @@
                             <Button 
                                 Grid.Column="5"
                                 Content="Scrape" 
+                                Visibility="Collapsed"
                                 IsEnabled="{Binding CanScrape}"
                                 Tag="{StaticResource Geometry.Regrid}"
                                 Style="{StaticResource  Buttons.Primary}"
@@ -205,7 +224,6 @@
                             <DataGridTextColumn Header="Owner Name" Binding="{Binding OwnerName}" MaxWidth="160" />
                             <DataGridTextColumn Header="Assessed" Binding="{Binding AssessedValue, StringFormat=C}" />
                             <DataGridTextColumn Header="Acres" Binding="{Binding Acres}" />
-
                             <DataGridTemplateColumn Header="Fema" Width="80" >
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -270,30 +288,22 @@
                         <!-- Context Menu -->
                         <DataGrid.ContextMenu>
                             <ContextMenu Style="{StaticResource ContextMenuStyle}">
-                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Clear" Command="{Binding ClearDataCommand}">
-                                    <MenuItem.Icon>
-                                        <Viewbox Width="14" Height="14">
-                                            <Path Data="{StaticResource Geometry.Delete}" />
-                                        </Viewbox>
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <Separator />
-                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy All to Clipboard" Command="{Binding CopyAllToClipboardCommand}" >
-                                    <MenuItem.Icon>
-                                        <Viewbox Width="14" Height="14">
-                                            <Path Data="{StaticResource Geometry.Copy}" />
-                                        </Viewbox>
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Copy Selected Parcels to Clipboard" Command="{Binding CopySelectedParcelsCommand}" IsEnabled="{Binding ParcelsSelected}">
-                                    <MenuItem.Icon>
-                                        <Viewbox Width="14" Height="14">
-                                            <Path Data="{StaticResource Geometry.Copy}" />
-                                        </Viewbox>
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <Separator />
                                 <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Selected Parcels" Command="{Binding RegridQuerySelectedCommand}" IsEnabled="{Binding ParcelsSelected}">
+                                    <MenuItem.Icon>
+                                        <Viewbox Width="14" Height="14">
+                                            <Path Data="{StaticResource Geometry.Regrid}" />
+                                        </Viewbox>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <Separator />
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Regrid by Address" Command="{Binding ScrapeRegridByAddressCommand}">
+                                    <MenuItem.Icon>
+                                        <Viewbox Width="14" Height="14">
+                                            <Path Data="{StaticResource Geometry.Regrid}" />
+                                        </Viewbox>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Regrid by Parcel ID" Command="{Binding ScrapeRegridByParcelIDCommand}">
                                     <MenuItem.Icon>
                                         <Viewbox Width="14" Height="14">
                                             <Path Data="{StaticResource Geometry.Regrid}" />

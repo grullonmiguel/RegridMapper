@@ -1,4 +1,5 @@
-﻿using RegridMapper.Core.Commands;
+﻿using OpenQA.Selenium;
+using RegridMapper.Core.Commands;
 using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Services;
 using RegridMapper.Core.Utilities;
@@ -98,7 +99,7 @@ namespace RegridMapper.ViewModels
 
         /// <summary>
         /// The total number of parcels in the Datagrid
-        /// </summary>
+        /// </summary>       
         public string TotalParcels => ParcelList.Count <= 0 ? "" : $"(Total Records: {ParcelList.Count})";
 
         /// <summary>
@@ -111,13 +112,32 @@ namespace RegridMapper.ViewModels
         /// </summary>
         public bool CanScrape => ParcelList.Count > 0 && !IsScraping;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool RegridColumnsVisible
+        {
+            get => _regridColumnsVisible;
+            set => SetProperty(ref _regridColumnsVisible, value);
+        }
+        private bool _regridColumnsVisible = false;
+
         #endregion
 
         #region Commands
 
         public ICommand ClearDataCommand => new RelayCommand(ClearData, () => CanClearData());
         public ICommand? SelectedParcelsCommand => new RelayCommand<IList>(OnSelectedParcelsChanged);
+        
+        // Clipboard Commands
+        public ICommand CopyParcelsCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelList.Any());
+
+        // Regrid
         public ICommand RegridMultipleMatchesCommand { get; protected set; }
+        public ICommand RegridQueryCancelCommand => new RelayCommand( () => _cancellationTokenSource?.Cancel());
+        public ICommand ScrapeRegridByAddressCommand => new RelayCommand(async () => await ScrapeRegridParcels(ScrapeType.Address), () => ParcelList.Any() && !IsScraping);
+        public ICommand ScrapeRegridByParcelIDCommand => new RelayCommand(async () => await ScrapeRegridParcels(ScrapeType.Parcel), () => ParcelList.Any() && !IsScraping);
+
         // Settings
         public virtual ICommand? SettingsOpenCommand { get; set; }
         public virtual ICommand? SettingsCloseCommand { get; set; }
@@ -152,26 +172,15 @@ namespace RegridMapper.ViewModels
                 OnPropertyChanged(property);
         }
 
-        //protected bool CanViewMultipleMatches() =>
-        //    !IsScraping &&
-        //    SelectedParcels?.Count == 1 &&
-        //    SelectedParcels[0]?.ScrapeStatus == ScrapeStatus.MultipleMatches;
-
         protected bool CanViewMultipleMatches() =>
             !IsScraping &&
             SelectedParcels?.Count == 1;
-
 
         protected void MultipleMatchesScrapeChanged(object? sender, string e)
         {
             // Scrape for selected parcel
             ScrapeParcelWithMultipleMaches(e);
             _multipleMatchesDialogViewModel!.ScrapeChanged -= MultipleMatchesScrapeChanged;
-        }
-
-        protected virtual async Task ScrapeParcelWithMultipleMaches(string url)
-        {
-            await Task.CompletedTask; // Placeholder to ensure it compiles correctly
         }
 
         protected void OnSelectedParcelsChanged(IList? selectedItems)
@@ -195,6 +204,115 @@ namespace RegridMapper.ViewModels
             }
 
             NotifyPropertiesChanged(nameof(SelectedParcels), nameof(ParcelsSelected));
+        }
+
+        protected virtual Task SaveToClipboard()
+        {
+            return Task.CompletedTask;
+        }
+
+        #endregion
+
+        #region Regrid
+
+        protected async Task ScrapeParcelWithMultipleMaches(string url)
+        {
+            _cancellationTokenSource?.Cancel(); // Cancel any previous operation
+            _cancellationTokenSource = new CancellationTokenSource();
+            await ScrapeRegrid(SelectedParcels.ToList(), _cancellationTokenSource.Token, url);
+        }
+
+        protected async Task ScrapeRegridParcels(ScrapeType scrapeBy)
+        {
+            if (!CanScrape || IsScraping)
+                return;
+
+            _scrapeBy = scrapeBy;
+            _cancellationTokenSource?.Cancel(); // Cancel any previous operation
+            _cancellationTokenSource = new CancellationTokenSource();
+            await ScrapeRegrid(ParcelList.ToList(), _cancellationTokenSource.Token, string.Empty);
+        }
+
+        protected async Task ScrapeRegrid(List<ParcelData> parcels, CancellationToken cancellationToken, string url = "")
+        {
+            await Task.CompletedTask;
+
+            if (!CanScrape || IsScraping)
+                return;
+
+            // Indicate process start
+            IsScraping = true;
+
+            // Record the start time
+            var startTime = DateTime.Now;
+
+            try
+            {
+                await Task.Run(async () =>
+                {
+                    // Connect to a chrome session
+                    using var scraper = new SeleniumWebDriverService("user_name", "user_password!");
+
+                    RegridColumnsVisible = true;
+
+                    for (int i = 0; i < parcels.Count; i++)
+                    {
+                        // Check if cancellation is requested and exit early if so
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            Status = "Scraping process canceled.";
+                            return;
+                        }
+
+                        var item = parcels[i];
+
+                        try
+                        {
+                            Status = $"Processing {i + 1} of {parcels.Count}.";
+                            CurrentItem = _scrapeBy == ScrapeType.Parcel ? item?.ParcelID : item?.Address;
+
+                            // Set initial Regrid URL
+                            item!.RegridUrl =
+                                !string.IsNullOrWhiteSpace(url) ? url : string.Format(AppConstants.URL_Regrid, Uri.EscapeDataString(CurrentItem));
+
+                            // Get the HTML for the selected Parcel ID
+                            var htmlSource = await scraper.CaptureHTMLSource(item!.RegridUrl);
+
+                            // Verify something was scraped
+                            if (string.IsNullOrWhiteSpace(htmlSource))
+                            {
+                                item.ScrapeStatus = ScrapeStatus.NotFound;
+                                Status = $"NOT FOUND: {item?.ParcelID}";
+                                await _logger!.LogAsync($"Empty response for Parcel ID: {CurrentItem}");
+                                continue;
+                            }
+
+                            if (string.IsNullOrWhiteSpace(url))
+                                await _regriDataService.GetParcelData(htmlSource, item, scraper);
+                            else
+                                await _regriDataService.GetParcelDataElements(item, scraper);
+                        }
+                        catch (WebDriverTimeoutException ex) { await _logger!.LogExceptionAsync(ex); }
+                        catch (WebDriverException ex) { await _logger!.LogExceptionAsync(ex); }
+                        catch (Exception ex) { await _logger!.LogExceptionAsync(ex); }
+                        finally
+                        {
+                            NotifyPropertiesChanged(nameof(IsScraping), nameof(Status), nameof(CanScrape), nameof(SelectedParcels), nameof(ParcelList));
+                        }
+                    };
+                });
+            }
+            finally
+            {
+                // Display elapsed time in minutes and seconds
+                var elapsedTime = DateTime.Now - startTime;
+                Status = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
+
+                // Indicate process end
+                IsScraping = false;
+                CurrentItem = string.Empty;
+                NotifyPropertiesChanged(nameof(IsScraping), nameof(Status), nameof(CanScrape), nameof(SelectedParcels), nameof(ParcelList));
+            }
         }
 
         #endregion
