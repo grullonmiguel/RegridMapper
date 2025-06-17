@@ -116,7 +116,7 @@ namespace RegridMapper.ViewModels
         public ICommand OpenRegridSettingsCommand => new RelayCommand(OnOpenRegridSettingsDialog);
 
         // Clipboard Commands
-        public ICommand CopyParcelsCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelList.Any());
+        public ICommand CopyParcelsCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelList.Any() && !IsScraping);
 
         // Regrid
         public ICommand RegridMultipleMatchesCommand { get; protected set; }
@@ -295,9 +295,9 @@ namespace RegridMapper.ViewModels
                             }
 
                             if (string.IsNullOrWhiteSpace(url))
-                                await _regriDataService.GetParcelData(htmlSource, item, scraper);
+                                await _regriDataService.GetParcelData(_scrapeBy, htmlSource, item, scraper);
                             else
-                                await _regriDataService.GetParcelDataElements(item, scraper);
+                                await _regriDataService.GetParcelDataElements(_scrapeBy, item, scraper);
                         }
                         catch (WebDriverTimeoutException ex) { await _logger!.LogExceptionAsync(ex); }
                         catch (WebDriverException ex) { await _logger!.LogExceptionAsync(ex); }

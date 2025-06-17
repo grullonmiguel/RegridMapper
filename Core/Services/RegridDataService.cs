@@ -28,7 +28,7 @@ namespace RegridMapper.Core.Services
                 
         }
 
-        public async Task GetParcelData(string htmlSource, ParcelData item, SeleniumWebDriverService scraper)
+        public async Task GetParcelData(ScrapeType scrapeBy, string htmlSource, ParcelData item, SeleniumWebDriverService scraper)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace RegridMapper.Core.Services
                 // Wait for the URL to change (indicating a page transition)
                 wait.Until(d => d.Url != previousUrl);
 
-                await GetParcelDataElements(item, scraper);
+                await GetParcelDataElements(scrapeBy, item, scraper);
             }
             catch (WebDriverException ex)
             {
@@ -73,7 +73,7 @@ namespace RegridMapper.Core.Services
             }
         }
 
-        public async Task GetParcelDataElements(ParcelData item, SeleniumWebDriverService scraper)
+        public async Task GetParcelDataElements(ScrapeType _scrapeBy, ParcelData item, SeleniumWebDriverService scraper)
         {
             try
             {
@@ -83,12 +83,16 @@ namespace RegridMapper.Core.Services
                 item.RegridUrl = scraper.WebDriver.Url;
 
                 // Scrape the individual items
-                await UpdateElement(item, "ParcelID", true, "Parcel ID", scraper, "Parcel ID");
+                if (_scrapeBy == ScrapeType.Address)
+                    await UpdateElement(item, "ParcelID", true, "Parcel ID", scraper, "Parcel ID");
+
+                if (_scrapeBy == ScrapeType.Parcel)
+                    await UpdateElement(item, "Address", ShouldScrapeAddress, AppConstants.RegridAddress, scraper, AppConstants.RegridAddress);
+                
                 await UpdateElement(item, "ZoningType", ShouldScrapeZoning, AppConstants.RegridZoningType, scraper, AppConstants.RegridZoningType, "Zoning type", "Zoning Description", "Land Use");
                 await UpdateElement(item, "City", ShouldScrapeCity, AppConstants.RegridCity, scraper, AppConstants.RegridCity);
                 await UpdateElement(item, "ZipCode", ShouldScrapeZipCode, AppConstants.RegridZip, scraper, AppConstants.RegridZip, AppConstants.RegridZip2);
                 await UpdateElement(item, "Acres", ShouldScrapeAcres, AppConstants.RegridAcres, scraper, AppConstants.RegridAcres);
-                await UpdateElement(item, "Address", ShouldScrapeAddress, AppConstants.RegridAddress, scraper, AppConstants.RegridAddress);
                 await UpdateElement(item, "OwnerName", ShouldScrapeOwner, AppConstants.RegridOwner, scraper, AppConstants.RegridOwner, AppConstants.RegridOwner);
                 await UpdateElement(item, "AssessedValue", ShouldScrapeAssessedValue, AppConstants.RegridAssessedValue, scraper, AppConstants.RegridAssessedValue);
                 await UpdateElement(item, "GeographicCoordinate", ShouldScrapeCoordinates, AppConstants.RegridCoordinates, scraper, AppConstants.RegridCoordinates);

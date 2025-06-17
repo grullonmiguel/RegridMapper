@@ -1,8 +1,6 @@
 ﻿using RegridMapper.Core.Commands;
 using RegridMapper.Core.Configuration;
-using RegridMapper.Core.Services;
 using RegridMapper.Core.Utilities;
-using RegridMapper.Models;
 using RegridMapper.Services;
 using System.Text;
 using System.Windows;
@@ -16,8 +14,7 @@ namespace RegridMapper.ViewModels
 
         private string? _preformattedAuctionUrl;
         private string? _preformattedAppraiserUrl;
-        //private readonly StateDataService _dataService;
-        private readonly RealAuctionCalendarDialogViewModel _calendarDialogViewModel;
+        private  RealAuctionCalendarDialogViewModel _calendarDialogViewModel;
 
         #endregion
 
@@ -25,15 +22,11 @@ namespace RegridMapper.ViewModels
 
         public ICommand RealAuctionCalendarCommand => new RelayCommand(OpenRealAuctionDialog);
 
-        //public ICommand AuctionUrlSaveCommand => new RelayCommand(async ()=> await SaveAuctionUrl(), ()=> StateSelected != null && CountySelected != null && AuctionDate.HasValue);
-
         // Real Auction Scraping Commands
         public ICommand ScrapeRealAuctionCommand => new RelayCommand(async ()=> await GetRealAuctionHTML(), ()=> CanScrapeRealAuction);
   
         // URL Navigation Commands
-        public ICommand NavigateToAuctionUrlCommand => new RelayCommand(() => NavigateToAuctionUrl());
-        //public ICommand NavigateToCountyUrlCommand => RealAuctionNavigateCommand(item => item?.RealAuctionURL);
-        //public ICommand RealAuctionNavigateCommand(Func<US_County, string> urlSelector) => new RelayCommand<US_County>(item => UrlHelper.OpenUrl(urlSelector(item)), item => item != null && UrlHelper.IsValidUrl(urlSelector(item)));
+        public ICommand NavigateToAuctionUrlCommand => new RelayCommand(() => NavigateToRealAuctionUrl());
 
         #endregion
 
@@ -47,11 +40,7 @@ namespace RegridMapper.ViewModels
             set
             {
                 if (_auctionDate != value)
-                {
                     SetProperty(ref _auctionDate, value);
-                    UpdateAuctionUrl();
-                    OnPropertyChanged(nameof(CanScrape));
-                }
             }
         }
         private DateTime? _auctionDate;
@@ -70,83 +59,63 @@ namespace RegridMapper.ViewModels
         }
         private string? _auctionCounty;
 
-        public US_State? StateSelected
-        {
-            get => _stateSelected;
-            set
-            {
-                Counties = null;
-                SetProperty(ref _stateSelected, value);
-                Counties = StateSelected?.Counties;
-            }
-        }
-        private US_State? _stateSelected;
-
-        public US_County? CountySelected
-        {
-            get => _countySelected;
-            set
-            {
-                if (_countySelected !=  value)
-                {
-                    SetProperty(ref _countySelected, value);
-                    AuctionCounty = value?.Name ?? string.Empty;
-                    _preformattedAuctionUrl = value?.AuctionUrl ?? string.Empty;
-                    _preformattedAppraiserUrl = value?.AppraiserUrl ?? string.Empty;
-                    UpdateAuctionUrl();
-                    OnPropertyChanged(nameof(CanScrape));
-                }
-
-            }
-        }
-        private US_County? _countySelected;
-
-        public IEnumerable<US_State>? States
-        {
-            get => _states;
-            set => SetProperty(ref _states, value);
-        }
-        private IEnumerable<US_State>? _states;
-
-        public List<US_County>? Counties
-        {
-            get => _counties;
-            set => SetProperty(ref _counties, value);
-        }
-        private List<US_County>? _counties;
-
         #endregion
 
         #region Constructor
 
         public RealAuctionViewModel()
         {
-            //_dataService = new StateDataService();
-            //SettingsOpenCommand = new RelayCommand(()=> ShowSettings = true);
-            //SettingsCloseCommand = new RelayCommand(CloseSettingsDialog);
-            //InitializeAsync();
-            _calendarDialogViewModel = new RealAuctionCalendarDialogViewModel();
-            _calendarDialogViewModel.RequestClose += _calendarDialogViewModel_RequestClose;
+            InitializeRealAuctionCalendarSettings();
         }
-
-        //private async void InitializeAsync()
-        //{
-        //    await GetStateList();
-        //    LoadSettings();
-        //}
 
         #endregion
 
         #region Methods
 
-        //private async Task GetStateList()
-        //{
-        //    States = await _dataService.GetAllStates() as List<US_State>;
-        //    if (States != null && States?.ToList().Count > 0)
-        //        StateSelected = States.ToList()[0];
-        //}
+        private void InitializeRealAuctionCalendarSettings()
+        {
+            try
+            {
+                _calendarDialogViewModel = new RealAuctionCalendarDialogViewModel();
+                _calendarDialogViewModel.RequestClose += RefreshRealAuctionValues;
+                RefreshRealAuctionValues(null, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                Task.Run(async () => await _logger!.LogExceptionAsync(ex));
+            }
+        }
 
-        private void NavigateToAuctionUrl()
+        private void RefreshRealAuctionValues(object? sender, EventArgs e)
+        {
+            try
+            {
+                _calendarDialogViewModel.LoadSettings();
+                
+                AuctionDate = _calendarDialogViewModel?.AuctionDate ?? null;
+                AuctionCounty = _calendarDialogViewModel?.CountySelected?.Name ?? string.Empty;
+                
+                _preformattedAuctionUrl = _calendarDialogViewModel?.CountySelected?.AuctionUrl ?? string.Empty;
+                _preformattedAppraiserUrl = _calendarDialogViewModel?.CountySelected?.AppraiserUrl ?? string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(_preformattedAuctionUrl) && AuctionDate is not null)
+                    AuctionURL = $"{_preformattedAuctionUrl.Replace("{0}", AuctionDate?.ToString("MM/dd/yyyy"))}";
+
+                OnPropertyChanged(nameof(CanScrape));
+            }
+            catch (Exception ex)
+            {
+                Task.Run(async () => await _logger!.LogExceptionAsync(ex));
+            }
+        }
+
+        private void OpenRealAuctionDialog()
+        {
+            _calendarDialogViewModel.LoadSettings();
+            RaiseDialogOpen(_calendarDialogViewModel);
+        }
+
+        private void NavigateToRealAuctionUrl()
         {
             try
             {
@@ -223,6 +192,9 @@ namespace RegridMapper.ViewModels
             ParcelList.Clear();
             var realAuctionHtml = new List<string>();
 
+            Status = $"Navigating to RealAuction for {AuctionCounty} - {AuctionDate!.Value.ToShortDateString()}";
+            await Task.Delay(500);
+
             // Indicate process start
             IsScraping = true;
 
@@ -242,9 +214,13 @@ namespace RegridMapper.ViewModels
                     // Get the HTML from the Auction URL property
                     await scraper.NavigateToUrl(AuctionURL);
 
+                    var dataItem = 0; 
                     while (!isLastRecord)
                     {
+                        dataItem++;
                         var newHtmlTable = await scraper.CaptureHTMLTable();
+
+                        Status = $"Downloading HTML page {dataItem}...";
 
                         foreach (var htmlTable in newHtmlTable)
                         {
@@ -269,8 +245,10 @@ namespace RegridMapper.ViewModels
                         await Task.Delay(200);
                     }
 
+                    Status = $"Filtering HTML data...";
+
                     // Filter auction data
-                    var filteredList = FilterAuctionData("Auction Starts", "Auction Status", realAuctionHtml);
+                    var filteredList = FilterRealAuctionHTML("Auction Starts", "Auction Status", realAuctionHtml);
 
                     // Assign properties to auction items based on extracted data
                     await GetRealAuctionProperties(filteredList, "Auction Starts");
@@ -286,13 +264,14 @@ namespace RegridMapper.ViewModels
             {
                 // Display elapsed time in minutes and seconds
                 var elapsedTime = DateTime.Now - startTime;
+                Status = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
 
                 IsScraping = false; // Indicate process end
                 OnPropertyChanged(nameof(TotalParcels));
             }
         }
 
-        private List<string> FilterAuctionData(string lineToKeep, string lineToRemove, List<string> list)
+        private List<string> FilterRealAuctionHTML(string lineToKeep, string lineToRemove, List<string> list)
         {
             bool keepData = false;
             var filteredList = new List<string>();
@@ -320,6 +299,9 @@ namespace RegridMapper.ViewModels
 
         private async Task GetRealAuctionProperties(List<string> list, string keyword)
         {
+            Status = $"Processing HTML data...";
+            await Task.Delay(500);
+
             ParcelData currentItem = null;
             List<ParcelData> parcelsToAdd = new List<ParcelData>();
 
@@ -428,81 +410,6 @@ namespace RegridMapper.ViewModels
             {
                 //TODO: Debug.WriteLine($"Error processing auction properties: {ex.Message}");
             }
-        }
-
-        #endregion
-
-        #region Settings
-
-        private void OpenRealAuctionDialog()
-        {
-            _calendarDialogViewModel.LoadSettings();
-            RaiseDialogOpen(_calendarDialogViewModel);
-        }
-
-        //private void CloseSettingsDialog()
-        //{
-        //    ShowSettings = false;
-        //    LoadSettings();
-        //}
-
-        private void LoadSettings()
-        {
-            try
-            {
-                AuctionURL = SettingsService.LoadSetting<string>("AuctionURL");
-                AuctionCounty = SettingsService.LoadSetting<string>("AuctionCounty");
-                _preformattedAppraiserUrl = SettingsService.LoadSetting<string>("AppraiserURL");
-                OnPropertyChanged(nameof(CanScrape));
-            }
-            catch (Exception)
-            {
-                // Provide recovery action
-            }
-        }
-
-        //private async Task SaveSettings(string url, string settingKey)
-        //{
-        //    await Task.CompletedTask;
-        //    try
-        //    {
-        //        // Allow blanks but do not allow invalid URLs
-        //        if (!string.IsNullOrEmpty(url) && !UrlHelper.IsValidUrl(url))
-        //            return;
-
-        //        SettingsService.SaveSetting(settingKey, url);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        // Provide recovery action
-        //    }
-        //}
-
-        //private async Task SaveAuctionUrl()
-        //{
-        //    await SaveSettings(AuctionURL, "AuctionUrl");
-        //    await SaveSettings(_preformattedAppraiserUrl, "AppraiserUrl");
-        //    SettingsService.SaveSetting("AuctionCounty", AuctionCounty);
-
-        //    CloseSettingsDialog();
-        //}
-
-        private void _calendarDialogViewModel_RequestClose(object? sender, EventArgs e)
-        {
-            AuctionDate = _calendarDialogViewModel?.AuctionDate ?? null;
-            AuctionCounty = _calendarDialogViewModel?.CountySelected?.Name ?? string.Empty;
-            _preformattedAuctionUrl = _calendarDialogViewModel?.CountySelected?.AuctionUrl ?? string.Empty;
-            _preformattedAppraiserUrl = _calendarDialogViewModel?.CountySelected?.AppraiserUrl ?? string.Empty;
-            UpdateAuctionUrl();
-            OnPropertyChanged(nameof(CanScrape));
-        }
-
-        private void UpdateAuctionUrl()
-        {
-            if (string.IsNullOrWhiteSpace(_preformattedAuctionUrl) || AuctionDate is null)
-                return;
-
-            AuctionURL = $"{_preformattedAuctionUrl.Replace("{0}", AuctionDate?.ToString("MM/dd/yyyy"))}";
         }
 
         #endregion
