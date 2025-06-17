@@ -5,9 +5,9 @@ using System.Windows.Media;
 
 namespace RegridMapper.Views
 {
-    public partial class RegridVerifyDialogView : UserControl
+    public partial class RegridCredentialsDialogView : UserControl
     {
-        public RegridVerifyDialogView()
+        public RegridCredentialsDialogView()
         {
             InitializeComponent();
         }

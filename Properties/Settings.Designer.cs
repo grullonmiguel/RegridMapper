@@ -58,5 +58,53 @@ namespace RegridMapper.Properties {
                 this["AuctionCounty"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string User_Name {
+            get {
+                return ((string)(this["User_Name"]));
+            }
+            set {
+                this["User_Name"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string User_Password {
+            get {
+                return ((string)(this["User_Password"]));
+            }
+            set {
+                this["User_Password"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AuctionState {
+            get {
+                return ((string)(this["AuctionState"]));
+            }
+            set {
+                this["AuctionState"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AuctionDate {
+            get {
+                return ((string)(this["AuctionDate"]));
+            }
+            set {
+                this["AuctionDate"] = value;
+            }
+        }
     }
 }

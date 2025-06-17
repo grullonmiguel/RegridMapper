@@ -59,19 +59,7 @@
 
                 <!-- Close Button -->
                 <Button Style="{StaticResource  Buttons.Close}" Command="{Binding SettingsCloseCommand}"  />
-                
-                <!-- Use Google Crome with Debugging -->
-                <CheckBox Grid.Row="1" Content="Use Chrome with Debugger" IsChecked="{Binding UseChromeWithDebugger}" Margin="0 16"/>
 
-                <!-- Close Button -->
-                <Button Grid.Row="1" 
-                        HorizontalAlignment="Right" 
-                        VerticalAlignment="Center"
-                        Content="Open"
-                        Style="{StaticResource  Buttons.Link}" 
-                        IsEnabled="{Binding UseChromeWithDebugger}"
-                        Command="{Binding OpenGoogleChromeCommand}" 
-                        Tag="{StaticResource Geometry.GoogleChrome}" />
             </Grid>
         </Border>
 
@@ -93,7 +81,7 @@
                 <!-- Running-->
                 <TextBlock Foreground="#F69465" VerticalAlignment="Center" FontSize="{StaticResource Fonts.Large}">
                     <Run Text="{Binding Status}" />
-                    <Run Text="{Binding CurrentScrapingElement}" />
+                    <Run Text="{Binding CurrentItem}" />
                 </TextBlock>                
                 <!-- Cancel -->
                 <Button 
@@ -160,16 +148,6 @@
                                 Tag="{StaticResource Geometry.Paste}"
                                 Style="{StaticResource  Buttons.Link}" 
                                 Command="{Binding LoadFromClipboardCommand}" />
-
-                            <!-- Regrid -->
-                            <Button 
-                                Grid.Column="5"
-                                Content="Scrape" 
-                                Visibility="Collapsed"
-                                IsEnabled="{Binding CanScrape}"
-                                Tag="{StaticResource Geometry.Regrid}"
-                                Style="{StaticResource  Buttons.Primary}"
-                                Command="{Binding RegridQueryAllParcelsCommand}"  />
                         </Grid>
                     </Border>
 
@@ -288,7 +266,14 @@
                         <!-- Context Menu -->
                         <DataGrid.ContextMenu>
                             <ContextMenu Style="{StaticResource ContextMenuStyle}">
-                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Selected Parcels" Command="{Binding RegridQuerySelectedCommand}" IsEnabled="{Binding ParcelsSelected}">
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Selected Parcels by Address" Command="{Binding ScrapeRegridSelectedByAddressCommand}" IsEnabled="{Binding ParcelsSelected}">
+                                    <MenuItem.Icon>
+                                        <Viewbox Width="14" Height="14">
+                                            <Path Data="{StaticResource Geometry.Regrid}" />
+                                        </Viewbox>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Selected Parcels by Parcel ID" Command="{Binding ScrapeRegridSelectedByParcelIDCommand}" IsEnabled="{Binding ParcelsSelected}">
                                     <MenuItem.Icon>
                                         <Viewbox Width="14" Height="14">
                                             <Path Data="{StaticResource Geometry.Regrid}" />

@@ -20,12 +20,16 @@
         <views:StateDialogView/>
     </DataTemplate>
 
-    <DataTemplate DataType="{x:Type viewModels:RegridVerifyDialogViewModel}" >
-        <views:RegridVerifyDialogView/>
-    </DataTemplate>
-
     <DataTemplate DataType="{x:Type viewModels:MultipleMatchesDialogViewModel}" >
         <views:MultipleMatchesDialogView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModels:RealAuctionCalendarDialogViewModel}" >
+        <views:RealAuctionCalendarDialogView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModels:RegridCredentialsDialogVIewModel}" >
+        <views:RegridCredentialsDialogView/>
     </DataTemplate>
 
 </ResourceDictionary>

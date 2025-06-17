@@ -271,7 +271,42 @@
         </Setter>
     </Style>
 
-
+    <Style x:Key="Buttons.Settings" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="8 6"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="Foreground" Value="{StaticResource Brushes.Primary}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <!-- Template to Display Text -->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border CornerRadius="4" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                        <TextBlock 
+                            FontWeight="{TemplateBinding FontWeight}"
+                            FontSize="{TemplateBinding FontSize}"
+                            Foreground="{TemplateBinding Foreground}"
+                            Text="{TemplateBinding Content}" Margin="4,0" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="{StaticResource Brushes.Tertiary}"/>
+                            <Setter Property="Foreground" Value="{StaticResource Brushes.Foreground}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value=".3"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <Style x:Key="Buttons.ScrapeStatus" TargetType="{x:Type Button}" BasedOn="{StaticResource Buttons.Base}">
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Background" Value="Transparent" />
@@ -722,23 +757,6 @@
             </Setter.Value>
         </Setter>
     </Style>
-
-    <!-- Menu Item Style -->
-    <!--<Style x:Key="MenuItemStyle" TargetType="MenuItem">
-        <Setter Property="Padding" Value="4"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Foreground" Value="{StaticResource Brushes.ForegroundSecondary}" />
-
-        --><!-- Hover effect --><!--
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="red"/>
-                --><!-- Slightly lighter hover --><!--
-                <Setter Property="Foreground" Value="LightGray"/>
-            </Trigger>
-        </Style.Triggers>
-    </Style>-->
 
     <Style x:Key="MenuItemStyle" TargetType="MenuItem">
         <Setter Property="Padding" Value="16 4"/>

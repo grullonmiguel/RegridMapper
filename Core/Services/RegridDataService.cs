@@ -65,11 +65,11 @@ namespace RegridMapper.Core.Services
             }
             catch (WebDriverException ex)
             {
-                //CurrentScrapingElement = $"Web scraping error: {ex.Message}";
+                //CurrentItem = $"Web scraping error: {ex.Message}";
             }
             catch (Exception ex)
             {
-                //CurrentScrapingElement = $"Unexpected error: {ex.Message}";
+                //CurrentItem = $"Unexpected error: {ex.Message}";
             }
         }
 

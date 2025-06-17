@@ -139,6 +139,32 @@
                 <Run Text="{Binding TotalParcels, Mode=OneWay}" />
             </TextBlock>
 
+            <Button 
+                FontSize="{StaticResource Fonts.XLarge}"
+                Style="{StaticResource Buttons.Settings}"
+                Command="{Binding OpenSettingsContextMenuCommand}"
+                CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+                &#8942; <!-- Vertical Ellipsis -->
+                <Button.ContextMenu>
+                    <ContextMenu Style="{StaticResource ContextMenuStyle}" >
+                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="Real Auction Calendar" Command="{Binding RealAuctionCalendarCommand}">
+                            <MenuItem.Icon>
+                                <Viewbox Width="14" Height="14">
+                                    <Path Data="{StaticResource Geometry.Settings}" />
+                                </Viewbox>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="Regrid Credentials Settings" Command="{Binding OpenRegridSettingsCommand}">
+                            <MenuItem.Icon>
+                                <Viewbox Width="14" Height="14">
+                                    <Path Data="{StaticResource Geometry.Settings}" />
+                                </Viewbox>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+
             <!-- Main Content -->
             <Border Grid.Row="1" Style="{StaticResource Borders.Secondary}">
                 <Grid>

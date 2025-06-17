@@ -1,7 +1,6 @@
 ﻿using OpenQA.Selenium;
 using RegridMapper.Core.Commands;
 using RegridMapper.Core.Configuration;
-using RegridMapper.Core.Services;
 using RegridMapper.Core.Utilities;
 using RegridMapper.Services;
 using System.Text;
@@ -12,31 +11,6 @@ namespace RegridMapper.ViewModels
 {
     public class ParcelViewModel : BaseViewModel
     {
-        #region Fields
-
-        private bool _runScraping;
-        private readonly RegridVerifyDialogViewModel _regridConfirmDialogVM = new();
-
-        #endregion
-
-        #region Properties
-
-        public string CurrentScrapingElement
-        {
-            get => _currentScrapingElement;
-            set => SetProperty(ref _currentScrapingElement, value);
-        }
-        private string _currentScrapingElement;
-
-        public bool UseChromeWithDebugger
-        {
-            get => _useChromeWithDebbuger;
-            set => SetProperty(ref _useChromeWithDebbuger, value);
-        }
-        private bool _useChromeWithDebbuger;
-
-        #endregion
-
         #region CanScrape Properties
 
         public bool ShouldScrapeCity
@@ -106,25 +80,12 @@ namespace RegridMapper.ViewModels
 
         #region Commands
 
-        public ICommand OpenGoogleChromeCommand => new RelayCommand(() => GoogleChromeHelper.LaunchChromeWithDebugging());
-
-        // Clipboard Commands
-        public ICommand CopyAllToClipboardCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelList.Any());        
-        public ICommand LoadFromClipboardCommand => new RelayCommand(async () => await LoadFromClipboard(), () => CanLoadFromClipboard());
+        // Clipboard Commands       
+        public ICommand LoadFromClipboardCommand => new RelayCommand(async () => await PasteFromClipboard(), () => !IsScraping && ParcelList?.Count <= 0);
 
         // Regrid Scraping Commands
-        public ICommand RegridQueryAllParcelsCommand => new RelayCommand(async () =>
-        {
-            _cancellationTokenSource?.Cancel(); // Cancel any previous operation
-            _cancellationTokenSource = new CancellationTokenSource();
-            await ScrapeParcels(ParcelList.ToList(), _cancellationTokenSource.Token);
-        });
-        public ICommand RegridQuerySelectedCommand => new RelayCommand(async () =>
-        {
-            _cancellationTokenSource?.Cancel(); // Cancel any previous operation
-            _cancellationTokenSource = new CancellationTokenSource();
-            await ScrapeParcels(SelectedParcels.ToList(), _cancellationTokenSource.Token);
-        }, () => ParcelsSelected);
+        public ICommand ScrapeRegridSelectedByAddressCommand => new RelayCommand(async () => await ScrapeRegridSelectedParcels(ScrapeType.Address), () => SelectedParcels.Any() && !IsScraping);
+        public ICommand ScrapeRegridSelectedByParcelIDCommand => new RelayCommand(async () => await ScrapeRegridSelectedParcels(ScrapeType.Parcel), () => SelectedParcels.Any() && !IsScraping);
 
         #endregion
 
@@ -132,131 +93,15 @@ namespace RegridMapper.ViewModels
 
         public ParcelViewModel()
         {
-            _logger = Logger.Instance;
-            SettingsOpenCommand = new RelayCommand(() => ShowSettingsDialog());
-            SettingsCloseCommand = new RelayCommand(() => CloseSettingsDialog());
+            SettingsOpenCommand = new RelayCommand(() => ShowSettings = true);
+            SettingsCloseCommand = new RelayCommand(CloseSettingsDialog);
         } 
-
-        #endregion
-
-        #region Regrid Scraping
-
-        private async Task ScrapeParcels(List<ParcelData> parcels, CancellationToken cancellationToken)
-        {
-            if (parcels == null || parcels.Count == 0)
-                return; // Avoid unnecessary execution if there are no parcels to process
-            
-            if (await GoogleChromeHelper.IsChromeRunning() == false && UseChromeWithDebugger)
-                return; // Check if Google Chrome with Debugging is running
-
-            // Indicate process start
-            IsScraping = true;
-            NotifyPropertiesChanged(nameof(CanScrape));
-
-            // Record the start time
-            var startTime = DateTime.Now;
-
-            string? chrome = UseChromeWithDebugger ? AppConstants.ChromeDebuggerAddress : string.Empty;
-
-            try
-            {
-                await Task.Run(async () =>
-                {
-                    // Connect to a chrome session with debugging enabled
-                    using var scraper = new SeleniumWebDriverService(BrowserType.Chrome, UseChromeWithDebugger, chrome);
-                    SemaphoreSlim semaphore = new(3);
-
-                    // Open Main Regrid Page
-                    await scraper.CaptureHTMLSource("https://app.regrid.com/us#");
-
-                    for (int i = 0; i < parcels.Count; i++)
-                    {
-                        // Check if cancellation is requested and exit early if so
-                        if (cancellationToken.IsCancellationRequested)
-                        {
-                            Status = "Scraping process canceled.";
-                            _runScraping = false;
-                            return;
-                        }
-
-                        // Wait until the Boolean condition becomes true
-                        if (!UseChromeWithDebugger)
-                            await WaitForConditionAsync(() => _runScraping, 1000, cancellationToken);
-
-                        var item = parcels[i];
-                        await semaphore.WaitAsync();
-
-                        try
-                        {
-                            Status = $"Processing {i + 1} of {parcels.Count}.";
-                            CurrentScrapingElement = item?.ParcelID;
-
-                            // Set initial Regrid URL
-                            item.RegridUrl = string.Format(AppConstants.URL_Regrid, Uri.EscapeDataString(item.ParcelID));
-
-                            // Get the HTML for the selected Parcel ID
-                            var htmlSource = await scraper.CaptureHTMLSource(item?.RegridUrl);
-
-                            // Verify something was scraped
-                            if (string.IsNullOrWhiteSpace(htmlSource))
-                            {
-                                item.ScrapeStatus = ScrapeStatus.NotFound;
-                                CurrentScrapingElement = $"NOT FOUND: {item?.ParcelID}";
-                                await _logger.LogAsync($"Empty response for Parcel ID: {item.ParcelID}");
-                                continue;
-                            }
-
-                            await _regriDataService.GetParcelData(htmlSource, item, scraper);
-                        }
-                        catch (WebDriverTimeoutException ex)
-                        {
-                            await _logger.LogExceptionAsync(ex);
-                        }
-                        catch (WebDriverException ex)
-                        {
-                            await _logger.LogExceptionAsync(ex);
-                        }
-                        catch (Exception ex)
-                        {
-                            await _logger.LogExceptionAsync(ex);
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                            OnPropertyChanged(nameof(ParcelList));
-                        }
-                    }
-                }, cancellationToken);
-
-            }
-            finally
-            {
-                // Display ellapsed time in minutes and seconds
-                var elapsedTime = DateTime.Now - startTime;                
-                Status = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
-
-                IsScraping = false; // Indicate process end
-                CurrentScrapingElement = string.Empty;
-                NotifyPropertiesChanged(nameof(IsScraping), nameof(Status), nameof(CanScrape));
-            }
-        }
-
-        private async Task WaitForConditionAsync(Func<bool> condition, int pollingInterval = 500, CancellationToken cancellationToken = default)
-        {
-            while (!condition() && !cancellationToken.IsCancellationRequested)
-            {
-                await Task.Delay(pollingInterval, cancellationToken);
-            }
-        }
 
         #endregion
 
         #region Clipboard
 
-        private bool CanLoadFromClipboard()
-            =>!IsScraping && ParcelList?.Count <= 0;
-
-        private async Task LoadFromClipboard()
+        private async Task PasteFromClipboard()
         {
             try
             {
@@ -337,11 +182,6 @@ namespace RegridMapper.ViewModels
             LoadSettings();
         }
 
-        private void ShowSettingsDialog()
-        {
-            ShowSettings = true;
-        }
-
         private void LoadSettings()
         {
             try
@@ -359,9 +199,97 @@ namespace RegridMapper.ViewModels
 
         #endregion
 
-        #region Helpers
+        #region Regrid Scraping
 
-        private void UpdateRegridStatusLabel(ParcelData item, string message) => CurrentScrapingElement = $"{message} - {item.ParcelID} - ";
+        private async Task ScrapeParcels(List<ParcelData> parcels, CancellationToken cancellationToken)
+        {
+            if (parcels == null || parcels.Count == 0)
+                return; // Avoid unnecessary execution if there are no parcels to process
+
+            // Indicate process start
+            IsScraping = true;
+            NotifyPropertiesChanged(nameof(CanScrape));
+
+            // Record the start time
+            var startTime = DateTime.Now;
+
+            try
+            {
+                await Task.Run(async () =>
+                {
+                    // Connect to a chrome session with debugging enabled
+                    using var scraper = new SeleniumWebDriverService(BrowserType.Chrome);
+                    SemaphoreSlim semaphore = new(3);
+
+                    // Open Main Regrid Page
+                    await scraper.CaptureHTMLSource("https://app.regrid.com/us#");
+
+                    for (int i = 0; i < parcels.Count; i++)
+                    {
+                        // Check if cancellation is requested and exit early if so
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            Status = "Scraping process canceled.";
+                            return;
+                        }
+
+                        var item = parcels[i];
+                        await semaphore.WaitAsync();
+
+                        try
+                        {
+                            Status = $"Processing {i + 1} of {parcels.Count}.";
+                            CurrentItem = item?.ParcelID;
+
+                            // Set initial Regrid URL
+                            item.RegridUrl = string.Format(AppConstants.URL_Regrid, Uri.EscapeDataString(item.ParcelID));
+
+                            // Get the HTML for the selected Parcel ID
+                            var htmlSource = await scraper.CaptureHTMLSource(item?.RegridUrl);
+
+                            // Verify something was scraped
+                            if (string.IsNullOrWhiteSpace(htmlSource))
+                            {
+                                item.ScrapeStatus = ScrapeStatus.NotFound;
+                                CurrentItem = $"NOT FOUND: {item?.ParcelID}";
+                                await _logger.LogAsync($"Empty response for Parcel ID: {item.ParcelID}");
+                                continue;
+                            }
+
+                            await _regriDataService.GetParcelData(htmlSource, item, scraper);
+                        }
+                        catch (WebDriverTimeoutException ex)
+                        {
+                            await _logger.LogExceptionAsync(ex);
+                        }
+                        catch (WebDriverException ex)
+                        {
+                            await _logger.LogExceptionAsync(ex);
+                        }
+                        catch (Exception ex)
+                        {
+                            await _logger.LogExceptionAsync(ex);
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                            OnPropertyChanged(nameof(ParcelList));
+                        }
+                    }
+                }, cancellationToken);
+
+            }
+            finally
+            {
+                // Display ellapsed time in minutes and seconds
+                var elapsedTime = DateTime.Now - startTime;
+                Status = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
+
+                IsScraping = false; // Indicate process end
+                CurrentItem = string.Empty;
+                NotifyPropertiesChanged(nameof(IsScraping), nameof(Status), nameof(CanScrape));
+            }
+        }
 
         #endregion
     }

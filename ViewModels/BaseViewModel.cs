@@ -6,6 +6,7 @@ using RegridMapper.Core.Utilities;
 using RegridMapper.Services;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace RegridMapper.ViewModels
@@ -20,32 +21,13 @@ namespace RegridMapper.ViewModels
         protected CancellationTokenSource? _cancellationTokenSource;
         protected readonly RegridDataService _regriDataService = new();
         protected MultipleMatchesDialogViewModel? _multipleMatchesDialogViewModel;
+        protected readonly RegridCredentialsDialogVIewModel? _regridCredentialsDialogViewModel;
 
         public event EventHandler<BaseDialogViewModel> OnDialogOpen;
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Handles the Regrid user name
-        /// </summary>
-        public string? UserName
-        {
-            get => _userName;
-            set => SetProperty(ref _userName, value);
-        }
-        private string? _userName;
-
-        /// <summary>
-        /// Handles the Regrid password
-        /// </summary>
-        public string? Password
-        {
-            get => _password;
-            set => SetProperty(ref _password, value);
-        }
-        private string? _password;
         
         /// <summary>
         /// Shows scraping status
@@ -128,7 +110,11 @@ namespace RegridMapper.ViewModels
 
         public ICommand ClearDataCommand => new RelayCommand(ClearData, () => CanClearData());
         public ICommand? SelectedParcelsCommand => new RelayCommand<IList>(OnSelectedParcelsChanged);
-        
+
+        // Settings
+        public ICommand OpenSettingsContextMenuCommand => new RelayCommand<Button>(OnOpenSettingsContextMenu);
+        public ICommand OpenRegridSettingsCommand => new RelayCommand(OnOpenRegridSettingsDialog);
+
         // Clipboard Commands
         public ICommand CopyParcelsCommand => new RelayCommand(async () => await SaveToClipboard(), () => ParcelList.Any());
 
@@ -159,7 +145,9 @@ namespace RegridMapper.ViewModels
 
         public BaseViewModel()
         {
+            _logger = Logger.Instance;
             RegridMultipleMatchesCommand = new RelayCommand<ParcelData>(async (item) => await ViewMultipleMatches(item));
+            _regridCredentialsDialogViewModel = new RegridCredentialsDialogVIewModel();
         }
 
         #endregion
@@ -204,6 +192,24 @@ namespace RegridMapper.ViewModels
             }
 
             NotifyPropertiesChanged(nameof(SelectedParcels), nameof(ParcelsSelected));
+        }
+
+        protected void OnOpenSettingsContextMenu(Button button)
+        {
+            if (button.ContextMenu != null)
+            {
+                button.ContextMenu.IsOpen = true;
+                button.ContextMenu.DataContext = button.DataContext;
+            }
+        }
+
+        protected void OnOpenRegridSettingsDialog()
+        {
+            if (_regridCredentialsDialogViewModel != null)
+            {
+                _regridCredentialsDialogViewModel.LoadSettings();
+                RaiseDialogOpen(_regridCredentialsDialogViewModel);
+            }
         }
 
         protected virtual Task SaveToClipboard()
@@ -251,7 +257,8 @@ namespace RegridMapper.ViewModels
                 await Task.Run(async () =>
                 {
                     // Connect to a chrome session
-                    using var scraper = new SeleniumWebDriverService("user_name", "user_password!");
+                    _regridCredentialsDialogViewModel!.LoadSettings();
+                    using var scraper = new SeleniumWebDriverService(GetRegridUserName(), GetRegridUserPassword());
 
                     RegridColumnsVisible = true;
 
@@ -315,6 +322,16 @@ namespace RegridMapper.ViewModels
             }
         }
 
+        protected async Task ScrapeRegridSelectedParcels(ScrapeType scrapeBy)
+        {
+            if (!CanScrape || IsScraping)
+                return;
+
+            _scrapeBy = scrapeBy;
+            _cancellationTokenSource?.Cancel(); // Cancel any previous operation
+            _cancellationTokenSource = new CancellationTokenSource();
+            await ScrapeRegrid(SelectedParcels.ToList(), _cancellationTokenSource.Token, string.Empty);
+        }
         #endregion
 
         #region Private Methods
@@ -344,6 +361,12 @@ namespace RegridMapper.ViewModels
 
             RaiseDialogOpen(_multipleMatchesDialogViewModel);
         }
+
+        private string GetRegridUserName()
+            => _regridCredentialsDialogViewModel?.UserName ?? string.Empty;
+
+        private string GetRegridUserPassword()
+            => _regridCredentialsDialogViewModel?.Password ?? string.Empty;
 
         #endregion
     }

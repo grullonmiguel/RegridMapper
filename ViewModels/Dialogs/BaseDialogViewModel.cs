@@ -1,4 +1,5 @@
 ﻿using RegridMapper.Core.Commands;
+using RegridMapper.Core.Utilities;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -9,6 +10,7 @@ namespace RegridMapper.ViewModels
     {
         #region Events
 
+        protected Logger? _logger;
         public event EventHandler? RequestClose;
 
         #endregion
@@ -41,6 +43,15 @@ namespace RegridMapper.ViewModels
             set => SetProperty(ref _mainBackground, value);
         }
         private SolidColorBrush? _mainBackground = Application.Current?.TryFindResource("Brushes.DialogBackground") as SolidColorBrush;
+
+        #endregion
+
+        #region Constructor
+
+        public BaseDialogViewModel()
+        {
+            _logger = Logger.Instance;
+        }
 
         #endregion
 
