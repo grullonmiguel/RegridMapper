@@ -146,8 +146,8 @@ namespace RegridMapper.ViewModels
         public BaseViewModel()
         {
             _logger = Logger.Instance;
-            RegridMultipleMatchesCommand = new RelayCommand<ParcelData>(async (item) => await ViewMultipleMatches(item));
             _regridCredentialsDialogViewModel = new RegridCredentialsDialogVIewModel();
+            RegridMultipleMatchesCommand = new RelayCommand<ParcelData>(async (item) => await ViewMultipleMatches(item));
         }
 
         #endregion
@@ -161,8 +161,7 @@ namespace RegridMapper.ViewModels
         }
 
         protected bool CanViewMultipleMatches() =>
-            !IsScraping &&
-            SelectedParcels?.Count == 1;
+            !IsScraping && SelectedParcels?.Count == 1;
 
         protected void MultipleMatchesScrapeChanged(object? sender, string e)
         {
@@ -215,6 +214,28 @@ namespace RegridMapper.ViewModels
         protected virtual Task SaveToClipboard()
         {
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Creates a Google Sheets compatible hyperlink
+        /// </summary>
+        protected string FormatGoogleSheetsUrRL(string url, string alias) => string.IsNullOrWhiteSpace(url)
+            ? string.Empty : $"=HYPERLINK(\"{url.Replace("\"", "\"\"")}\", \"{alias}\")";
+
+        protected void RaiseDialogOpen(BaseDialogViewModel dialogViewModel)
+        {
+            OnDialogOpen?.Invoke(this, dialogViewModel);
+        }
+
+        protected async Task ViewMultipleMatches(ParcelData item)
+        {
+            await Task.CompletedTask;
+
+            _multipleMatchesDialogViewModel = new MultipleMatchesDialogViewModel(item);
+            _multipleMatchesDialogViewModel.ScrapeChanged -= MultipleMatchesScrapeChanged;
+            _multipleMatchesDialogViewModel.ScrapeChanged += MultipleMatchesScrapeChanged;
+
+            RaiseDialogOpen(_multipleMatchesDialogViewModel);
         }
 
         #endregion
@@ -313,7 +334,9 @@ namespace RegridMapper.ViewModels
             {
                 // Display elapsed time in minutes and seconds
                 var elapsedTime = DateTime.Now - startTime;
-                Status = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
+                Status = elapsedTime.Minutes == 0
+                    ? $"Completed in {elapsedTime.Seconds} seconds"
+                    : $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
 
                 // Indicate process end
                 IsScraping = false;
@@ -345,22 +368,6 @@ namespace RegridMapper.ViewModels
 
         private bool CanClearData()
             => !IsScraping && ParcelList.Count > 0;
-
-        protected void RaiseDialogOpen(BaseDialogViewModel dialogViewModel)
-        {
-            OnDialogOpen?.Invoke(this, dialogViewModel);
-        }
-
-        protected async Task ViewMultipleMatches(ParcelData item)
-        {
-            await Task.CompletedTask;
-
-            _multipleMatchesDialogViewModel = new MultipleMatchesDialogViewModel(item);
-            _multipleMatchesDialogViewModel.ScrapeChanged -= MultipleMatchesScrapeChanged;
-            _multipleMatchesDialogViewModel.ScrapeChanged += MultipleMatchesScrapeChanged;
-
-            RaiseDialogOpen(_multipleMatchesDialogViewModel);
-        }
 
         private string GetRegridUserName()
             => _regridCredentialsDialogViewModel?.UserName ?? string.Empty;

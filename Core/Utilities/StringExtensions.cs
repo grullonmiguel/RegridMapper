@@ -133,5 +133,38 @@ namespace RegridMapper.Core.Utilities
             var attribute = (DescriptionAttribute)field.GetCustomAttribute(typeof(DescriptionAttribute));
             return attribute?.Description ?? value.ToString();
         }
+
+        /// <summary>
+        /// Converts a string to Pascal Case (capitalizing 
+        /// the first letter of each word and removing spaces or separators
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string ToPascalCase(this string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
+
+            // Replace underscores, hyphens, and multiple spaces with a single space
+            string cleaned = Regex.Replace(input.ToLower(), @"[_\-]+", " ");
+            cleaned = Regex.Replace(cleaned, @"\s+", " ");
+
+            // Convert to title case and remove spaces
+            TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
+            return textInfo.ToTitleCase(cleaned).Replace(" ", string.Empty);
+        }
+
+        public static string ToPascalCaseWithSpaces(this string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
+
+            // Normalize spacing and lowercase everything
+            string cleaned = Regex.Replace(input.ToLower(), @"\s+", " ").Trim();
+
+            // Convert to title case (Pascal Case with spaces)
+            TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
+            return textInfo.ToTitleCase(cleaned);
+        }
     }
 }

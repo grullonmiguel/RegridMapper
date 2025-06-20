@@ -91,10 +91,7 @@ namespace RegridMapper.ViewModels
         #region Constructor
 
         public ParcelViewModel()
-        {
-            SettingsOpenCommand = new RelayCommand(() => ShowSettings = true);
-            SettingsCloseCommand = new RelayCommand(CloseSettingsDialog);
-        } 
+        { } 
 
         #endregion
 
@@ -133,39 +130,31 @@ namespace RegridMapper.ViewModels
         protected override async Task SaveToClipboard()
         {
             if (ParcelList is null || !ParcelList.Any())
-                return; // Exit if no parcels are selected
+                return; // Exit if no records exist
 
             var clipboardText = new StringBuilder();
 
-            // Define Headers
-            string[] headers = { "TYPE", "CITY", "PARCEL ID / REGRID", "ADDRESS", "OWNER", "APPRAISAL", "ASSESSED VALUE", "ACRES", "FEMA", "ZILLOW", "REDFIN", "REALTOR" };
-
             // Append headers
-            clipboardText.AppendLine(string.Join("\t", headers));
-
-            // Helper method to format hyperlinks correctly for Google Sheets
-            static string FormatUrl(string url, string alias) => string.IsNullOrWhiteSpace(url) ? string.Empty : $"=HYPERLINK(\"{url.Replace("\"", "\"\"")}\", \"{alias}\")";
+            clipboardText.AppendLine(string.Join("\t", GetClipboardHeaders()));
 
             foreach (var item in ParcelList)
             {
-                // Generate hyperlinks with correct spreadsheet formatting
-                var urls = new[]
-                {
-                    FormatUrl(item.RegridUrl, item.ParcelID),
-                    FormatUrl(item.GoogleUrl, item.Address),
-                    FormatUrl(item.AppraiserUrl, "LINK"),
-                    FormatUrl(item.FemaUrl, $"{item.FloodZone}"),
-                    FormatUrl(item.ZillowUrl, "Zillow"),
-                    FormatUrl(item.RedfinUrl, "Redfin"),
-                    FormatUrl(item.RealtorUrl, "Realtor")
-                };
-
-                // Create row data while ensuring Excel formatting compatibility
+                // Create row data
                 string[] row =
                 {
-                    item.ZoningType, item.City, urls[0], urls[1], 
-                    item.OwnerName, urls[2], item.AssessedValue.ToString(),
-                    item.Acres, urls[3], urls[4], urls[5], urls[6]
+                    item.ZoningType, 
+                    item.City,
+                    item.ParcelID,
+                    FormatGoogleSheetsUrRL(item.RegridUrl, "Regrid"),
+                    FormatGoogleSheetsUrRL(item.GoogleUrl, item.Address),
+                    item.OwnerName, 
+                    item.AppraiserUrl,
+                    item.AssessedValue.ToString(),
+                    item.Acres,
+                    FormatGoogleSheetsUrRL(item.FemaUrl, $"{item.FloodZone}"),
+                    FormatGoogleSheetsUrRL(item.ZillowUrl, "Zillow"),
+                    FormatGoogleSheetsUrRL(item.RedfinUrl, "Redfin"),
+                    FormatGoogleSheetsUrRL(item.RealtorUrl, "Realtor")
                 };
 
                 clipboardText.AppendLine(string.Join("\t", row));
@@ -175,30 +164,13 @@ namespace RegridMapper.ViewModels
             await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText.ToString()));
         }
 
-        #endregion
-
-        #region Settings
-
-        private void CloseSettingsDialog()
-        {
-            ShowSettings = false;
-            LoadSettings();
-        }
-
-        private void LoadSettings()
-        {
-            try
-            {
-                //AuctionURL = SettingsService.LoadSetting<string>("AuctionURL");
-                //AuctionCounty = SettingsService.LoadSetting<string>("AuctionCounty");
-                //_preformattedAppraiserUrl = SettingsService.LoadSetting<string>("AppraiserURL");
-                //OnPropertyChanged(nameof(CanScrape));
-            }
-            catch (Exception)
-            {
-                // Provide recovery action
-            }
-        }
+        /// <summary>
+        /// The Google Sheet Headers
+        /// </summary>
+        private string[] GetClipboardHeaders() =>
+        [
+            "TYPE", "CITY", "PARCEL ID", "GIS", "ADDRESS", "OWNER NAME", "APPRAISER", "ASSESSED VALUE", "ACRES", "FEMA", "ZILLOW", "REDFIN", "REALTOR"
+        ];
 
         #endregion
 

@@ -90,11 +90,11 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button 
-                                      Content="Website"
-                                      Tag="{StaticResource Geometry.Web}"
-                                      Style="{StaticResource  Buttons.Link}" 
-                                      Command="{Binding DataContext.NavigateToCountyUrlCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                      CommandParameter="{Binding}" />
+                                            Content="Website"
+                                            Tag="{StaticResource Geometry.Web}"
+                                            Style="{StaticResource  Buttons.Link}" 
+                                            Command="{Binding DataContext.NavigateToCountyUrlCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                            CommandParameter="{Binding}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

@@ -13,7 +13,7 @@
         </Grid.ColumnDefinitions>
         
         <!-- Settings -->
-        <Border Width="0">
+        <!--<Border Width="0">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Width" Value="{Binding BorderWidth}" />
@@ -48,17 +48,17 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 
-                <!-- Page Title -->
+                --><!-- Page Title --><!--
                 <TextBlock Text="Settings" Style="{StaticResource TextBlocks.Heading1}" />
 
-                <!-- Close Button -->
+                --><!-- Close Button --><!--
                 <Button Style="{StaticResource  Buttons.Close}" Command="{Binding SettingsCloseCommand}"  />
 
             </Grid>
-        </Border>
+        </Border>-->
 
         <!-- Right Column-->
-        <Grid Grid.Column="1" IsEnabled="{Binding ShowSettings, Converter={StaticResource InverseBooleanConverter}}" >
+        <Grid Grid.Column="1" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
@@ -73,10 +73,10 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
                 <!-- Running-->
-                <TextBlock Foreground="#F69465" VerticalAlignment="Center" FontSize="{StaticResource Fonts.Large}">
+                <TextBlock Foreground="#FDE997" VerticalAlignment="Center">
                     <Run Text="{Binding Status}" />
-                    <Run Text="{Binding CurrentItem}" />
-                </TextBlock>                
+                </TextBlock>
+                
                 <!-- Cancel -->
                 <Button 
                     Content="Cancel" 
@@ -182,19 +182,17 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Type" Binding="{Binding ZoningType}" Width="100" />
-                            <!--<DataGridTextColumn Header="Parcel ID / Regrid" Binding="{Binding ParcelID}" Width="200" />-->
-                            <!--<DataGridTextColumn Header="Address" Binding="{Binding Address}"  />-->
-                            <DataGridTemplateColumn Header="Parcel ID / Regrid">
+                            <DataGridTextColumn Header="Parcel ID" Binding="{Binding ParcelID}" Width="200" />
+                            <DataGridTemplateColumn Header="Regrid" Width="75">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button 
-                                            Content="{Binding ParcelID}"
+                                            Content="Regrid"
                                             Style="{StaticResource Buttons.Hyperlink}"
                                             Command="{Binding DataContext.NavigateToRegridCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                             CommandParameter="{Binding}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
-                                <!-- Ensure copied content includes the URL -->
                                 <DataGridTemplateColumn.ClipboardContentBinding>
                                     <Binding Path="RegridUrl"/>
                                 </DataGridTemplateColumn.ClipboardContentBinding>

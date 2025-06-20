@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using RegridMapper.Core.Configuration;
+using RegridMapper.Core.Utilities;
 using RegridMapper.Models;
 using RegridMapper.Services;
 using RegridMapper.ViewModels;
@@ -94,7 +95,7 @@ namespace RegridMapper.Core.Services
                 await UpdateElement(item, "ZipCode", ShouldScrapeZipCode, AppConstants.RegridZip, scraper, AppConstants.RegridZip, AppConstants.RegridZip2);
                 await UpdateElement(item, "Acres", ShouldScrapeAcres, AppConstants.RegridAcres, scraper, AppConstants.RegridAcres);
                 await UpdateElement(item, "OwnerName", ShouldScrapeOwner, AppConstants.RegridOwner, scraper, AppConstants.RegridOwner, AppConstants.RegridOwner);
-                await UpdateElement(item, "AssessedValue", ShouldScrapeAssessedValue, AppConstants.RegridAssessedValue, scraper, AppConstants.RegridAssessedValue);
+                await UpdateElement(item, "AssessedValue", ShouldScrapeAssessedValue, AppConstants.RegridAssessedValue, scraper, AppConstants.RegridAssessedValue, "Assessed Value School District");
                 await UpdateElement(item, "GeographicCoordinate", ShouldScrapeCoordinates, AppConstants.RegridCoordinates, scraper, AppConstants.RegridCoordinates);
                 await UpdateElement(item, "FloodZone", ShouldScrapeFloodZone, AppConstants.RegridFema, scraper, AppConstants.RegridFema, AppConstants.RegridFema2, "N/A");
 
@@ -107,6 +108,12 @@ namespace RegridMapper.Core.Services
 
                 if (!string.IsNullOrWhiteSpace(item.FloodZone))
                     item.FloodZone = $"Zone {item.FloodZone}";
+
+                if (!string.IsNullOrWhiteSpace(item.City))
+                    item.City = item.City.ToPascalCaseWithSpaces();
+
+                if (!string.IsNullOrWhiteSpace(item.OwnerName))
+                    item.OwnerName = item.OwnerName.ToPascalCaseWithSpaces();
 
                 item.ScrapeStatus = ScrapeStatus.Complete;
             }
@@ -183,8 +190,15 @@ namespace RegridMapper.Core.Services
             {
                 try
                 {
-                    var result = await FindElement(scraper.WebDriver, fallbackLabels);
-                    item.SetPropertyValue(propertyName, result);
+                    var rawResult = await FindElement(scraper.WebDriver, fallbackLabels);
+
+                    // Remove dollar signs, commas, and trim whitespace
+                    var cleanResult = rawResult?
+                        .Replace("$", string.Empty)
+                        .Trim();
+
+                    item.SetPropertyValue(propertyName, cleanResult);
+
                 }
                 catch (Exception ex)
                 {

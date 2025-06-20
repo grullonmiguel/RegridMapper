@@ -4,6 +4,7 @@ using RegridMapper.Core.Utilities;
 using RegridMapper.Services;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace RegridMapper.ViewModels
@@ -142,44 +143,6 @@ namespace RegridMapper.ViewModels
             }
         }
 
-        protected override async Task SaveToClipboard()
-        {
-            if (ParcelList is null || !ParcelList.Any())
-                return; // Exit if no parcels are selected
-
-            var clipboardText = new StringBuilder();
-
-            // Define Headers
-            string[] headers = { "PARCEL ID / APPRAISER", "REGRID", "ADDRESS", "ASSESSED VALUE", "OPENING BID"};
-
-            // Append headers
-            clipboardText.AppendLine(string.Join("\t", headers));
-
-            // Helper method to format hyperlinks correctly for Google Sheets
-            static string FormatUrl(string url, string alias) => string.IsNullOrWhiteSpace(url) ? string.Empty : $"=HYPERLINK(\"{url.Replace("\"", "\"\"")}\", \"{alias}\")";
-
-            foreach (var item in ParcelList)
-            {
-                // Generate hyperlinks with correct spreadsheet formatting
-                var urls = new[]
-                {
-                    FormatUrl(item.AppraiserUrl, item.ParcelID),
-                    FormatUrl(item.RegridUrl, "LINK"),
-                };
-
-                // Create row data while ensuring Excel formatting compatibility
-                string[] row =
-                {
-                    urls[0], urls[1], item.Address, item.AssessedValue.ToString(), item.AskingPrice.ToString()
-                };
-
-                clipboardText.AppendLine(string.Join("\t", row));
-            }
-
-            // Clipboard operation runs on UI thread
-            await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText.ToString()));
-        }
-
         #endregion
 
         #region Real Auction Scraping
@@ -264,7 +227,9 @@ namespace RegridMapper.ViewModels
             {
                 // Display elapsed time in minutes and seconds
                 var elapsedTime = DateTime.Now - startTime;
-                Status = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
+                Status = elapsedTime.Minutes == 0
+                    ? $"Completed in {elapsedTime.Seconds} seconds"
+                    : $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
 
                 IsScraping = false; // Indicate process end
                 OnPropertyChanged(nameof(TotalParcels));
@@ -380,6 +345,9 @@ namespace RegridMapper.ViewModels
                                         currentItem.Address += $", {nextLine}";
                                         //i++; // Skip next line
                                     }
+
+                                    if (!string.IsNullOrWhiteSpace(currentItem.Address))
+                                        currentItem.Address = currentItem.Address.ToPascalCaseWithSpaces();
                                     break;
 
                                 case string s when span.StartsWith("Assessed Value:"):
@@ -410,6 +378,89 @@ namespace RegridMapper.ViewModels
             {
                 //TODO: Debug.WriteLine($"Error processing auction properties: {ex.Message}");
             }
+        }
+
+        #endregion
+
+        #region Clipboard
+
+        protected override async Task SaveToClipboard()
+        {
+            if (ParcelList is null || !ParcelList.Any())
+                return; // Exit if no records exist
+
+            var clipboardText = new StringBuilder();
+
+            // Append headers
+            clipboardText.AppendLine(string.Join("\t", GetClipboardHeaders()));
+
+            foreach (var item in ParcelList)
+            {
+                // Get row data
+                string[] row = RegridColumnsVisible
+                    ? GetRegridClipboardItems(item)
+                    : GetRealAuctionClipboardItems(item);
+
+                clipboardText.AppendLine(string.Join("\t", row));
+            }
+
+            // Clipboard operation runs on UI thread
+            await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText.ToString()));
+        }
+
+        /// <summary>
+        /// The Google Sheet Headers
+        /// </summary>
+        private string[] GetClipboardHeaders()
+        {
+            return !RegridColumnsVisible
+                ? ["OPENING BID", "PARCEL ID", "GIS", "ADDRESS", "APPRAISER", "ASSESSED VALUE"]
+                : ["OPENING BID", "TYPE", "CITY", "PARCEL ID", "GIS", "ADDRESS", "OWNER NAME", "APPRAISER", "ASSESSED VALUE", "ACRES", "FEMA", "ZILLOW", "REDFIN", "REALTOR"];
+        }
+
+        private string[] GetRealAuctionClipboardItems(ParcelData item) =>
+        [
+            item.AskingPrice.ToString(),
+            item.ParcelID,
+            FormatGoogleSheetsUrRL(item.RegridUrl, "Regrid"),
+            item.Address,
+            FormatGoogleSheetsUrRL(item.AppraiserUrl, "Appraiser"),
+            item.AssessedValue.Value.ToString(),
+        ];
+
+        private string[] GetRegridClipboardItems(ParcelData item) =>
+        [
+            item.AskingPrice.ToString(),
+            item.ZoningType,
+            item.City,
+            item.ParcelID,
+            FormatGoogleSheetsUrRL(item.RegridUrl, "Regrid"),
+            FormatGoogleSheetsUrRL(item.GoogleUrl, item.Address),
+            item.OwnerName,
+            FormatGoogleSheetsUrRL(item.AppraiserUrl, "Appraiser"),
+            item.AssessedValue.ToString(),
+            item.Acres,
+            FormatGoogleSheetsUrRL(item.FemaUrl, $"{item.FloodZone}"),
+            FormatGoogleSheetsUrRL(item.ZillowUrl, "Zillow"),
+            FormatGoogleSheetsUrRL(item.RedfinUrl, "Redfin"),
+            FormatGoogleSheetsUrRL(item.RealtorUrl, "Realtor")
+        ];
+
+        private string FormatOwnerNameUrl(ParcelData item) =>
+            !string.IsNullOrWhiteSpace(item.AppraiserUrl)
+            ? FormatGoogleSheetsUrRL(item.AppraiserUrl, item?.OwnerName)
+            : item.OwnerName ?? string.Empty;
+
+        private string FormatAssessedValueUrl(ParcelData item)
+        {
+            if (string.IsNullOrWhiteSpace(item.AppraiserUrl))
+            {
+                return item.AssessedValue?.ToString() ?? string.Empty;
+            }
+
+            return item.AssessedValue.HasValue
+                ? FormatGoogleSheetsUrRL(item.AppraiserUrl, item.AssessedValue.Value.ToString())
+                : FormatGoogleSheetsUrRL(item.AppraiserUrl, "Appraiser");
         }
 
         #endregion

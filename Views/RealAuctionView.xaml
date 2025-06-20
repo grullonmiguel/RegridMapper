@@ -9,16 +9,16 @@
         </Grid.ColumnDefinitions>
 
         <!-- Settings -->
-        <Border Padding="0 16 16 0" Width="0" >
+        <!--<Border Padding="0 16 16 0" Width="0" >
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <!-- Page Title -->
+                --><!-- Page Title --><!--
                 <TextBlock Text="Auction Settings" Style="{StaticResource TextBlocks.Heading1}" />
-                <!-- Close Button -->
+                --><!-- Close Button --><!--
                 <Button Style="{StaticResource  Buttons.Close}" Command="{Binding SettingsCloseCommand}" />
 
             </Grid>
@@ -49,10 +49,10 @@
                     </Style.Triggers>
                 </Style>
             </Border.Style>
-        </Border>
+        </Border>-->
 
         <!-- Right Column-->
-        <Grid Grid.Column="1" IsEnabled="{Binding ShowSettings, Converter={StaticResource InverseBooleanConverter}}" >
+        <Grid Grid.Column="1" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
@@ -66,7 +66,7 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <!-- Running-->
-                <TextBlock Foreground="#fde997" VerticalAlignment="Center" >
+                <TextBlock Foreground="#FDE997" VerticalAlignment="Center" >
                     <Run Text="{Binding Status}" />
                 </TextBlock>
                
@@ -190,20 +190,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Type" Binding="{Binding ZoningType}" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <DataGridTemplateColumn Header="Parcel ID / Appraiser" Width="Auto" >
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Button 
-                                            Content="{Binding ParcelID}"
-                                            Style="{StaticResource Buttons.Hyperlink}"
-                                            Command="{Binding DataContext.NavigateAppraiserCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                            CommandParameter="{Binding}" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                                <DataGridTemplateColumn.ClipboardContentBinding>
-                                    <Binding Path="AppraiserUrl"/>
-                                </DataGridTemplateColumn.ClipboardContentBinding>
-                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Parcel ID" Binding="{Binding ParcelID}" Width="Auto"/>
                             <DataGridTemplateColumn Header="Regrid" Width="75">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -218,9 +205,38 @@
                                     <Binding Path="RegridUrl"/>
                                 </DataGridTemplateColumn.ClipboardContentBinding>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="Auto"/>
-                            <DataGridTextColumn Header="Owner Name" Binding="{Binding OwnerName}" MaxWidth="160" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                            <DataGridTextColumn Header="Assessed" Binding="{Binding AssessedValue, StringFormat=C}" Width="Auto" />
+                            <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="Auto" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                            <DataGridTemplateColumn Header="Address" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button 
+                                            Content="{Binding Address}"
+                                            Style="{StaticResource Buttons.Hyperlink}"
+                                            Command="{Binding DataContext.NavigateToGoogleMapsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                            CommandParameter="{Binding}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <!-- Ensure copied content includes the URL -->
+                                <DataGridTemplateColumn.ClipboardContentBinding>
+                                    <Binding Path="GoogleUrl"/>
+                                </DataGridTemplateColumn.ClipboardContentBinding>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Owner Name" Binding="{Binding OwnerName}" Width="Auto" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <DataGridTemplateColumn Header="Appraiser" Width="Auto" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button 
+                                            Content="Appraiser"
+                                            Style="{StaticResource Buttons.Hyperlink}"
+                                            Command="{Binding DataContext.NavigateAppraiserCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                            CommandParameter="{Binding}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.ClipboardContentBinding>
+                                    <Binding Path="AppraiserUrl"/>
+                                </DataGridTemplateColumn.ClipboardContentBinding>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Assessed Value" Binding="{Binding AssessedValue, StringFormat=C}" Width="Auto" />
                             <DataGridTextColumn Header="Opening Bid" Binding="{Binding AskingPrice, StringFormat=C}" Width="Auto" />
                             <DataGridTextColumn Header="Acres" Binding="{Binding Acres}" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <DataGridTemplateColumn Header="Fema" Width="80" Visibility="{Binding DataContext.RegridColumnsVisible, Source={x:Reference Name=FrameWorkElementProxy}, Converter={StaticResource BooleanToVisibilityConverter}}" >

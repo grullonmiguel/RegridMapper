@@ -7,7 +7,7 @@ namespace RegridMapper.ViewModels
     /// <summary>
     /// Represents parcel data extracted from Regrid, fully integrated with MVVM.
     /// </summary>
-    public class ParcelData : BaseViewModel
+    public class ParcelData : Observable
     {
         // Property to store multiple matches
         public List<RegridSearchResult> RegridSearchResults
@@ -192,7 +192,17 @@ namespace RegridMapper.ViewModels
             var property = typeof(ParcelData).GetProperty(propertyName);
             if (property != null && !string.IsNullOrEmpty(value))
             {
-                property.SetValue(this, value);
+                var targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
+                try
+                {
+                    object convertedValue = Convert.ChangeType(value, targetType);
+                    property.SetValue(this, convertedValue);
+                }
+                catch
+                {
+                    // Optional: log warning or fallback to a default value
+                }
             }
         }
 
