@@ -71,21 +71,7 @@
                 <Run Text="{Binding TotalParcels, Mode=OneWay}" />
             </TextBlock>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
-                <!-- Running-->
-                <TextBlock Foreground="#FDE997" VerticalAlignment="Center">
-                    <Run Text="{Binding Status}" />
-                </TextBlock>
-                
-                <!-- Cancel -->
-                <Button 
-                    Content="Cancel" 
-                    Margin="8 0"
-                    VerticalAlignment="Center"
-                    Style="{StaticResource  Buttons.Primary}" 
-                    Command="{Binding RegridQueryCancelCommand}"
-                    Visibility="{Binding IsScraping, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >                
                 <!-- Settings -->
                 <Button 
                     FontSize="{StaticResource Fonts.XLarge}"
@@ -126,6 +112,7 @@
                                 <ColumnDefinition Width="auto" />
                                 <ColumnDefinition Width="auto" />
                                 <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="auto" />
                             </Grid.ColumnDefinitions>
 
                             <!-- Clear -->
@@ -135,7 +122,8 @@
                                 Margin="4 0"
                                 Tag="{StaticResource Geometry.Delete}"
                                 Style="{StaticResource  Buttons.Link}" 
-                                Command="{Binding ClearDataCommand}" />
+                                Command="{Binding ClearDataCommand}" 
+                                Visibility="{Binding CanScrape, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                             <!-- Copy -->
                             <Button 
@@ -143,26 +131,74 @@
                                 Content="Copy" 
                                 Margin="4 0"
                                 Tag="{StaticResource Geometry.Copy}"
-                                Style="{StaticResource  Buttons.Link}" 
-                                Command="{Binding CopyParcelsCommand}" />
-
-                            <!-- Paste -->
-                            <Button 
-                                Grid.Column="4"
-                                Content="Paste Address" 
-                                Margin="4 0"
-                                Tag="{StaticResource Geometry.Paste}"
-                                Style="{StaticResource  Buttons.Link}" 
-                                Command="{Binding PasteFromClipboardAddressCommand}" />
+                                Style="{StaticResource Buttons.Link}" 
+                                Command="{Binding CopyParcelsCommand}" 
+                                Visibility="{Binding CanScrape, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                             <!-- Paste -->
                             <Button 
                                 Grid.Column="5"
-                                Content="Paste Parcel ID" 
-                                Margin="4 0"
+                                Height="40"
+                                Content="Paste from Clipboard" 
                                 Tag="{StaticResource Geometry.Paste}"
-                                Style="{StaticResource  Buttons.Link}" 
-                                Command="{Binding PasteFromClipboardParcelCommand}" />
+                                Style="{StaticResource  Buttons.Link}"  
+                                Command="{Binding OpenSettingsContextMenuCommand}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
+                                Visibility="{Binding CanScrape, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}" >
+                                <Button.ContextMenu>
+                                    <ContextMenu Style="{StaticResource ContextMenuStyle}" >
+                                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="Address" Command="{Binding PasteFromClipboardAddressCommand}">
+                                            <MenuItem.Icon>
+                                                <Viewbox Width="14" Height="14">
+                                                    <Path Data="{StaticResource Geometry.Paste}" />
+                                                </Viewbox>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="Parcel ID" Command="{Binding PasteFromClipboardParcelCommand}">
+                                            <MenuItem.Icon>
+                                                <Viewbox Width="14" Height="14">
+                                                    <Path Data="{StaticResource Geometry.Paste}" />
+                                                </Viewbox>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                            </Button>
+                            
+                            <!-- Regrid Scraping -->
+                            <Button 
+                              Grid.Column="6"                                
+                              Tag="{StaticResource Geometry.Info}"
+                              Style="{StaticResource  Buttons.Primary}" 
+                              Command="{Binding OpenSettingsContextMenuCommand}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
+                              Visibility="{Binding CanScrape, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="14" Height="14">
+                                        <Path Data="{StaticResource Geometry.Regrid}" Fill="#FFF" />
+                                    </Viewbox>
+                                    <TextBlock Text="Get Regrid Data" Margin="8 0 8 0" />
+                                    <TextBlock Text="&#9660;" FontSize="{StaticResource Fonts.Xsmall}" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <Button.ContextMenu>
+                                    <ContextMenu Style="{StaticResource ContextMenuStyle}" >
+                                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="By Address" Command="{Binding ScrapeRegridByAddressCommand}">
+                                            <MenuItem.Icon>
+                                                <Viewbox Width="14" Height="14">
+                                                    <Path Data="{StaticResource Geometry.Regrid}" />
+                                                </Viewbox>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="By Parcel ID" Command="{Binding ScrapeRegridByParcelIDCommand}">
+                                            <MenuItem.Icon>
+                                                <Viewbox Width="14" Height="14">
+                                                    <Path Data="{StaticResource Geometry.Regrid}" />
+                                                </Viewbox>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                            </Button>
                         </Grid>
                     </Border>
 
@@ -196,22 +232,8 @@
                                 <DataGridTemplateColumn.ClipboardContentBinding>
                                     <Binding Path="RegridUrl"/>
                                 </DataGridTemplateColumn.ClipboardContentBinding>
-                            </DataGridTemplateColumn>                          
-                            <DataGridTemplateColumn Header="Address" >
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Button 
-                                            Content="{Binding Address}"
-                                            Style="{StaticResource Buttons.Hyperlink}"
-                                            Command="{Binding DataContext.NavigateToGoogleMapsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                            CommandParameter="{Binding}" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                                <!-- Ensure copied content includes the URL -->
-                                <DataGridTemplateColumn.ClipboardContentBinding>
-                                    <Binding Path="GoogleUrl"/>
-                                </DataGridTemplateColumn.ClipboardContentBinding>
                             </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Address" Binding="{Binding Address}" />
                             <DataGridTextColumn Header="Owner Name" Binding="{Binding OwnerName}" MaxWidth="160" />
                             <DataGridTextColumn Header="Assessed" Binding="{Binding AssessedValue, StringFormat=C}" />
                             <DataGridTextColumn Header="Acres" Binding="{Binding Acres}" />
@@ -228,6 +250,21 @@
                                 <!-- Ensure copied content includes the URL -->
                                 <DataGridTemplateColumn.ClipboardContentBinding>
                                     <Binding Path="FemaUrl"/>
+                                </DataGridTemplateColumn.ClipboardContentBinding>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Maps" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button 
+                                            Content="Maps"
+                                            Style="{StaticResource Buttons.Hyperlink}"
+                                            Command="{Binding DataContext.NavigateToGoogleMapsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                            CommandParameter="{Binding}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <!-- Ensure copied content includes the URL -->
+                                <DataGridTemplateColumn.ClipboardContentBinding>
+                                    <Binding Path="GoogleUrl"/>
                                 </DataGridTemplateColumn.ClipboardContentBinding>
                             </DataGridTemplateColumn>
                             <DataGridTemplateColumn Header="Realtor" Width="95" Visibility="Collapsed" >
@@ -264,7 +301,7 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button 
-                                        Content="LINK"
+                                        Content="Zillow"
                                         Style="{StaticResource Buttons.Hyperlink}"
                                         Command="{Binding DataContext.NavigateToZillowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                         CommandParameter="{Binding}" />
@@ -293,7 +330,7 @@
                                         </Viewbox>
                                     </MenuItem.Icon>
                                 </MenuItem>
-                                <Separator />
+                                <!--<Separator />
                                 <MenuItem Style="{StaticResource MenuItemStyle}" Header="Scrape Regrid by Address" Command="{Binding ScrapeRegridByAddressCommand}">
                                     <MenuItem.Icon>
                                         <Viewbox Width="14" Height="14">
@@ -307,7 +344,7 @@
                                             <Path Data="{StaticResource Geometry.Regrid}" />
                                         </Viewbox>
                                     </MenuItem.Icon>
-                                </MenuItem>
+                                </MenuItem>-->
                             </ContextMenu>
                         </DataGrid.ContextMenu>
                         <i:Interaction.Triggers>
@@ -318,6 +355,22 @@
                     </DataGrid>
                 </Grid>
             </Border>
+
+            <WrapPanel Grid.Row="2" HorizontalAlignment="Right">
+                <!-- Running-->
+                <TextBlock Foreground="#FDE997" VerticalAlignment="Center" Padding="0 8 0 0"  >
+                    <Run Text="{Binding Status}" />
+                </TextBlock>
+
+                <!-- Cancel -->
+                <Button 
+                    Content="Cancel" 
+                    Margin="8 8 0 0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource  Buttons.Primary}" 
+                    Command="{Binding RegridQueryCancelCommand}"
+                    Visibility="{Binding IsScraping, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </WrapPanel>
         </Grid>
     </Grid>
 </UserControl>

@@ -123,6 +123,8 @@ namespace RegridMapper.ViewModels
         public ICommand RegridQueryCancelCommand => new RelayCommand( () => _cancellationTokenSource?.Cancel());
         public ICommand ScrapeRegridByAddressCommand => new RelayCommand(async () => await ScrapeRegridParcels(ScrapeType.Address), () => ParcelList.Any() && !IsScraping);
         public ICommand ScrapeRegridByParcelIDCommand => new RelayCommand(async () => await ScrapeRegridParcels(ScrapeType.Parcel), () => ParcelList.Any() && !IsScraping);
+        public ICommand ScrapeRegridSelectedByAddressCommand => new RelayCommand(async () => await ScrapeRegridSelectedParcels(ScrapeType.Address), () => SelectedParcels.Any() && !IsScraping);
+        public ICommand ScrapeRegridSelectedByParcelIDCommand => new RelayCommand(async () => await ScrapeRegridSelectedParcels(ScrapeType.Parcel), () => SelectedParcels.Any() && !IsScraping);
 
         // Settings
         public virtual ICommand? SettingsOpenCommand { get; set; }
@@ -296,7 +298,7 @@ namespace RegridMapper.ViewModels
 
                         try
                         {
-                            Status = $"Processing {i + 1} of {parcels.Count}.";
+                            Status = $"Processing {i + 1} of {parcels.Count}...";
                             CurrentItem = _scrapeBy == ScrapeType.Parcel ? item?.ParcelID : item?.Address;
 
                             // Set initial Regrid URL

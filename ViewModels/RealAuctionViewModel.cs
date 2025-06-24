@@ -232,7 +232,7 @@ namespace RegridMapper.ViewModels
                     : $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
 
                 IsScraping = false; // Indicate process end
-                OnPropertyChanged(nameof(TotalParcels));
+                NotifyPropertiesChanged(nameof(TotalParcels),nameof(CanScrape));
             }
         }
 
@@ -415,7 +415,7 @@ namespace RegridMapper.ViewModels
         {
             return !RegridColumnsVisible
                 ? ["OPENING BID", "PARCEL ID", "GIS", "ADDRESS", "APPRAISER", "ASSESSED VALUE"]
-                : ["OPENING BID", "TYPE", "CITY", "PARCEL ID", "GIS", "ADDRESS", "OWNER NAME", "APPRAISER", "ASSESSED VALUE", "ACRES", "FEMA", "ZILLOW", "REDFIN", "REALTOR"];
+                : ["OPENING BID", "TYPE", "CITY", "PARCEL ID", "GIS", "ADDRESS", "OWNER NAME", "APPRAISER", "ASSESSED VALUE", "ACRES", "MAPS", "FEMA", "ZILLOW", "REDFIN", "REALTOR"];
         }
 
         private string[] GetRealAuctionClipboardItems(ParcelData item) =>
@@ -435,11 +435,12 @@ namespace RegridMapper.ViewModels
             item.City,
             item.ParcelID,
             FormatGoogleSheetsUrRL(item.RegridUrl, "Regrid"),
-            FormatGoogleSheetsUrRL(item.GoogleUrl, item.Address),
+            item.Address,
             item.OwnerName,
             FormatGoogleSheetsUrRL(item.AppraiserUrl, "Appraiser"),
             item.AssessedValue.ToString(),
             item.Acres,
+            FormatGoogleSheetsUrRL(item.GoogleUrl, "Maps"),
             FormatGoogleSheetsUrRL(item.FemaUrl, $"{item.FloodZone}"),
             FormatGoogleSheetsUrRL(item.ZillowUrl, "Zillow"),
             FormatGoogleSheetsUrRL(item.RedfinUrl, "Redfin"),

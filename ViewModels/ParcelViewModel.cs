@@ -1,5 +1,4 @@
 ﻿using RegridMapper.Core.Commands;
-using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Utilities;
 using System.Text;
 using System.Windows;
@@ -81,10 +80,6 @@ namespace RegridMapper.ViewModels
         // Clipboard Commands       
         public ICommand PasteFromClipboardAddressCommand => new RelayCommand(async () => await PasteFromClipboard(true), () => !IsScraping && ParcelList?.Count <= 0);
         public ICommand PasteFromClipboardParcelCommand => new RelayCommand(async () => await PasteFromClipboard(false), () => !IsScraping && ParcelList?.Count <= 0);
-       
-        // Regrid Scraping Commands
-        public ICommand ScrapeRegridSelectedByAddressCommand => new RelayCommand(async () => await ScrapeRegridSelectedParcels(ScrapeType.Address), () => SelectedParcels.Any() && !IsScraping);
-        public ICommand ScrapeRegridSelectedByParcelIDCommand => new RelayCommand(async () => await ScrapeRegridSelectedParcels(ScrapeType.Parcel), () => SelectedParcels.Any() && !IsScraping);
 
         #endregion
 
@@ -146,11 +141,12 @@ namespace RegridMapper.ViewModels
                     item.City,
                     item.ParcelID,
                     FormatGoogleSheetsUrRL(item.RegridUrl, "Regrid"),
-                    FormatGoogleSheetsUrRL(item.GoogleUrl, item.Address),
+                    item.Address,
                     item.OwnerName, 
                     item.AppraiserUrl,
                     item.AssessedValue.ToString(),
                     item.Acres,
+                    FormatGoogleSheetsUrRL(item.GoogleUrl, "Maps"),
                     FormatGoogleSheetsUrRL(item.FemaUrl, $"{item.FloodZone}"),
                     FormatGoogleSheetsUrRL(item.ZillowUrl, "Zillow"),
                     FormatGoogleSheetsUrRL(item.RedfinUrl, "Redfin"),
@@ -169,7 +165,7 @@ namespace RegridMapper.ViewModels
         /// </summary>
         private string[] GetClipboardHeaders() =>
         [
-            "TYPE", "CITY", "PARCEL ID", "GIS", "ADDRESS", "OWNER NAME", "APPRAISER", "ASSESSED VALUE", "ACRES", "FEMA", "ZILLOW", "REDFIN", "REALTOR"
+            "TYPE", "CITY", "PARCEL ID", "GIS", "ADDRESS", "OWNER NAME", "APPRAISER", "ASSESSED VALUE", "ACRES", "MAPS", "FEMA", "ZILLOW", "REDFIN", "REALTOR"
         ];
 
         #endregion
