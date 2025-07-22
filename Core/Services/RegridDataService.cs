@@ -87,15 +87,20 @@ namespace RegridMapper.Core.Services
                 if (_scrapeBy == ScrapeType.Address)
                     await UpdateElement(item, "ParcelID", true, "Parcel ID", scraper, "Parcel ID");
 
-                if (_scrapeBy == ScrapeType.Parcel)
+                // Get the address from Regrid in the event the address is already missing
+                // We can have an address already from RealAuction and do not want to override 
+                if (_scrapeBy == ScrapeType.Parcel && string.IsNullOrWhiteSpace(item.Address))
                     await UpdateElement(item, "Address", ShouldScrapeAddress, AppConstants.RegridAddress, scraper, AppConstants.RegridAddress);
-                
+
+                // Do not override the assessed value if already present
+                if (!item.AssessedValue.HasValue)
+                    await UpdateElement(item, "AssessedValue", ShouldScrapeAssessedValue, AppConstants.RegridAssessedValue, scraper, AppConstants.RegridAssessedValue, "Assessed Value School District");
+
                 await UpdateElement(item, "ZoningType", ShouldScrapeZoning, AppConstants.RegridZoningType, scraper, AppConstants.RegridZoningType, "Zoning type", "Zoning Description", "Land Use");
                 await UpdateElement(item, "City", ShouldScrapeCity, AppConstants.RegridCity, scraper, AppConstants.RegridCity);
                 await UpdateElement(item, "ZipCode", ShouldScrapeZipCode, AppConstants.RegridZip, scraper, AppConstants.RegridZip, AppConstants.RegridZip2);
                 await UpdateElement(item, "Acres", ShouldScrapeAcres, AppConstants.RegridAcres, scraper, AppConstants.RegridAcres);
                 await UpdateElement(item, "OwnerName", ShouldScrapeOwner, AppConstants.RegridOwner, scraper, AppConstants.RegridOwner, AppConstants.RegridOwner);
-                await UpdateElement(item, "AssessedValue", ShouldScrapeAssessedValue, AppConstants.RegridAssessedValue, scraper, AppConstants.RegridAssessedValue, "Assessed Value School District");
                 await UpdateElement(item, "GeographicCoordinate", ShouldScrapeCoordinates, AppConstants.RegridCoordinates, scraper, AppConstants.RegridCoordinates);
                 await UpdateElement(item, "FloodZone", ShouldScrapeFloodZone, AppConstants.RegridFema, scraper, AppConstants.RegridFema, AppConstants.RegridFema2, "N/A");
 

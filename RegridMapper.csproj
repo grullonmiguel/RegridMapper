@@ -10,7 +10,12 @@
 	<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
 	<SelfContained>true</SelfContained>
 	<Trim>true</Trim>
+	<ApplicationIcon>AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="AppIcon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Styles\Images\" />
