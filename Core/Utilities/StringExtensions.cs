@@ -85,11 +85,11 @@ namespace RegridMapper.Core.Utilities
         public static string ToDMSCoordinates(this string coordinates)
         {
             if (string.IsNullOrWhiteSpace(coordinates))
-                throw new ArgumentException("Coordinates cannot be null or empty.");
+                return string.Empty;
 
             var parts = coordinates.Split(',');
             if (parts.Length != 2 || !double.TryParse(parts[0].Trim(), out double lat) || !double.TryParse(parts[1].Trim(), out double lon))
-                throw new ArgumentException("Invalid coordinate format. Expected: 'latitude, longitude'.");
+                return string.Empty;
 
             return $"{ConvertToDMS(lat, true)} {ConvertToDMS(lon, false)}";
         }
@@ -165,6 +165,22 @@ namespace RegridMapper.Core.Utilities
             // Convert to title case (Pascal Case with spaces)
             TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
             return textInfo.ToTitleCase(cleaned);
+        }
+
+        public static string ToTitleCaseWithoutNumbers(this string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
+
+            // Remove all numbers and leading/trailing spaces
+            var stringWithoutNumbers = Regex.Replace(input, @"\d+", "").Trim();
+
+            if (string.IsNullOrWhiteSpace(stringWithoutNumbers))
+                return string.Empty;
+
+            // Convert the string to title case
+            TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
+            return textInfo.ToTitleCase(stringWithoutNumbers.ToLower());
         }
     }
 }

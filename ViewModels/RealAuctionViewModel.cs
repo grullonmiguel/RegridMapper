@@ -1,10 +1,9 @@
 ﻿using RegridMapper.Core.Commands;
 using RegridMapper.Core.Configuration;
+using RegridMapper.Core.Services;
 using RegridMapper.Core.Utilities;
 using RegridMapper.Services;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace RegridMapper.ViewModels
@@ -138,7 +137,6 @@ namespace RegridMapper.ViewModels
             }
             catch (Exception ex)
             {
-                // Log error instead of raw throw to prevent crashing
                 Console.WriteLine($"Error navigating to URL: {ex.Message}");
             }
         }
@@ -384,84 +382,37 @@ namespace RegridMapper.ViewModels
 
         #region Clipboard
 
+        /// <summary>
+        /// Builds a tab-separated string from the ParcelList and saves it to the system clipboard.
+        /// </summary>
         protected override async Task SaveToClipboard()
         {
+            // 1. Exit early if there's no data.
             if (ParcelList is null || !ParcelList.Any())
-                return; // Exit if no records exist
+                return;
 
-            var clipboardText = new StringBuilder();
+            var headerType = RegridColumnsVisible ? 
+                ClipboardHeaderType.Regrid : 
+                ClipboardHeaderType.RealAuction;
 
-            // Append headers
-            clipboardText.AppendLine(string.Join("\t", GetClipboardHeaders()));
+            // 2. Create the correct formatter based on the current state.
+            var formatter = new ClipboardFormatter(headerType);
 
-            foreach (var item in ParcelList)
+            // 3. Build the string on a background thread to keep the UI responsive.
+            string clipboardText = await Task.Run(() =>
             {
-                // Get row data
-                string[] row = RegridColumnsVisible
-                    ? GetRegridClipboardItems(item)
-                    : GetRealAuctionClipboardItems(item);
+                // Create the first line of the output with the column headers, separated by tabs.
+                var header = string.Join("\t", formatter.GetHeaders());
 
-                clipboardText.AppendLine(string.Join("\t", row));
-            }
+                // Transform each parcel into its clipboard row string.
+                var rows = ParcelList.Select(item => string.Join("\t", formatter.FormatRow(item)));
 
-            // Clipboard operation runs on UI thread
-            await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText.ToString()));
-        }
+                // Combine the header and all data rows into a single string.
+                return header + Environment.NewLine + string.Join(Environment.NewLine, rows);
+            });
 
-        /// <summary>
-        /// The Google Sheet Headers
-        /// </summary>
-        private string[] GetClipboardHeaders()
-        {
-            return !RegridColumnsVisible
-                ? ["OPENING BID", "PARCEL ID", "GIS", "ADDRESS", "APPRAISER", "ASSESSED VALUE"]
-                : ["OPENING BID", "TYPE", "CITY", "PARCEL ID", "GIS", "ADDRESS", "OWNER NAME", "APPRAISER", "ASSESSED VALUE", "ACRES", "MAPS", "FEMA", "ZILLOW", "REDFIN", "REALTOR"];
-        }
-
-        private string[] GetRealAuctionClipboardItems(ParcelData item) =>
-        [
-            item.AskingPrice.ToString(),
-            item.ParcelID,
-            FormatGoogleSheetsUrRL(item.RegridUrl, "Regrid"),
-            item.Address,
-            FormatGoogleSheetsUrRL(item.AppraiserUrl, "Appraiser"),
-            item.AssessedValue.Value.ToString(),
-        ];
-
-        private string[] GetRegridClipboardItems(ParcelData item) =>
-        [
-            item.AskingPrice.ToString(),
-            item.ZoningType,
-            item.City,
-            item.ParcelID,
-            FormatGoogleSheetsUrRL(item.RegridUrl, "Regrid"),
-            item.Address,
-            item.OwnerName,
-            FormatGoogleSheetsUrRL(item.AppraiserUrl, "Appraiser"),
-            item.AssessedValue.ToString(),
-            item.Acres,
-            FormatGoogleSheetsUrRL(item.GoogleUrl, "Maps"),
-            FormatGoogleSheetsUrRL(item.FemaUrl, $"{item.FloodZone}"),
-            FormatGoogleSheetsUrRL(item.ZillowUrl, "Zillow"),
-            FormatGoogleSheetsUrRL(item.RedfinUrl, "Redfin"),
-            FormatGoogleSheetsUrRL(item.RealtorUrl, "Realtor")
-        ];
-
-        private string FormatOwnerNameUrl(ParcelData item) =>
-            !string.IsNullOrWhiteSpace(item.AppraiserUrl)
-            ? FormatGoogleSheetsUrRL(item.AppraiserUrl, item?.OwnerName)
-            : item.OwnerName ?? string.Empty;
-
-        private string FormatAssessedValueUrl(ParcelData item)
-        {
-            if (string.IsNullOrWhiteSpace(item.AppraiserUrl))
-            {
-                return item.AssessedValue?.ToString() ?? string.Empty;
-            }
-
-            return item.AssessedValue.HasValue
-                ? FormatGoogleSheetsUrRL(item.AppraiserUrl, item.AssessedValue.Value.ToString())
-                : FormatGoogleSheetsUrRL(item.AppraiserUrl, "Appraiser");
+            // 4. Update the clipboard on the UI thread.
+            await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText));
         }
 
         #endregion

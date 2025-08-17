@@ -1,7 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using RegridMapper.Core.Configuration;
-using RegridMapper.Core.Utilities;
 using RegridMapper.Models;
 using RegridMapper.Services;
 using RegridMapper.ViewModels;
@@ -25,9 +24,7 @@ namespace RegridMapper.Core.Services
         #endregion
 
         public RegridDataService()
-        {
-                
-        }
+        { }
 
         public async Task GetParcelData(ScrapeType scrapeBy, string htmlSource, ParcelData item, SeleniumWebDriverService scraper)
         {
@@ -85,40 +82,28 @@ namespace RegridMapper.Core.Services
 
                 // Scrape the individual items
                 if (_scrapeBy == ScrapeType.Address)
-                    await UpdateElement(item, "ParcelID", true, "Parcel ID", scraper, "Parcel ID");
+                    await UpdateElement(item, "ParcelID", true, scraper, "Parcel ID", "Parcel ID");
 
                 // Get the address from Regrid in the event the address is already missing
                 // We can have an address already from RealAuction and do not want to override 
                 if (_scrapeBy == ScrapeType.Parcel && string.IsNullOrWhiteSpace(item.Address))
-                    await UpdateElement(item, "Address", ShouldScrapeAddress, AppConstants.RegridAddress, scraper, AppConstants.RegridAddress);
+                    await UpdateElement(item, "Address", ShouldScrapeAddress, scraper, "Full Address", "Parcel Address");
 
                 // Do not override the assessed value if already present
                 if (!item.AssessedValue.HasValue)
-                    await UpdateElement(item, "AssessedValue", ShouldScrapeAssessedValue, AppConstants.RegridAssessedValue, scraper, AppConstants.RegridAssessedValue, "Assessed Value School District");
+                    await UpdateElement(item, "AssessedValue", ShouldScrapeAssessedValue, scraper, "Total Parcel Value",  "Assessed Value School District");
 
-                await UpdateElement(item, "ZoningType", ShouldScrapeZoning, AppConstants.RegridZoningType, scraper, AppConstants.RegridZoningType, "Zoning type", "Zoning Description", "Land Use");
-                await UpdateElement(item, "City", ShouldScrapeCity, AppConstants.RegridCity, scraper, AppConstants.RegridCity);
-                await UpdateElement(item, "ZipCode", ShouldScrapeZipCode, AppConstants.RegridZip, scraper, AppConstants.RegridZip, AppConstants.RegridZip2);
-                await UpdateElement(item, "Acres", ShouldScrapeAcres, AppConstants.RegridAcres, scraper, AppConstants.RegridAcres);
-                await UpdateElement(item, "OwnerName", ShouldScrapeOwner, AppConstants.RegridOwner, scraper, AppConstants.RegridOwner, AppConstants.RegridOwner);
-                await UpdateElement(item, "GeographicCoordinate", ShouldScrapeCoordinates, AppConstants.RegridCoordinates, scraper, AppConstants.RegridCoordinates);
-                await UpdateElement(item, "FloodZone", ShouldScrapeFloodZone, AppConstants.RegridFema, scraper, AppConstants.RegridFema, AppConstants.RegridFema2, "N/A");
-
-                // Format the acres value by removing the word acres
-                if (!string.IsNullOrEmpty(item.Acres))
-                    item.Acres = item.Acres.ToLower().Replace(" acres", "");
+                await UpdateElement(item, "ZoningType", ShouldScrapeZoning, scraper, "Zoning type",  "Zoning Type", "Land Use");
+                await UpdateElement(item, "ZoningCode", ShouldScrapeZoning, scraper, "Zoning Code",  "Parcel Use Code");
+                await UpdateElement(item, "City", ShouldScrapeCity, scraper, "Parcel Address City", "Parcel Address City");
+                await UpdateElement(item, "ZipCode", ShouldScrapeZipCode, scraper, "Parcel Address Zip Code",  "5 Digit Parcel Zip Code", "Zip Code");
+                await UpdateElement(item, "Acres", ShouldScrapeAcres, scraper, "Measurements",  "Measurements");
+                await UpdateElement(item, "OwnerName", ShouldScrapeOwner, scraper, "Owner",  "Enhanced Owner", "Owner Name (Assessor)");
+                await UpdateElement(item, "GeographicCoordinate", ShouldScrapeCoordinates, scraper, "Centroid Coordinates",  "Centroid Coordinates");
+                await UpdateElement(item, "FloodZone", ShouldScrapeFloodZone, scraper, "FEMA Flood Zone",  "FEMA NRI Risk Rating");
 
                 if (string.IsNullOrWhiteSpace(item.ParcelID))
                     item.ParcelID = originalParcelID;
-
-                if (!string.IsNullOrWhiteSpace(item.FloodZone))
-                    item.FloodZone = $"Zone {item.FloodZone}";
-
-                if (!string.IsNullOrWhiteSpace(item.City))
-                    item.City = item.City.ToPascalCaseWithSpaces();
-
-                if (!string.IsNullOrWhiteSpace(item.OwnerName))
-                    item.OwnerName = item.OwnerName.ToPascalCaseWithSpaces();
 
                 item.ScrapeStatus = ScrapeStatus.Complete;
             }
@@ -189,21 +174,21 @@ namespace RegridMapper.Core.Services
         /// <summary>
         /// Helper: Scrape property dynamically
         /// </summary>
-        private async Task UpdateElement(ParcelData item, string propertyName, bool shouldScrape, string label, SeleniumWebDriverService scraper, params string[] fallbackLabels)
+        private async Task UpdateElement(ParcelData item, string propertyName, bool shouldScrape, SeleniumWebDriverService scraper, params string[] searchElements)
         {
             if (shouldScrape)
             {
                 try
                 {
-                    var rawResult = await FindElement(scraper.WebDriver, fallbackLabels);
+                    var rawResult = await FindElement(scraper.WebDriver, searchElements);
 
                     // Remove dollar signs, commas, and trim whitespace
                     var cleanResult = rawResult?
                         .Replace("$", string.Empty)
+                        .Replace(" : ", string.Empty)
                         .Trim();
 
                     item.SetPropertyValue(propertyName, cleanResult);
-
                 }
                 catch (Exception ex)
                 {
@@ -212,11 +197,18 @@ namespace RegridMapper.Core.Services
             }
         }
 
-        private async Task<string> FindElement(IWebDriver driver, params string[] selectors)
+        /// <summary>
+        /// Finds the text of the first available element among the specified search elements.
+        /// </summary>
+        /// </summary>
+        /// <param name="searchElements">A collection of element selectors to search for.</param>
+        /// <returns>The text of the first found element; otherwise, an empty string.</returns>
+        private async Task<string> FindElement(IWebDriver driver, params string[] searchElements)
         {
-            foreach (var selector in selectors)
+            foreach (var element in searchElements)
             {
-                var text = await FindElementContainer(driver, selector);
+                var text = await FindElementContainer(driver, element).ConfigureAwait(false);
+                
                 if (!string.IsNullOrEmpty(text))
                     return text;
             }

@@ -43,21 +43,36 @@ namespace RegridMapper.ViewModels
         public string? Address
         {
             get => _address;
-            set => SetProperty(ref _address, value);
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    value = value.ToPascalCaseWithSpaces();
+                SetProperty(ref _address, value);
+            }
         }
         private string? _address;
 
         public string? County
         {
             get => _county;
-            set => SetProperty(ref _county, value);
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    value = value.ToPascalCaseWithSpaces();
+                SetProperty(ref _county, value);
+            }
         }
         private string? _county;
 
         public string? City
         {
             get => _city;
-            set => SetProperty(ref _city, value);
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    value = value.ToPascalCaseWithSpaces();
+                SetProperty(ref _city, value);
+            }
         }
         private string? _city;
 
@@ -71,14 +86,25 @@ namespace RegridMapper.ViewModels
         public string? Acres
         {
             get => _acres;
-            set => SetProperty(ref _acres, value);
+            set
+            {
+                // Remove word acress
+                if (!string.IsNullOrEmpty(value))
+                    value = value.ToLower().Replace(" acres", "");
+                SetProperty(ref _acres, value);
+            }
         }
         private string? _acres;
 
         public string? OwnerName
         {
             get => _ownerName;
-            set => SetProperty(ref _ownerName, value);
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    value = value.ToPascalCaseWithSpaces();
+                SetProperty(ref _ownerName, value);
+            }
         }
         private string? _ownerName;
 
@@ -92,9 +118,21 @@ namespace RegridMapper.ViewModels
         public string? ZoningType
         {
             get => _zoningType;
-            set => SetProperty(ref _zoningType, value);
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    value = value.ToTitleCaseWithoutNumbers();
+                SetProperty(ref _zoningType, value);
+            }
         }
         private string? _zoningType;
+
+        public string? ZoningCode
+        {
+            get => _zoningCode;
+            set => SetProperty(ref _zoningCode, value);
+        }
+        private string? _zoningCode;
 
         /// <summary>
         /// Latitude/Longitude coordinate system.
@@ -115,7 +153,13 @@ namespace RegridMapper.ViewModels
         public string? FloodZone
         {
             get => _floodZone;
-            set => SetProperty(ref _floodZone, value);
+            set
+            {
+                // Prepend word Zone
+                //if (!string.IsNullOrWhiteSpace(value))
+                //    value = $"Zone {value}";
+                SetProperty(ref _floodZone, value);
+            }
         }
         private string? _floodZone;
 
@@ -171,10 +215,6 @@ namespace RegridMapper.ViewModels
         /// </summary>
         public string ZillowUrl => !string.IsNullOrWhiteSpace(ZipCode) && ZipCode.IsValidZipCode() ? string.Format(AppConstants.URL_ZillowByZip, ZipCode) : string.Empty;
 
-        //public string ZillowUrl => !string.IsNullOrWhiteSpace(ZipCode) && ZipCode.IsValidZipCode()
-        //    ? $"https://www.zillow.com/{ZipCode}/sold/?searchQueryState={{\"filterState\":{{\"doz\":{{\"value\":\"90\"}}}}}}"
-        //    : string.Empty;
-
         /// <summary>
         /// Returns a formatted string representing the parcel details.
         /// </summary>
@@ -205,6 +245,5 @@ namespace RegridMapper.ViewModels
                 }
             }
         }
-
     }
 }

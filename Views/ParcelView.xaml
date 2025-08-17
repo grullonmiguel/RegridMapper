@@ -11,51 +11,6 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        
-        <!-- Settings -->
-        <!--<Border Width="0">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Width" Value="{Binding BorderWidth}" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ShowSettings}" Value="True">
-                            <DataTrigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard AccelerationRatio="0.4" DecelerationRatio="0.4">
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Border.Width)">
-                                            <SplineDoubleKeyFrame KeyTime="00:00:0.4" Value="300"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </DataTrigger.EnterActions>
-                            <DataTrigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard AccelerationRatio="0.4" DecelerationRatio="0.4">
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Border.Width)">
-                                            <SplineDoubleKeyFrame KeyTime="00:00:0.4" Value="0"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </DataTrigger.ExitActions>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-            <Grid Margin="0 16 16 16" >
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                
-                --><!-- Page Title --><!--
-                <TextBlock Text="Settings" Style="{StaticResource TextBlocks.Heading1}" />
-
-                --><!-- Close Button --><!--
-                <Button Style="{StaticResource  Buttons.Close}" Command="{Binding SettingsCloseCommand}"  />
-
-            </Grid>
-        </Border>-->
 
         <!-- Right Column-->
         <Grid Grid.Column="1" >
@@ -217,13 +172,13 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Type" Binding="{Binding ZoningType}" Width="100" />
-                            <DataGridTextColumn Header="Parcel ID" Binding="{Binding ParcelID}" Width="200" />
-                            <DataGridTemplateColumn Header="Regrid" Width="75">
+                            <DataGridTextColumn Header="Type" Binding="{Binding ZoningType}" Width="Auto" />
+                            <!--<DataGridTextColumn Header="Parcel ID" Binding="{Binding ParcelID}" Width="200" />-->
+                            <DataGridTemplateColumn Header="Parcel ID" Width="Auto">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button 
-                                            Content="Regrid"
+                                            Content="{Binding ParcelID}"
                                             Style="{StaticResource Buttons.Hyperlink}"
                                             Command="{Binding DataContext.NavigateToRegridCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                             CommandParameter="{Binding}" />
@@ -234,10 +189,10 @@
                                 </DataGridTemplateColumn.ClipboardContentBinding>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Address" Binding="{Binding Address}" />
-                            <DataGridTextColumn Header="Owner Name" Binding="{Binding OwnerName}" MaxWidth="160" />
+                            <DataGridTextColumn Header="Owner" Binding="{Binding OwnerName}" MaxWidth="160" />
                             <DataGridTextColumn Header="Assessed" Binding="{Binding AssessedValue, StringFormat=C}" />
                             <DataGridTextColumn Header="Acres" Binding="{Binding Acres}" />
-                            <DataGridTemplateColumn Header="Fema" Width="80" >
+                            <DataGridTemplateColumn Header="Flood" Width="80" >
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button 

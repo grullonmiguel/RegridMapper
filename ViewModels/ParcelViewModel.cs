@@ -1,6 +1,7 @@
 ﻿using RegridMapper.Core.Commands;
+using RegridMapper.Core.Configuration;
+using RegridMapper.Core.Services;
 using RegridMapper.Core.Utilities;
-using System.Text;
 using System.Windows;
 using System.Windows.Input;
 
@@ -76,8 +77,7 @@ namespace RegridMapper.ViewModels
         #endregion
 
         #region Commands
-
-        // Clipboard Commands       
+        
         public ICommand PasteFromClipboardAddressCommand => new RelayCommand(async () => await PasteFromClipboard(true), () => !IsScraping && ParcelList?.Count <= 0);
         public ICommand PasteFromClipboardParcelCommand => new RelayCommand(async () => await PasteFromClipboard(false), () => !IsScraping && ParcelList?.Count <= 0);
 
@@ -122,145 +122,34 @@ namespace RegridMapper.ViewModels
             }
         }
 
+        /// <summary>
+        /// Builds a tab-separated string from the ParcelList and saves it to the system clipboard.
+        /// </summary>
         protected override async Task SaveToClipboard()
         {
+            // 1. Exit early if there's no data.
             if (ParcelList is null || !ParcelList.Any())
-                return; // Exit if no records exist
+                return;
 
-            var clipboardText = new StringBuilder();
+            // 2. Create the correct formatter based on the current state.
+            var formatter = new ClipboardFormatter(ClipboardHeaderType.Regrid);
 
-            // Append headers
-            clipboardText.AppendLine(string.Join("\t", GetClipboardHeaders()));
-
-            foreach (var item in ParcelList)
+            // 3. Build the string on a background thread to keep the UI responsive.
+            string clipboardText = await Task.Run(() =>
             {
-                // Create row data
-                string[] row =
-                {
-                    item.ZoningType, 
-                    item.City,
-                    item.ParcelID,
-                    FormatGoogleSheetsUrRL(item.RegridUrl, "Regrid"),
-                    item.Address,
-                    item.OwnerName, 
-                    item.AppraiserUrl,
-                    item.AssessedValue.ToString(),
-                    item.Acres,
-                    FormatGoogleSheetsUrRL(item.GoogleUrl, "Maps"),
-                    FormatGoogleSheetsUrRL(item.FemaUrl, $"{item.FloodZone}"),
-                    FormatGoogleSheetsUrRL(item.ZillowUrl, "Zillow"),
-                    FormatGoogleSheetsUrRL(item.RedfinUrl, "Redfin"),
-                    FormatGoogleSheetsUrRL(item.RealtorUrl, "Realtor")
-                };
+                // Create the first line of the output with the column headers, separated by tabs.
+                var header = string.Join("\t", formatter.GetHeaders());
 
-                clipboardText.AppendLine(string.Join("\t", row));
-            }
+                // Transform each parcel into its clipboard row string.
+                var rows = ParcelList.Select(item => string.Join("\t", formatter.FormatRow(item)));
 
-            // Clipboard operation runs on UI thread
-            await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText.ToString()));
+                // Combine the header and all data rows into a single string.
+                return header + Environment.NewLine + string.Join(Environment.NewLine, rows);
+            });
+
+            // 4. Update the clipboard on the UI thread.
+            await Application.Current.Dispatcher.InvokeAsync(() => Clipboard.SetText(clipboardText));
         }
-
-        /// <summary>
-        /// The Google Sheet Headers
-        /// </summary>
-        private string[] GetClipboardHeaders() =>
-        [
-            "TYPE", "CITY", "PARCEL ID", "GIS", "ADDRESS", "OWNER NAME", "APPRAISER", "ASSESSED VALUE", "ACRES", "MAPS", "FEMA", "ZILLOW", "REDFIN", "REALTOR"
-        ];
-
-        #endregion
-
-        #region Regrid Scraping
-
-        //private async Task ScrapeParcels(List<ParcelData> parcels, CancellationToken cancellationToken)
-        //{
-        //    if (parcels == null || parcels.Count == 0)
-        //        return; // Avoid unnecessary execution if there are no parcels to process
-
-        //    // Indicate process start
-        //    IsScraping = true;
-        //    NotifyPropertiesChanged(nameof(CanScrape));
-
-        //    // Record the start time
-        //    var startTime = DateTime.Now;
-
-        //    try
-        //    {
-        //        await Task.Run(async () =>
-        //        {
-        //            // Connect to a chrome session with debugging enabled
-        //            using var scraper = new SeleniumWebDriverService(BrowserType.Chrome);
-        //            SemaphoreSlim semaphore = new(3);
-
-        //            // Open Main Regrid Page
-        //            await scraper.CaptureHTMLSource("https://app.regrid.com/us#");
-
-        //            for (int i = 0; i < parcels.Count; i++)
-        //            {
-        //                // Check if cancellation is requested and exit early if so
-        //                if (cancellationToken.IsCancellationRequested)
-        //                {
-        //                    Status = "Scraping process canceled.";
-        //                    return;
-        //                }
-
-        //                var item = parcels[i];
-        //                await semaphore.WaitAsync();
-
-        //                try
-        //                {
-        //                    Status = $"Processing {i + 1} of {parcels.Count}.";
-        //                    CurrentItem = item?.ParcelID;
-
-        //                    // Set initial Regrid URL
-        //                    item.RegridUrl = string.Format(AppConstants.URL_Regrid, Uri.EscapeDataString(item.ParcelID));
-
-        //                    // Get the HTML for the selected Parcel ID
-        //                    var htmlSource = await scraper.CaptureHTMLSource(item?.RegridUrl);
-
-        //                    // Verify something was scraped
-        //                    if (string.IsNullOrWhiteSpace(htmlSource))
-        //                    {
-        //                        item.ScrapeStatus = ScrapeStatus.NotFound;
-        //                        CurrentItem = $"NOT FOUND: {item?.ParcelID}";
-        //                        await _logger.LogAsync($"Empty response for Parcel ID: {item.ParcelID}");
-        //                        continue;
-        //                    }
-
-        //                    await _regriDataService.GetParcelData(htmlSource, item, scraper);
-        //                }
-        //                catch (WebDriverTimeoutException ex)
-        //                {
-        //                    await _logger.LogExceptionAsync(ex);
-        //                }
-        //                catch (WebDriverException ex)
-        //                {
-        //                    await _logger.LogExceptionAsync(ex);
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    await _logger.LogExceptionAsync(ex);
-        //                }
-        //                finally
-        //                {
-        //                    semaphore.Release();
-        //                    OnPropertyChanged(nameof(ParcelList));
-        //                }
-        //            }
-        //        }, cancellationToken);
-
-        //    }
-        //    finally
-        //    {
-        //        // Display ellapsed time in minutes and seconds
-        //        var elapsedTime = DateTime.Now - startTime;
-        //        Status = $"Completed in {elapsedTime.Minutes} minutes and {elapsedTime.Seconds} seconds";
-
-        //        IsScraping = false; // Indicate process end
-        //        CurrentItem = string.Empty;
-        //        NotifyPropertiesChanged(nameof(IsScraping), nameof(Status), nameof(CanScrape));
-        //    }
-        //}
 
         #endregion
     }

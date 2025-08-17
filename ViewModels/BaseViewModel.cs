@@ -218,12 +218,6 @@ namespace RegridMapper.ViewModels
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Creates a Google Sheets compatible hyperlink
-        /// </summary>
-        protected string FormatGoogleSheetsUrRL(string url, string alias) => string.IsNullOrWhiteSpace(url)
-            ? string.Empty : $"=HYPERLINK(\"{url.Replace("\"", "\"\"")}\", \"{alias}\")";
-
         protected void RaiseDialogOpen(BaseDialogViewModel dialogViewModel)
         {
             OnDialogOpen?.Invoke(this, dialogViewModel);
@@ -357,6 +351,7 @@ namespace RegridMapper.ViewModels
             _cancellationTokenSource = new CancellationTokenSource();
             await ScrapeRegrid(SelectedParcels.ToList(), _cancellationTokenSource.Token, string.Empty);
         }
+        
         #endregion
 
         #region Private Methods
