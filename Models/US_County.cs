@@ -10,13 +10,19 @@ namespace RegridMapper.Models
         public string? AuctionUrl { get; set; }
         public string? AppraiserUrl { get; set; }
         public string? DetailsURL { get; set; }
-        public string? RealAuctionURL { get; set; }
+        
+        /// <summary>
+        /// Gets the base auction URL without query parameters.
+        /// </summary>
+        public string? RealAuctionURL => AuctionUrl?.Split('?').FirstOrDefault();
+
         public bool IsSelected
         {
             get => isSelected;
             set => SetProperty(ref isSelected, value);
         }
         private bool isSelected;
+
         public bool IsEnabled
         {
             get => _isEnabled;

@@ -7,7 +7,6 @@ using RegridMapper.Core.Configuration;
 using RegridMapper.Core.Utilities;
 using SeleniumExtras.WaitHelpers;
 using System.Diagnostics;
-using System.Net.Http;
 
 namespace RegridMapper.Services
 {
@@ -67,7 +66,6 @@ namespace RegridMapper.Services
                 case BrowserType.Firefox:
                     var firefoxOptions = new FirefoxOptions();
                     if (headless) firefoxOptions.AddArgument("--headless");
-                    //if (!string.IsNullOrWhiteSpace(debuggerAddress)) firefoxOptions.DebuggerAddress = debuggerAddress;
                     return new FirefoxDriver(firefoxOptions);
 
                 case BrowserType.Edge:
@@ -109,7 +107,7 @@ namespace RegridMapper.Services
             // Ensure WebDriver process is active
             if (!IsWebDriverRunning() || _driver == null) 
             {
-                await Task.Run(() => _logger.LogAsync("WebDriver process is not running. Skipping request."));
+                await _logger.LogAsync("WebDriver process is not running. Skipping request.");
                 return null;
             }
 
@@ -141,15 +139,15 @@ namespace RegridMapper.Services
                 await Task.Delay(300);
 
                 // Find elements asynchronously
-                var elements = await Task.Run(() => _driver.FindElements(By.XPath("//table//tr")));
+                var elements = await Task.Run(() => _driver?.FindElements(By.XPath("//table//tr")));
 
                 // Extract data asynchronously using parallel processing
-                var extractedItems = await Task.Run(() => elements.AsParallel().Select(element => element.Text.Trim())
-                    .Where(text => !string.IsNullOrEmpty(text) &&
-                                   text.StartsWith("USER NAME", StringComparison.OrdinalIgnoreCase))
+                var extractedItems = await Task.Run(() => elements?.AsParallel().Select(element => element.Text.Trim())
+                    .Where(text => !string.IsNullOrEmpty(text) && text.StartsWith("USER NAME", StringComparison.OrdinalIgnoreCase))
                     .ToList());
 
-                data.AddRange(extractedItems);
+                if(extractedItems != null)
+                    data.AddRange(extractedItems);
             }
             catch (NoSuchElementException)
             {
@@ -204,11 +202,11 @@ namespace RegridMapper.Services
         {
             try
             {
-                _driver.Navigate().GoToUrl(url);
+                _driver?.Navigate().GoToUrl(url);
             }
             catch (WebDriverException ex)
             {
-                await Task.Run(() => _logger.LogExceptionAsync(ex));
+                await _logger.LogExceptionAsync(ex);
             }
         }
 
@@ -218,7 +216,7 @@ namespace RegridMapper.Services
             var processes = Process.GetProcessesByName("chromedriver"); // Change this to match your WebDriver executable
             if (processes.Length == 0)
             {
-                _logger.LogAsync("WebDriver process is not running.");
+                _logger?.LogAsync("WebDriver process is not running.");
                 return false;
             }
 
@@ -262,8 +260,6 @@ namespace RegridMapper.Services
                 return null;
             }
         }
-
-       
 
         public void Dispose()
         {
