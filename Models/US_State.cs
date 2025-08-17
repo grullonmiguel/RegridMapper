@@ -15,7 +15,6 @@ namespace RegridMapper.Models
         public string? RedemptionPeriod { get; set; }
         public string? RedemptionPeriodComments { get; set; }
         public string? Frequency { get; set; }
-        public bool CanShowCountyMap { get; set; }
         public bool IsSelected
         {
             get => isSelected;
