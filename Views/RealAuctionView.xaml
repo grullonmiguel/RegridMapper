@@ -8,50 +8,6 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <!-- Settings -->
-        <!--<Border Padding="0 16 16 0" Width="0" >
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                --><!-- Page Title --><!--
-                <TextBlock Text="Auction Settings" Style="{StaticResource TextBlocks.Heading1}" />
-                --><!-- Close Button --><!--
-                <Button Style="{StaticResource  Buttons.Close}" Command="{Binding SettingsCloseCommand}" />
-
-            </Grid>
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Width" Value="{Binding BorderWidth}" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ShowSettings}" Value="True">
-                            <DataTrigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard AccelerationRatio="0.4" DecelerationRatio="0.4">
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Border.Width)">
-                                            <SplineDoubleKeyFrame KeyTime="00:00:0.4" Value="300"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </DataTrigger.EnterActions>
-                            <DataTrigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard AccelerationRatio="0.4" DecelerationRatio="0.4">
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Border.Width)">
-                                            <SplineDoubleKeyFrame KeyTime="00:00:0.4" Value="0"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </DataTrigger.ExitActions>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-        </Border>-->
-
-        <!-- Right Column-->
         <Grid Grid.Column="1" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -75,7 +31,7 @@
                     &#8942;
                     <Button.ContextMenu>
                         <ContextMenu Style="{StaticResource ContextMenuStyle}" >
-                            <MenuItem Style="{StaticResource MenuItemStyle}" Header="Real Auction Calendar" Command="{Binding RealAuctionCalendarCommand}">
+                            <MenuItem Style="{StaticResource MenuItemStyle}" Header="Real Auction Settings" Command="{Binding RealAuctionCalendarCommand}">
                                 <MenuItem.Icon>
                                     <Viewbox Width="14" Height="14">
                                         <Path Data="{StaticResource Geometry.Settings}" />

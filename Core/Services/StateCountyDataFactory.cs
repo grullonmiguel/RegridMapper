@@ -18,8 +18,8 @@ namespace RegridMapper.Core.Services
                 // --- Florida ---
                 new() {StateID = StateCode.FL, Name = "Florida", Counties = GetFloridaCounties()},
 
-                // --- Add another state here ---
-                // new() {StateID = StateCode.CA, Name = "California", Counties = GetCaliforniaCounties()}
+                // --- Washington ---
+                new() {StateID = StateCode.WA, Name = "Washington", Counties = GetWashingtonStateCounties()}
             };
             return states;
         });
@@ -85,6 +85,21 @@ namespace RegridMapper.Core.Services
                 ("Volusia",        "https://volusia.realtaxdeed.com/index.cfm?zaction=AUCTION&Zmethod=PREVIEW&AUCTIONDATE={0}",    "http://publicaccess.vcgov.org/volusia/search/CommonSearch.aspx?mode=REALPROP&UseSearch=no&altpin={0}"),
                 ("Walton",         "https://walton.realforeclose.com/index.cfm?zaction=AUCTION&Zmethod=PREVIEW&AUCTIONDATE={0}",   "https://qpublic.schneidercorp.com/Application.aspx?AppID=835&LayerID=15172&PageTypeID=4&PageID=6829&KeyValue={0}" ),
                 ("Washington",     "https://washington.realtaxdeed.com/index.cfm?zaction=AUCTION&Zmethod=PREVIEW&AUCTIONDATE={0}", "https://qpublic.schneidercorp.com/Application.aspx?AppID=896&LayerID=16944&PageTypeID=4&PageID=7615&Q=2073331570&KeyValue={0}" )
+            };
+
+            // 2. Project the raw data into US_County objects.
+            return countyData
+                .Select(data => GetCounty(StateCode.FL, data.Item1, data.Item2, data.Item3))
+                .ToList();
+        }
+
+        private static List<US_County> GetWashingtonStateCounties()
+        {
+            // 1. Define the raw county data in a readable array of tuples.
+            // Tuple format: (Name, AuctionUrl, AppraiserUrl)
+            var countyData = new[]
+            {
+                ("King", "https://king.wa.realforeclose.com/index.cfm?zaction=AUCTION&Zmethod=PREVIEW&AUCTIONDATE={0}", "https://blue.kingcounty.com/Assessor/eRealProperty/Dashboard.aspx?ParcelNbr={0}" )
             };
 
             // 2. Project the raw data into US_County objects.

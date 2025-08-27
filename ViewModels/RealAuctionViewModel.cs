@@ -321,7 +321,23 @@ namespace RegridMapper.ViewModels
                                         // Modify Parcel ID for certain counties
                                         var parcel = currentItem.ParcelID;
                                         if (AuctionCounty == "Miami Dade")
+                                        {
+                                            // needed for the appraiser URL. Do not change the original parcel ID
                                             parcel = currentItem.ParcelID.Replace("-", "");
+                                        }
+
+                                        // Perform check for Washington State
+                                        var isWashingtonState = _calendarDialogViewModel?.StateSelected?.Name == "Washington";
+                                        if (isWashingtonState && AuctionCounty == "King")
+                                        {
+                                            // The Parcel ID for King's county is read as such: "0123039322 | 0123039322";
+                                            // Split the string by the pipe character and take the first element.
+                                            // .Trim() is used to remove any leading or trailing whitespace.
+                                            parcel = currentItem.ParcelID.Split('|')[0].Trim();
+
+                                            // MUST change the parcel ID here unlike Miami Dade above
+                                            currentItem.ParcelID = parcel;
+                                        }
 
                                         // Appraiser's office web link
                                         currentItem.AppraiserUrl = string.Format(_preformattedAppraiserUrl, Uri.EscapeDataString(parcel));
