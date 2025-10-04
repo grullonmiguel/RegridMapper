@@ -150,6 +150,20 @@ namespace RegridMapper.ViewModels
         }
         private string? _geographicCoordinate;
 
+        public string? ParcelElevationHigh
+        {
+            get => _parcelElevationHigh;
+            set => SetProperty(ref _parcelElevationHigh, value);
+        }
+        private string? _parcelElevationHigh;
+
+        public string? ParcelElevationLow
+        {
+            get => _parcelElevationLow;
+            set => SetProperty(ref _parcelElevationLow, value);
+        }
+        private string? _parcelElevationLow;
+
         public string? FloodZone
         {
             get => _floodZone;

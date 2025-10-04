@@ -24,15 +24,15 @@
     <!--#endregion-->
     
     <!--#region Colors/Brushes -->
-    <Color x:Key="Theme.Primary">#FF8EE1C7</Color>
-    <Color x:Key="Theme.Secondary">#FF52D1A9</Color>
-    <Color x:Key="Theme.Tertiary">#FF289774</Color>
-    <Color x:Key="Theme.Accent">#338EE1C7</Color>
+    <Color x:Key="Theme.Primary">#65B5A6</Color>
+    <Color x:Key="Theme.Secondary">#7CC6B8</Color>
+    <Color x:Key="Theme.Tertiary">#4FA392</Color>
+    <Color x:Key="Theme.Accent">#1d333c</Color>
     <Color x:Key="Theme.Background">#3E3E3E</Color>
 
-    <Color x:Key="Theme.BackgroundPrimary">#FF282D33</Color>
-    <Color x:Key="Theme.BackgroundSecondary">#FF373E46</Color>
-    <Color x:Key="Theme.BackgroundTertiary">#FF20262E</Color>
+    <Color x:Key="Theme.BackgroundPrimary">#FF121826</Color>
+    <Color x:Key="Theme.BackgroundSecondary">#FF1A2233</Color>
+    <Color x:Key="Theme.BackgroundTertiary">#FF222C41</Color>
 
     <Color x:Key="Theme.Foreground">#FFFFFF</Color>
     <Color x:Key="Theme.ForegroundSecondary">#DCF6ED</Color>
@@ -61,7 +61,7 @@
     <Style x:Key="Buttons.Primary" TargetType="{x:Type Button}" BasedOn="{StaticResource Buttons.Base}">
         <Setter Property="MinWidth" Value="120" />
         <Setter Property="MinHeight" Value="40" />
-        <Setter Property="Background" Value="{DynamicResource Brushes.Tertiary}"/>
+        <Setter Property="Background" Value="{DynamicResource Brushes.Primary}"/>
         <Setter Property="Foreground" Value="White" />
         <Setter Property="Template">
             <Setter.Value>
@@ -86,7 +86,6 @@
                             <Setter Property="Opacity" Value=".3"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
-
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -344,21 +343,21 @@
                         </Trigger>
                         <DataTrigger Binding="{Binding ScrapeStatus}" Value="Complete">
                             <Setter Property="IsEnabled" Value="False" />
-                            <Setter Property="Background" Value="#4B5158" />
+                            <Setter Property="Background" Value="#29364e" />
                             <Setter TargetName="StatusIcon" Property="Data" Value="{StaticResource Geometry.Checkmark}" />
                             <Setter TargetName="StatusIcon" Property="Fill" Value="{StaticResource Brushes.Primary}" />
                             <Setter TargetName="StatusText" Property="Text" Value="Success" />
                             <Setter TargetName="StatusText" Property="Foreground" Value="{StaticResource Brushes.Primary}" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding ScrapeStatus}" Value="MultipleMatches">
-                            <Setter Property="Background" Value="#4B5158" />
+                            <Setter Property="Background" Value="#29364e" />
                             <Setter TargetName="StatusIcon" Property="Data" Value="{StaticResource Geometry.Alert}" />
                             <Setter TargetName="StatusIcon" Property="Fill" Value="#F6DD65" />
                             <Setter TargetName="StatusText" Property="Text" Value="Multiple" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding ScrapeStatus}" Value="NotFound">
                             <Setter Property="IsEnabled" Value="False" />
-                            <Setter Property="Background" Value="#4B5158" />
+                            <Setter Property="Background" Value="#29364e" />
                             <Setter TargetName="StatusIcon" Property="Data" Value="{StaticResource Geometry.Error}" />
                             <Setter TargetName="StatusIcon" Property="Fill" Value="#F1948A" />
                             <Setter TargetName="StatusText" Property="Text" Value="Not Found" />
@@ -503,7 +502,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="BorderThickness" Value="0 1"/>
         <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}" />
-        <Setter Property="Background" Value="#4B5158" />
+        <Setter Property="Background" Value="#222c41" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="Template">
             <Setter.Value>
@@ -595,7 +594,7 @@
     <Style TargetType="{x:Type DataGridCell}" x:Key="DataGridCellAlternate">
         <Setter Property="Height" Value="32"/>
         <Setter Property="BorderThickness" Value="0 0 0 .5"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Brushes.Primary}" />
+        <Setter Property="BorderBrush" Value="#29364e" />
         <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}" />
         <Setter Property="Foreground" Value="{StaticResource Brushes.ForegroundSecondary}" />
         <Setter Property="Template">
@@ -1183,7 +1182,7 @@
                         <TextBlock 
                             Margin="8 0 0 0"
                             Text="Virtual Assistant" 
-                            Foreground="{StaticResource Brushes.Primary}" 
+                            Foreground="{StaticResource Brushes.Foreground}" 
                             Style="{StaticResource TextBlocks.Heading1}"/>
 
                     </StackPanel>
@@ -1247,27 +1246,30 @@
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         Padding="{TemplateBinding Padding}">
-                        <Grid>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Grid>
+                        <TextBlock
+                            Text="{TemplateBinding Content}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Foreground="{TemplateBinding Foreground}" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
 
         <!-- Default Appearance -->
-        <Setter Property="Foreground" Value="#FFFFFF"/>
+        <Setter Property="Foreground" Value="#94a3b8"/>
         <Setter Property="FontSize" Value="{StaticResource Fonts.Medium}"/>
         <Setter Property="Padding" Value="16,6"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="BorderThickness" Value="1"/>
 
         <Style.Triggers>
             <!-- Hover Effect -->
             <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="#ffffff"/>
                 <Setter Property="Background" Value="{StaticResource Brushes.BackgroundSecondary}"/>
             </Trigger>
 
@@ -1278,9 +1280,9 @@
 
             <!-- Selected Effect -->
             <Trigger Property="IsChecked" Value="True">
-                <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource Brushes.Accent}"/>
-                <Setter Property="Foreground" Value="{StaticResource Brushes.Primary}"/>
+                <Setter Property="Background" Value="#1d333c"/>
+                <Setter Property="BorderBrush" Value="#12b981"/>
+                <Setter Property="Foreground" Value="#12b981"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -1565,8 +1567,9 @@
                             <Setter Property="Background" Value="{StaticResource Brushes.Accent}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="path" Property="StrokeThickness" Value="1"/>
-                            <Setter TargetName="path" Property="Fill" Value="{StaticResource Brushes.Secondary}"/>
+                            <Setter TargetName="path" Property="StrokeThickness" Value="2"/>
+                            <Setter TargetName="path" Property="Stroke" Value="{StaticResource Brushes.Primary}"/>
+                            <Setter TargetName="path" Property="Fill" Value="{StaticResource Brushes.Accent}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="path" Property="Fill" Value="Transparent"/>

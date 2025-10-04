@@ -26,12 +26,12 @@ namespace RegridMapper.Core.Services
                     // Insert columns at specific positions or add to the end as needed.
                     _columns = new List<(string Header, Func<ParcelData, string>)>
                     {
-                        ("OPENING BID", p => p.AskingPrice?.ToString() ?? ""),
                         ("PARCEL ID", p => p.ParcelID),
                         ("GIS", p => FormatGoogleSheetsUrRL(p.RegridUrl, "Regrid")),
-                        ("ADDRESS", p => p.Address),
                         ("APPRAISER", p => FormatGoogleSheetsUrRL(p.AppraiserUrl, "Appraiser")),
-                        ("ASSESSED VALUE",  p => p.AssessedValue?.ToString() ?? "")
+                        ("STARTING BID", p => p.AskingPrice?.ToString() ?? ""),
+                        ("ASSESSED VALUE",  p => p.AssessedValue?.ToString() ?? ""),
+                        ("ADDRESS", p => p.Address)
                     };
                     break;
                 case ClipboardHeaderType.Regrid:
@@ -40,23 +40,25 @@ namespace RegridMapper.Core.Services
                     // Insert columns at specific positions or add to the end as needed.
                     _columns = new List<(string Header, Func<ParcelData, string>)>
                     {
-                        ("ZONING TYPE", p => p.ZoningType),
-                        ("ZONING CODE", p => p.ZoningCode),
+                        ("TYPE", p => p.ZoningType),
+                        ("ZONING", p => p.ZoningCode),
                         ("CITY", p => p.City),
                         ("PARCEL ID", p => p.ParcelID),
                         ("GIS", p => FormatGoogleSheetsUrRL(p.RegridUrl, "Regrid")),
-                        ("ADDRESS", p => p.Address),
                         ("OWNER NAME", p => p.OwnerName),
                         ("APPRAISER", p => FormatGoogleSheetsUrRL(p.AppraiserUrl, "Appraiser")),
+                        ("STARTING BID", p => p.AskingPrice?.ToString() ?? ""),
                         ("ASSESSED VALUE",  p => p.AssessedValue?.ToString() ?? ""),
                         ("ACRES", p => p.Acres),
-                        ("MAPS", p => FormatGoogleSheetsUrRL(p.GoogleUrl, "Maps")),
+                        ("MAPS", p => FormatGoogleSheetsUrRL(p.GoogleUrl, p.Address)),
                         ("FEMA", p => FormatGoogleSheetsUrRL(p.FemaUrl, $"{p.FloodZone}")),
                         ("ZILLOW", p => FormatGoogleSheetsUrRL(p.ZillowUrl, "Zillow")),
                         ("REDFIN", p => FormatGoogleSheetsUrRL(p.RedfinUrl, "Redfin")),
                         ("REALTOR", p => FormatGoogleSheetsUrRL(p.RealtorUrl, "Realtor")),
-                        ("GEOGRAPHIC COORDINATES", p => p.GeographicCoordinate),
-                        ("OPENING BID", p => p.AskingPrice?.ToString() ?? "")
+                        ("COORDINATES", p => p.GeographicCoordinate),
+                        ("ELEVATION", p => !string.IsNullOrWhiteSpace(p.ParcelElevationHigh) && !string.IsNullOrWhiteSpace(p.ParcelElevationLow)
+                                            ? $"{p.ParcelElevationHigh} High - {p.ParcelElevationLow} Low"
+                                            : "N/A")
                     };
                     break;
             }

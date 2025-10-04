@@ -295,7 +295,7 @@
            
             <WrapPanel Grid.Row="2" HorizontalAlignment="Right">
                 <!-- Scrape Status -->
-                <TextBlock Foreground="#FDE997" VerticalAlignment="Center" Padding="0 8 0 0"  >
+                <TextBlock Foreground="#f87171" VerticalAlignment="Center" Padding="0 8 0 0"  >
                     <Run Text="{Binding Status}" />
                 </TextBlock>
 

@@ -101,6 +101,8 @@ namespace RegridMapper.Core.Services
                 await UpdateElement(item, "OwnerName", ShouldScrapeOwner, scraper, "Owner",  "Enhanced Owner", "Owner Name (Assessor)");
                 await UpdateElement(item, "GeographicCoordinate", ShouldScrapeCoordinates, scraper, "Centroid Coordinates",  "Centroid Coordinates");
                 await UpdateElement(item, "FloodZone", ShouldScrapeFloodZone, scraper, "FEMA Flood Zone",  "FEMA NRI Risk Rating");
+                await UpdateElement(item, "ParcelElevationHigh", true, scraper, "Highest Parcel Elevation", "Highest Parcel Elevation");
+                await UpdateElement(item, "ParcelElevationLow", true, scraper, "Lowest Parcel Elevation", "Lowest Parcel Elevation");
 
                 if (string.IsNullOrWhiteSpace(item.ParcelID))
                     item.ParcelID = originalParcelID;

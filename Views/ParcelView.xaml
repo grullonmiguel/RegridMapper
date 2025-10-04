@@ -172,7 +172,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Type" Binding="{Binding ZoningType}" Width="Auto" />
+                            <DataGridTextColumn Header="Zoning" Binding="{Binding ZoningCode}" Width="Auto" />
                             <!--<DataGridTextColumn Header="Parcel ID" Binding="{Binding ParcelID}" Width="200" />-->
                             <DataGridTemplateColumn Header="Parcel ID" Width="Auto">
                                 <DataGridTemplateColumn.CellTemplate>
@@ -188,7 +188,7 @@
                                     <Binding Path="RegridUrl"/>
                                 </DataGridTemplateColumn.ClipboardContentBinding>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Address" Binding="{Binding Address}" />
+                            <!--<DataGridTextColumn Header="Address" Binding="{Binding Address}" />-->
                             <DataGridTextColumn Header="Owner" Binding="{Binding OwnerName}" MaxWidth="160" />
                             <DataGridTextColumn Header="Assessed" Binding="{Binding AssessedValue, StringFormat=C}" />
                             <DataGridTextColumn Header="Acres" Binding="{Binding Acres}" />
@@ -207,11 +207,11 @@
                                     <Binding Path="FemaUrl"/>
                                 </DataGridTemplateColumn.ClipboardContentBinding>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Maps" >
+                            <DataGridTemplateColumn Header="Address" >
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button 
-                                            Content="Maps"
+                                            Content="{Binding Address}"
                                             Style="{StaticResource Buttons.Hyperlink}"
                                             Command="{Binding DataContext.NavigateToGoogleMapsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                             CommandParameter="{Binding}" />
@@ -313,7 +313,7 @@
 
             <WrapPanel Grid.Row="2" HorizontalAlignment="Right">
                 <!-- Running-->
-                <TextBlock Foreground="#FDE997" VerticalAlignment="Center" Padding="0 8 0 0"  >
+                <TextBlock Foreground="#f87171" VerticalAlignment="Center" Padding="0 8 0 0"  >
                     <Run Text="{Binding Status}" />
                 </TextBlock>
 
